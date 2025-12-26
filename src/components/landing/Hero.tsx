@@ -54,15 +54,15 @@ const Hero = () => {
           >
             <Link to="/dashboard">
               <Button variant="hero" size="xl" className="group">
-                Mulai Sekarang
+                Coba Gratis
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Link to="/dashboard">
+            <a href="#features">
               <Button variant="hero-outline" size="xl">
-                Lihat Demo
+                Lihat Fitur
               </Button>
-            </Link>
+            </a>
           </div>
 
           {/* Feature Pills */}

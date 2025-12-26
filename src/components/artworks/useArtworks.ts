@@ -1,0 +1,301 @@
+import { useState, useRef, useCallback, useMemo } from "react";
+import { Artwork, ArtworkFormData, ArtworkFormErrors, ViewMode, ArtworkStatus } from "./types";
+import { initialArtworks, initialFormData } from "./constants";
+
+export const useArtworks = () => {
+  const [view, setView] = useState<ViewMode>('grid');
+  const [filter, setFilter] = useState<string>('all');
+  const [artworks, setArtworks] = useState<Artwork[]>(initialArtworks);
+  
+  // Dialog states
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  
+  const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
+  const [formData, setFormData] = useState<ArtworkFormData>(initialFormData);
+  const [formErrors, setFormErrors] = useState<ArtworkFormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Filtered artworks
+  const filteredArtworks = useMemo(() => {
+    return filter === 'all' 
+      ? artworks 
+      : artworks.filter(a => a.status === filter);
+  }, [artworks, filter]);
+
+  // Handle form input changes
+  const handleInputChange = useCallback((field: keyof ArtworkFormData, value: string | number) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (formErrors[field as keyof ArtworkFormErrors]) {
+      setFormErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+  }, [formErrors]);
+
+  // Handle image upload
+  const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        setFormErrors(prev => ({ ...prev, image: "File harus berupa gambar" }));
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setFormErrors(prev => ({ ...prev, image: "Ukuran gambar maksimal 5MB" }));
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setImagePreview(result);
+        setFormData(prev => ({ ...prev, image: result }));
+        setFormErrors(prev => ({ ...prev, image: undefined }));
+      };
+      reader.readAsDataURL(file);
+    }
+  }, []);
+
+  // Handle image URL input
+  const handleImageUrlChange = useCallback((url: string) => {
+    setFormData(prev => ({ ...prev, image: url }));
+    if (url) {
+      setImagePreview(url);
+    } else {
+      setImagePreview(null);
+    }
+    setFormErrors(prev => ({ ...prev, image: undefined }));
+  }, []);
+
+  // Remove image preview
+  const removeImagePreview = useCallback(() => {
+    setImagePreview(null);
+    setFormData(prev => ({ ...prev, image: "" }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }, []);
+
+  // Validate form
+  const validateForm = useCallback((): boolean => {
+    const errors: ArtworkFormErrors = {};
+
+    if (!formData.title.trim()) {
+      errors.title = "Judul karya wajib diisi";
+    }
+
+    if (!formData.medium) {
+      errors.medium = "Medium wajib dipilih";
+    }
+
+    if (!formData.dimensions.trim()) {
+      errors.dimensions = "Dimensi wajib diisi";
+    }
+
+    if (!formData.status) {
+      errors.status = "Status wajib dipilih";
+    }
+
+    const year = typeof formData.year === 'string' ? parseInt(formData.year) : formData.year;
+    if (!year || isNaN(year) || year < 1900 || year > new Date().getFullYear()) {
+      errors.year = "Tahun tidak valid";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  }, [formData]);
+
+  // Reset form
+  const resetForm = useCallback(() => {
+    setFormData(initialFormData);
+    setFormErrors({});
+    setImagePreview(null);
+    setSelectedArtwork(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }, []);
+
+  // Handle Add artwork submit
+  const handleAddSubmit = useCallback(async () => {
+    if (!validateForm()) return;
+
+    setIsSubmitting(true);
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    const priceValue = typeof formData.price === 'string' 
+      ? parseInt(formData.price.replace(/\D/g, '')) 
+      : formData.price;
+    const yearValue = typeof formData.year === 'string' 
+      ? parseInt(formData.year) 
+      : formData.year;
+
+    const newArtwork: Artwork = {
+      id: Math.max(...artworks.map(a => a.id), 0) + 1,
+      title: formData.title,
+      medium: formData.medium,
+      dimensions: formData.dimensions,
+      status: formData.status as ArtworkStatus,
+      price: priceValue || null,
+      year: yearValue,
+      image: formData.image || "https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400",
+      description: formData.description,
+    };
+
+    setArtworks(prev => [newArtwork, ...prev]);
+    setIsSubmitting(false);
+    setIsAddDialogOpen(false);
+    resetForm();
+  }, [formData, artworks, validateForm, resetForm]);
+
+  // Handle Edit artwork submit
+  const handleEditSubmit = useCallback(async () => {
+    if (!validateForm() || !selectedArtwork) return;
+
+    setIsSubmitting(true);
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    const priceValue = typeof formData.price === 'string' 
+      ? parseInt(formData.price.replace(/\D/g, '')) 
+      : formData.price;
+    const yearValue = typeof formData.year === 'string' 
+      ? parseInt(formData.year) 
+      : formData.year;
+
+    const updatedArtwork: Artwork = {
+      ...selectedArtwork,
+      title: formData.title,
+      medium: formData.medium,
+      dimensions: formData.dimensions,
+      status: formData.status as ArtworkStatus,
+      price: priceValue || null,
+      year: yearValue,
+      image: formData.image || selectedArtwork.image,
+      description: formData.description,
+    };
+
+    setArtworks(prev => prev.map(a => a.id === selectedArtwork.id ? updatedArtwork : a));
+    setIsSubmitting(false);
+    setIsEditDialogOpen(false);
+    resetForm();
+  }, [formData, selectedArtwork, validateForm, resetForm]);
+
+  // Handle Delete artwork
+  const handleDeleteConfirm = useCallback(() => {
+    if (!selectedArtwork) return;
+
+    setArtworks(prev => prev.filter(a => a.id !== selectedArtwork.id));
+    setIsDeleteDialogOpen(false);
+    setSelectedArtwork(null);
+  }, [selectedArtwork]);
+
+  // Open View dialog
+  const openViewDialog = useCallback((artwork: Artwork) => {
+    setSelectedArtwork(artwork);
+    setIsViewDialogOpen(true);
+  }, []);
+
+  // Open Edit dialog
+  const openEditDialog = useCallback((artwork: Artwork) => {
+    setSelectedArtwork(artwork);
+    setFormData({
+      title: artwork.title,
+      medium: artwork.medium,
+      dimensions: artwork.dimensions,
+      status: artwork.status,
+      price: artwork.price?.toString() || "",
+      year: artwork.year.toString(),
+      image: artwork.image,
+      description: artwork.description || "",
+    });
+    setImagePreview(artwork.image);
+    setIsEditDialogOpen(true);
+  }, []);
+
+  // Open Delete dialog
+  const openDeleteDialog = useCallback((artwork: Artwork) => {
+    setSelectedArtwork(artwork);
+    setIsDeleteDialogOpen(true);
+  }, []);
+
+  // View to Edit transition
+  const handleViewToEdit = useCallback(() => {
+    setIsViewDialogOpen(false);
+    if (selectedArtwork) {
+      openEditDialog(selectedArtwork);
+    }
+  }, [selectedArtwork, openEditDialog]);
+
+  // Dialog close handlers
+  const handleAddDialogClose = useCallback((open: boolean) => {
+    if (!open) resetForm();
+    setIsAddDialogOpen(open);
+  }, [resetForm]);
+
+  const handleViewDialogClose = useCallback((open: boolean) => {
+    if (!open) setSelectedArtwork(null);
+    setIsViewDialogOpen(open);
+  }, []);
+
+  const handleEditDialogClose = useCallback((open: boolean) => {
+    if (!open) resetForm();
+    setIsEditDialogOpen(open);
+  }, [resetForm]);
+
+  const handleDeleteDialogClose = useCallback((open: boolean) => {
+    if (!open) setSelectedArtwork(null);
+    setIsDeleteDialogOpen(open);
+  }, []);
+
+  return {
+    // State
+    view,
+    filter,
+    artworks,
+    filteredArtworks,
+    selectedArtwork,
+    formData,
+    formErrors,
+    isSubmitting,
+    imagePreview,
+    fileInputRef,
+    
+    // Dialog states
+    isAddDialogOpen,
+    isViewDialogOpen,
+    isEditDialogOpen,
+    isDeleteDialogOpen,
+    
+    // Actions
+    setView,
+    setFilter,
+    setIsAddDialogOpen,
+    handleInputChange,
+    handleImageUpload,
+    handleImageUrlChange,
+    removeImagePreview,
+    
+    // CRUD operations
+    handleAddSubmit,
+    handleEditSubmit,
+    handleDeleteConfirm,
+    openViewDialog,
+    openEditDialog,
+    openDeleteDialog,
+    handleViewToEdit,
+    
+    // Dialog close handlers
+    handleAddDialogClose,
+    handleViewDialogClose,
+    handleEditDialogClose,
+    handleDeleteDialogClose,
+
+    // Legacy compatibility (for AddArtworkDialog)
+    isDialogOpen: isAddDialogOpen,
+    handleDialogClose: handleAddDialogClose,
+    handleSubmit: handleAddSubmit,
+  };
+};
