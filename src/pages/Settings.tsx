@@ -19,6 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 
 const Settings = () => {
   const { user, signOut } = useAuth();
@@ -91,6 +92,7 @@ const Settings = () => {
   );
 
   return (
+    <DashboardLayout>
     <div className="max-w-4xl mx-auto space-y-8 pb-10">
       <div className="space-y-2 animate-fade-in">
         <h1 className="text-3xl font-display font-bold text-foreground">Pengaturan</h1>
@@ -104,14 +106,16 @@ const Settings = () => {
             <User className="w-10 h-10 text-primary" />
           </div>
           <div className="flex-1 space-y-1">
-            <h2 className="text-2xl font-display font-bold">{user?.user_metadata?.full_name || "Pengguna"}</h2>
-            <p className="text-muted-foreground">{user?.email}</p>
+            <h2 className="text-2xl font-display font-bold">{user?.user_metadata?.full_name || user?.email?.split('@')[0] || "Pengguna"}</h2>
+            <p className="text-muted-foreground">{user?.email || "Email tidak tersedia"}</p>
             <div className="flex gap-2 pt-2">
+              {user?.email_confirmed_at && (
+                <span className="px-2.5 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-xs font-medium text-green-500">
+                  Email Terverifikasi
+                </span>
+              )}
               <span className="px-2.5 py-0.5 rounded-full bg-primary/20 border border-primary/30 text-xs font-medium text-primary">
                 Free Plan
-              </span>
-              <span className="px-2.5 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-xs font-medium text-green-500">
-                Verified
               </span>
             </div>
           </div>
@@ -203,6 +207,7 @@ const Settings = () => {
         </div>
       </div>
     </div>
+    </DashboardLayout>
   );
 };
 

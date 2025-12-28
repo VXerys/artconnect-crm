@@ -1,4 +1,6 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { useDashboardData } from "@/hooks/useDashboardData";
+import { Loader2 } from "lucide-react";
 
 // Dashboard Components
 import {
@@ -10,32 +12,63 @@ import {
   QuickActions,
   SalesChart,
   ArtworkStatusSummary,
-  dashboardStats,
-  recentArtworks,
-  recentContacts,
-  recentActivities,
   quickActions,
-  salesChartData,
 } from "@/components/dashboard";
 
 const Dashboard = () => {
-  // Calculate artwork status counts (in real app, this would come from API)
-  const artworkStatusCounts = {
-    concept: 4,
-    wip: 6,
-    finished: 8,
-    sold: 6,
-  };
-  const totalArtworks = Object.values(artworkStatusCounts).reduce((a, b) => a + b, 0);
+  const {
+    userName,
+    stats,
+    recentArtworks,
+    recentContacts,
+    recentActivities,
+    salesChartData,
+    artworkStatusCounts,
+    totalArtworks,
+    totalSales,
+    loading,
+    error,
+  } = useDashboardData();
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center space-y-4">
+            <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
+            <p className="text-muted-foreground">Memuat dashboard...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center space-y-4">
+            <p className="text-destructive">{error}</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="text-primary hover:underline"
+            >
+              Coba lagi
+            </button>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Hero Section */}
         <DashboardHero 
-          userName="Seniman"
+          userName={userName}
           totalArtworks={totalArtworks}
-          totalSales="Rp 45.5M"
+          totalSales={totalSales}
         />
 
         {/* Stats Grid */}
@@ -46,7 +79,7 @@ const Dashboard = () => {
               Statistik Utama
             </h2>
           </div>
-          <StatsGrid stats={dashboardStats} />
+          <StatsGrid stats={stats} />
         </section>
 
         {/* Recent Artworks - Full width */}

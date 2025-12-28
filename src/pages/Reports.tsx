@@ -1,6 +1,8 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { toast } from "sonner";
+import { useReportsData } from "@/hooks/useReportsData";
+import { Loader2 } from "lucide-react";
 
 // Reports Components
 import {
@@ -12,16 +14,25 @@ import {
   SalesOverviewChart,
   ScheduledReportsList,
   reportTypes,
-  recentReports,
-  reportMetrics,
+  recentReports as staticRecentReports,
   scheduledReports as initialScheduledReports,
-  salesSummary,
   CustomReportFormData,
 } from "@/components/reports";
 
 const Reports = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [scheduledReports, setScheduledReports] = useState(initialScheduledReports);
+  const [recentReports, setRecentReports] = useState(staticRecentReports);
+
+  // Fetch real data from Supabase
+  const {
+    metrics,
+    salesSummary,
+    totalReports,
+    lastReportDate,
+    loading,
+    error,
+  } = useReportsData();
 
   // Handle quick report generation
   const handleGenerateReport = (reportId: string, format: "csv" | "pdf") => {
@@ -34,6 +45,18 @@ const Reports = () => {
       toast.success("Laporan berhasil dibuat!", {
         description: `File ${reportId}_report.${format} siap didownload`,
       });
+
+      // Add to recent reports
+      const newReport = {
+        id: Date.now(),
+        name: `${reportId}_${new Date().toISOString().split('T')[0]}.${format}`,
+        type: reportId as 'inventory' | 'sales' | 'contacts' | 'activity',
+        date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+        size: `${Math.floor(Math.random() * 100 + 20)} KB`,
+        format: format as 'csv' | 'pdf' | 'xlsx',
+        status: 'completed' as const,
+      };
+      setRecentReports(prev => [newReport, ...prev].slice(0, 10));
     }, 1500);
   };
 
@@ -51,6 +74,18 @@ const Reports = () => {
       toast.success("Laporan kustom berhasil dibuat!", {
         description: "File siap didownload",
       });
+
+      // Add to recent reports
+      const newReport = {
+        id: Date.now(),
+        name: `custom_${formData.reportType}_${new Date().toISOString().split('T')[0]}.${formData.format}`,
+        type: formData.reportType as 'inventory' | 'sales' | 'contacts' | 'activity',
+        date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+        size: `${Math.floor(Math.random() * 100 + 50)} KB`,
+        format: formData.format as 'csv' | 'pdf' | 'xlsx',
+        status: 'completed' as const,
+      };
+      setRecentReports(prev => [newReport, ...prev].slice(0, 10));
     }, 2000);
   };
 
@@ -71,6 +106,7 @@ const Reports = () => {
 
   // Handle delete recent report
   const handleDeleteReport = (reportId: number) => {
+    setRecentReports(prev => prev.filter(r => r.id !== reportId));
     toast.success("Laporan dihapus");
   };
 
@@ -98,13 +134,46 @@ const Reports = () => {
     toast.success("Jadwal dihapus");
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center space-y-4">
+            <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto" />
+            <p className="text-muted-foreground">Memuat data laporan...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center space-y-4">
+            <p className="text-destructive">{error}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="text-primary hover:underline"
+            >
+              Coba lagi
+            </button>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Hero Section */}
         <ReportsHero 
-          totalReports={recentReports.length}
-          lastReportDate="16 Des 2024"
+          totalReports={recentReports.length || totalReports}
+          lastReportDate={recentReports[0]?.date || lastReportDate}
         />
 
         {/* Metrics Grid */}
@@ -115,7 +184,7 @@ const Reports = () => {
               Ringkasan Performa
             </h2>
           </div>
-          <ReportMetricsGrid metrics={reportMetrics} />
+          <ReportMetricsGrid metrics={metrics} />
         </section>
 
         {/* Report Types Grid */}

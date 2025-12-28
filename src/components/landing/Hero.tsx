@@ -1,13 +1,28 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Palette, Users, BarChart3 } from "lucide-react";
+import { ArrowRight, Palette, Users, BarChart3, LayoutDashboard } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import heroBg from "@/assets/hero-bg.jpg";
+import SplitText from "@/components/ui/SplitText";
 
 const Hero = () => {
+  const { user } = useAuth();
+
   return (
     <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-background to-orange-500/10">
+      {/* Background Image */}
+      <div className="absolute inset-0">
+        <img 
+          src={heroBg} 
+          alt="ArtConnect Gallery" 
+          className="w-full h-full object-cover"
+          loading="eager"
+          // @ts-ignore
+          fetchpriority="high"
+        />
+        {/* Dark overlay for better text readability */}
         <div className="absolute inset-0 bg-background/85" />
+        {/* Gradient overlay for depth */}
         <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-transparent to-background" />
       </div>
 
@@ -21,14 +36,41 @@ const Hero = () => {
             <span>CRM Khusus untuk Seniman Visual</span>
           </div>
 
-          {/* Main Title */}
-          <h1 
-            className="font-display text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight animate-slide-up"
-            style={{ animationDelay: "0.1s" }}
+          {/* Main Title with SplitText Animation */}
+          {/* Main Title with SplitText Animation */}
+          <div 
+            className="font-display text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight"
+            style={{ willChange: "transform" }}
           >
-            <span className="text-foreground">Art</span>
-            <span className="text-gradient">Connect</span>
-          </h1>
+            <SplitText
+              text="Art"
+              tag="div"
+              className="text-foreground font-display font-bold inline-block mr-2"
+              delay={70}
+              duration={1.0}
+              ease="power3.out"
+              splitType="chars"
+              from={{ opacity: 0, y: 40 }}
+              to={{ opacity: 1, y: 0 }}
+              threshold={0.1}
+              rootMargin="-50px"
+              textAlign="center"
+            />
+            <SplitText
+              text="Connect"
+              tag="div"
+              className="text-primary font-display font-bold inline-block"
+              delay={70}
+              duration={1.0}
+              ease="power3.out"
+              splitType="chars"
+              from={{ opacity: 0, y: 40 }}
+              to={{ opacity: 1, y: 0 }}
+              threshold={0.1}
+              rootMargin="-50px"
+              textAlign="center"
+            />
+          </div>
 
           {/* Subtitle */}
           <p 
@@ -39,22 +81,43 @@ const Hero = () => {
             dan kembangkan karier seni Anda dalam satu platform terpadu.
           </p>
 
-          {/* CTA Buttons */}
+          {/* CTA Buttons - Changes based on auth state */}
           <div 
             className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 animate-slide-up"
             style={{ animationDelay: "0.3s" }}
           >
-            <Link to="/dashboard">
-              <Button variant="hero" size="xl" className="group">
-                Coba Gratis
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-            <a href="#features">
-              <Button variant="hero-outline" size="xl">
-                Lihat Fitur
-              </Button>
-            </a>
+            {user ? (
+              // User is logged in - show dashboard button
+              <>
+                <Link to="/dashboard">
+                  <Button variant="hero" size="xl" className="group gap-2">
+                    <LayoutDashboard className="w-5 h-5" />
+                    Buka Dashboard
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+                <a href="#features">
+                  <Button variant="hero-outline" size="xl">
+                    Lihat Fitur
+                  </Button>
+                </a>
+              </>
+            ) : (
+              // User is not logged in - show register/login buttons
+              <>
+                <Link to="/auth/register">
+                  <Button variant="hero" size="xl" className="group">
+                    Coba Gratis
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+                <a href="#features">
+                  <Button variant="hero-outline" size="xl">
+                    Lihat Fitur
+                  </Button>
+                </a>
+              </>
+            )}
           </div>
 
           {/* Feature Pills */}

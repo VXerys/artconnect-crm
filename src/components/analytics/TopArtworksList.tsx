@@ -34,72 +34,86 @@ export const TopArtworksList = ({ artworks, maxHeight = "320px" }: TopArtworksLi
 
       {/* Artworks List - Scrollable */}
       <CardContent className="p-0 flex-1 overflow-hidden">
-        <div 
-          className="divide-y divide-border overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent"
-          style={{ maxHeight }}
-        >
-          {artworks.map((artwork, index) => (
-            <div 
-              key={artwork.id}
-              className={cn(
-                "group flex items-center gap-4 px-6 py-4",
-                "hover:bg-secondary/30 transition-all duration-200"
-              )}
-            >
-              {/* Rank */}
-              <div className={cn(
-                "w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm",
-                index === 0 ? "bg-amber-500/20 text-amber-400" :
-                index === 1 ? "bg-slate-400/20 text-slate-400" :
-                index === 2 ? "bg-orange-600/20 text-orange-500" :
-                "bg-secondary text-muted-foreground"
-              )}>
-                #{index + 1}
-              </div>
-
-              {/* Thumbnail */}
-              <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-secondary">
-                {artwork.image ? (
-                  <img 
-                    src={artwork.image} 
-                    alt={artwork.title}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Award className="w-5 h-5 text-muted-foreground" />
-                  </div>
-                )}
-              </div>
-
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <h4 className="font-medium truncate group-hover:text-primary transition-colors">
-                  {artwork.title}
-                </h4>
-                <p className="text-xs text-muted-foreground">{artwork.medium}</p>
-              </div>
-
-              {/* Stats */}
-              <div className="flex items-center gap-4 text-xs">
-                <div className="flex items-center gap-1.5 text-muted-foreground">
-                  <Eye className="w-3.5 h-3.5" />
-                  <span>{artwork.views}</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-muted-foreground">
-                  <MessageCircle className="w-3.5 h-3.5" />
-                  <span>{artwork.inquiries}</span>
-                </div>
-                {artwork.sales > 0 && (
-                  <div className="flex items-center gap-1.5 text-emerald-400">
-                    <ShoppingBag className="w-3.5 h-3.5" />
-                    <span>{formatCompactCurrency(artwork.revenue)}</span>
-                  </div>
-                )}
-              </div>
+        {artworks.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
+            <div className="p-3 rounded-xl bg-secondary/50 mb-4">
+              <Award className="w-8 h-8 text-muted-foreground" />
             </div>
-          ))}
-        </div>
+            <p className="text-muted-foreground text-sm">
+              Belum ada karya seni
+            </p>
+            <p className="text-muted-foreground/60 text-xs mt-1">
+              Tambahkan karya untuk melihat performa
+            </p>
+          </div>
+        ) : (
+          <div 
+            className="divide-y divide-border overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent"
+            style={{ maxHeight }}
+          >
+            {artworks.map((artwork, index) => (
+              <div 
+                key={artwork.id}
+                className={cn(
+                  "group flex items-center gap-4 px-6 py-4",
+                  "hover:bg-secondary/30 transition-all duration-200"
+                )}
+              >
+                {/* Rank */}
+                <div className={cn(
+                  "w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm",
+                  index === 0 ? "bg-amber-500/20 text-amber-400" :
+                  index === 1 ? "bg-slate-400/20 text-slate-400" :
+                  index === 2 ? "bg-orange-600/20 text-orange-500" :
+                  "bg-secondary text-muted-foreground"
+                )}>
+                  #{index + 1}
+                </div>
+
+                {/* Thumbnail */}
+                <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-secondary">
+                  {artwork.image ? (
+                    <img 
+                      src={artwork.image} 
+                      alt={artwork.title}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Award className="w-5 h-5 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium truncate group-hover:text-primary transition-colors">
+                    {artwork.title}
+                  </h4>
+                  <p className="text-xs text-muted-foreground">{artwork.medium}</p>
+                </div>
+
+                {/* Stats */}
+                <div className="flex items-center gap-4 text-xs">
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>{artwork.views}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    <span>{artwork.inquiries}</span>
+                  </div>
+                  {artwork.sales > 0 && (
+                    <div className="flex items-center gap-1.5 text-emerald-400">
+                      <ShoppingBag className="w-3.5 h-3.5" />
+                      <span>{formatCompactCurrency(artwork.revenue)}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

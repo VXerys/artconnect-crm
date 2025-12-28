@@ -1,9 +1,15 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { contactsService } from "@/lib/services/contacts.service";
+import { activityService } from "@/lib/services/activity.service";
 import { Contact, ContactFormData, ContactFormErrors, ContactType, ContactsByType } from "./types";
-import { initialContacts, initialFormData, isValidEmail, isValidPhone } from "./constants";
+import { initialFormData, isValidEmail, isValidPhone } from "./constants";
+import { toast } from "sonner";
 
 export const useContacts = () => {
-  const [contacts, setContacts] = useState<Contact[]>(initialContacts);
+  const { user } = useAuth();
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -14,6 +20,47 @@ export const useContacts = () => {
   const [formData, setFormData] = useState<ContactFormData>(initialFormData);
   const [formErrors, setFormErrors] = useState<ContactFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch contacts from Supabase
+  const fetchContacts = useCallback(async () => {
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const result = await contactsService.getAll(user.id, {}, { limit: 100 });
+      
+      // Map database contacts to local Contact type
+      const mappedContacts: Contact[] = result.data.map(dbContact => ({
+        id: dbContact.id as unknown as number,
+        name: dbContact.name,
+        type: (dbContact.type || 'collector') as ContactType,
+        email: dbContact.email || '',
+        phone: dbContact.phone || '',
+        location: dbContact.location || '',
+        rating: dbContact.rating || 5,
+        lastContact: formatLastContact(dbContact.last_contact_at || dbContact.created_at),
+        notes: dbContact.notes || undefined,
+        website: dbContact.website || undefined,
+        address: dbContact.address || undefined,
+        dbId: dbContact.id, // Keep original string ID for database operations
+      }));
+      
+      setContacts(mappedContacts);
+    } catch (error) {
+      console.error('Error fetching contacts:', error);
+      toast.error('Gagal memuat kontak');
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.id]);
+
+  // Initial fetch
+  useEffect(() => {
+    fetchContacts();
+  }, [fetchContacts]);
 
   // Filtered contacts
   const filteredContacts = useMemo(() => {
@@ -84,65 +131,99 @@ export const useContacts = () => {
 
   // Add contact
   const handleAddContact = useCallback(async () => {
-    if (!validateForm()) return;
+    if (!validateForm() || !user?.id) return;
 
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 500));
 
-    const newContact: Contact = {
-      id: Math.max(...contacts.map(c => c.id), 0) + 1,
-      name: formData.name,
-      type: formData.type as ContactType,
-      email: formData.email,
-      phone: formData.phone,
-      location: formData.location,
-      rating: formData.rating,
-      lastContact: "Baru ditambahkan",
-      notes: formData.notes || undefined,
-      website: formData.website || undefined,
-      address: formData.address || undefined,
-    };
+    try {
+      const newContact = await contactsService.create({
+        user_id: user.id,
+        name: formData.name,
+        type: formData.type as ContactType,
+        email: formData.email,
+        phone: formData.phone,
+        location: formData.location,
+        rating: formData.rating,
+        notes: formData.notes || null,
+        website: formData.website || null,
+        address: formData.address || null,
+      });
 
-    setContacts(prev => [newContact, ...prev]);
-    setIsSubmitting(false);
-    setIsAddDialogOpen(false);
-    resetForm();
-  }, [formData, contacts, validateForm, resetForm]);
+      // Log activity
+      try {
+        await activityService.logContactAdded(user.id, newContact.id, newContact.name);
+      } catch (e) {
+        console.warn('Could not log activity:', e);
+      }
+
+      // Refresh the list
+      await fetchContacts();
+      
+      setIsAddDialogOpen(false);
+      resetForm();
+      toast.success('Kontak berhasil ditambahkan!');
+    } catch (error) {
+      console.error('Error adding contact:', error);
+      toast.error('Gagal menambahkan kontak');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [formData, user?.id, validateForm, resetForm, fetchContacts]);
 
   // Edit contact
   const handleEditContact = useCallback(async () => {
-    if (!validateForm() || !selectedContact) return;
+    if (!validateForm() || !selectedContact || !user?.id) return;
 
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 500));
 
-    const updatedContact: Contact = {
-      ...selectedContact,
-      name: formData.name,
-      type: formData.type as ContactType,
-      email: formData.email,
-      phone: formData.phone,
-      location: formData.location,
-      rating: formData.rating,
-      notes: formData.notes || undefined,
-      website: formData.website || undefined,
-      address: formData.address || undefined,
-    };
+    try {
+      const dbId = (selectedContact as any).dbId || selectedContact.id.toString();
 
-    setContacts(prev => prev.map(c => c.id === selectedContact.id ? updatedContact : c));
-    setIsSubmitting(false);
-    setIsEditDialogOpen(false);
-    resetForm();
-  }, [formData, selectedContact, validateForm, resetForm]);
+      await contactsService.update(dbId, {
+        name: formData.name,
+        type: formData.type as ContactType,
+        email: formData.email,
+        phone: formData.phone,
+        location: formData.location,
+        rating: formData.rating,
+        notes: formData.notes || null,
+        website: formData.website || null,
+        address: formData.address || null,
+      });
+
+      // Refresh the list
+      await fetchContacts();
+      
+      setIsEditDialogOpen(false);
+      resetForm();
+      toast.success('Kontak berhasil diperbarui!');
+    } catch (error) {
+      console.error('Error updating contact:', error);
+      toast.error('Gagal memperbarui kontak');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [formData, selectedContact, user?.id, validateForm, resetForm, fetchContacts]);
 
   // Delete contact
-  const handleDeleteContact = useCallback(() => {
+  const handleDeleteContact = useCallback(async () => {
     if (!selectedContact) return;
 
-    setContacts(prev => prev.filter(c => c.id !== selectedContact.id));
-    setIsDeleteDialogOpen(false);
-    setSelectedContact(null);
-  }, [selectedContact]);
+    try {
+      const dbId = (selectedContact as any).dbId || selectedContact.id.toString();
+      await contactsService.delete(dbId);
+
+      // Refresh the list
+      await fetchContacts();
+      
+      setIsDeleteDialogOpen(false);
+      setSelectedContact(null);
+      toast.success('Kontak berhasil dihapus!');
+    } catch (error) {
+      console.error('Error deleting contact:', error);
+      toast.error('Gagal menghapus kontak');
+    }
+  }, [selectedContact, fetchContacts]);
 
   // Open view dialog
   const openViewDialog = useCallback((contact: Contact) => {
@@ -215,6 +296,7 @@ export const useContacts = () => {
     formData,
     formErrors,
     isSubmitting,
+    loading,
 
     // Actions
     setFilter,
@@ -234,5 +316,24 @@ export const useContacts = () => {
     handleEditDialogClose,
     handleViewDialogClose,
     handleDeleteDialogClose,
+
+    // Refresh function
+    refreshContacts: fetchContacts,
   };
 };
+
+// Helper function
+function formatLastContact(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return 'Hari ini';
+  if (diffDays === 1) return 'Kemarin';
+  if (diffDays < 7) return `${diffDays} hari lalu`;
+  if (diffDays < 14) return '1 minggu lalu';
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)} minggu lalu`;
+  if (diffDays < 60) return '1 bulan lalu';
+  return `${Math.floor(diffDays / 30)} bulan lalu`;
+}

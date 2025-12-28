@@ -14,6 +14,7 @@ export interface Contact {
   notes?: string;
   website?: string;
   address?: string;
+  dbId?: string; // Database ID for Supabase operations
 }
 
 export interface ContactFormData {

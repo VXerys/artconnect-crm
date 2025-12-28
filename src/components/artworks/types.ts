@@ -10,6 +10,7 @@ export interface Artwork {
   year: number;
   image: string;
   description?: string;
+  dbId?: string; // Database ID for Supabase operations
 }
 
 export interface ArtworkFormData {

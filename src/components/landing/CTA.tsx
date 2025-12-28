@@ -127,8 +127,29 @@ const CTA = () => {
     <section 
       ref={sectionRef}
       id="cta" 
-      className="py-28 relative"
+      className="py-28 relative overflow-hidden"
     >
+      {/* Premium Animated Background */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        {/* Primary gradient glow - animated */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/10 rounded-full blur-3xl animate-pulse" />
+        
+        {/* Secondary glow - left */}
+        <div className="absolute top-1/4 -left-[100px] w-[400px] h-[400px] bg-primary/5 rounded-full blur-3xl" />
+        
+        {/* Tertiary glow - right */}
+        <div className="absolute bottom-1/4 -right-[100px] w-[400px] h-[400px] bg-purple-500/5 rounded-full blur-3xl" />
+        
+        {/* Subtle grid pattern */}
+        <div 
+          className="absolute inset-0 opacity-[0.015]"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
+            backgroundSize: '48px 48px',
+          }}
+        />
+      </div>
+      
       <div className="container px-4 relative z-10">
         {/* Main CTA Section */}
         <div className={`max-w-4xl mx-auto text-center mb-20 transition-all duration-700

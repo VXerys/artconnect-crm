@@ -29,37 +29,51 @@ export const TrafficSourcesCard = ({ sources }: TrafficSourcesCardProps) => {
 
       {/* Sources List */}
       <CardContent className="p-6 flex-1">
-        <div className="space-y-4">
-          {sources.map((source) => (
-            <div key={source.source} className="group">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <div 
-                    className="w-3 h-3 rounded-full" 
-                    style={{ backgroundColor: source.color }} 
-                  />
-                  <span className="text-sm font-medium">{source.source}</span>
-                  <ExternalLink className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" />
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold">{source.visitors.toLocaleString()}</span>
-                  <span className="text-xs text-muted-foreground">({source.percentage}%)</span>
-                </div>
-              </div>
-              
-              {/* Progress bar */}
-              <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                <div 
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{ 
-                    width: `${source.percentage}%`,
-                    backgroundColor: source.color,
-                  }}
-                />
-              </div>
+        {totalVisitors === 0 ? (
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <div className="p-3 rounded-xl bg-secondary/50 mb-4">
+              <Globe className="w-8 h-8 text-muted-foreground" />
             </div>
-          ))}
-        </div>
+            <p className="text-muted-foreground text-sm">
+              Data traffic belum tersedia
+            </p>
+            <p className="text-muted-foreground/60 text-xs mt-1 max-w-[200px]">
+              Integrasikan dengan website Anda untuk melihat sumber pengunjung
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {sources.map((source) => (
+              <div key={source.source} className="group">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="w-3 h-3 rounded-full" 
+                      style={{ backgroundColor: source.color }} 
+                    />
+                    <span className="text-sm font-medium">{source.source}</span>
+                    <ExternalLink className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold">{source.visitors.toLocaleString()}</span>
+                    <span className="text-xs text-muted-foreground">({source.percentage}%)</span>
+                  </div>
+                </div>
+                
+                {/* Progress bar */}
+                <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                  <div 
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{ 
+                      width: `${source.percentage}%`,
+                      backgroundColor: source.color,
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

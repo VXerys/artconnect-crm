@@ -9,6 +9,7 @@ export interface PipelineItem {
   price?: string;
   image?: string;
   description?: string;
+  dbId?: string; // Database ID for Supabase operations
 }
 
 export interface PipelineColumn {

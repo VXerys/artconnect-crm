@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Palette, Menu, X } from "lucide-react";
+import { Palette, Menu, X, LayoutDashboard, LogOut, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/lib/supabase";
 
 // Navigation items untuk landing page - menggunakan anchor links
 const navItems = [
@@ -12,9 +14,42 @@ const navItems = [
 ];
 
 const Navbar = () => {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const ticking = useRef(false);
+
+  // Handle logout - clear all auth data and reload for clean state
+  const handleLogout = useCallback(async () => {
+    if (isLoggingOut) return;
+    
+    setIsLoggingOut(true);
+    setIsOpen(false);
+    
+    try {
+      // Sign out from Supabase with global scope to clear all sessions
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
+      if (error) {
+        console.error('Logout error:', error.message);
+      }
+      
+      // Clear auth storage key from localStorage (matches supabase config)
+      localStorage.removeItem('artconnect-auth');
+      
+      // Clear any other potential auth-related items
+      const keysToRemove = Object.keys(localStorage).filter(
+        key => key.includes('supabase') || key.includes('auth')
+      );
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+      
+      // Force page reload to ensure clean auth state
+      window.location.href = '/';
+    } catch (err) {
+      console.error('Logout failed:', err);
+      setIsLoggingOut(false);
+    }
+  }, [isLoggingOut]);
 
   // Smooth scroll ke section tertentu
   const scrollToSection = useCallback((href: string) => {
@@ -112,14 +147,43 @@ const Navbar = () => {
             })}
           </div>
 
-          {/* CTA */}
+          {/* CTA - Changes based on auth state */}
           <div className="hidden md:flex items-center gap-3">
-            <Link to="/dashboard">
-              <Button variant="ghost" size="sm">Masuk</Button>
-            </Link>
-            <Link to="/dashboard">
-              <Button variant="default" size="sm">Daftar Gratis</Button>
-            </Link>
+            {user ? (
+              // User is logged in - show logout and dashboard buttons
+              <>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="gap-2"
+                  onClick={handleLogout}
+                  disabled={isLoggingOut}
+                >
+                  {isLoggingOut ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <LogOut className="w-4 h-4" />
+                  )}
+                  {isLoggingOut ? 'Keluar...' : 'Keluar'}
+                </Button>
+                <Link to="/dashboard">
+                  <Button variant="default" size="sm" className="gap-2">
+                    <LayoutDashboard className="w-4 h-4" />
+                    Dashboard
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              // User is not logged in - show login/register buttons
+              <>
+                <Link to="/auth/login">
+                  <Button variant="ghost" size="sm">Masuk</Button>
+                </Link>
+                <Link to="/auth/register">
+                  <Button variant="default" size="sm">Daftar Gratis</Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -155,12 +219,41 @@ const Navbar = () => {
                 );
               })}
               <div className="flex items-center gap-3 pt-4 border-t border-border/50">
-                <Link to="/dashboard" className="flex-1">
-                  <Button variant="ghost" size="sm" className="w-full">Masuk</Button>
-                </Link>
-                <Link to="/dashboard" className="flex-1">
-                  <Button variant="default" size="sm" className="w-full">Daftar</Button>
-                </Link>
+                {user ? (
+                  // User is logged in - show logout and dashboard buttons
+                  <>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="flex-1 gap-2"
+                      onClick={handleLogout}
+                      disabled={isLoggingOut}
+                    >
+                      {isLoggingOut ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <LogOut className="w-4 h-4" />
+                      )}
+                      {isLoggingOut ? 'Keluar...' : 'Keluar'}
+                    </Button>
+                    <Link to="/dashboard" className="flex-1">
+                      <Button variant="default" size="sm" className="w-full gap-2">
+                        <LayoutDashboard className="w-4 h-4" />
+                        Dashboard
+                      </Button>
+                    </Link>
+                  </>
+                ) : (
+                  // User is not logged in - show login/register buttons
+                  <>
+                    <Link to="/auth/login" className="flex-1">
+                      <Button variant="ghost" size="sm" className="w-full">Masuk</Button>
+                    </Link>
+                    <Link to="/auth/register" className="flex-1">
+                      <Button variant="default" size="sm" className="w-full">Daftar</Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>

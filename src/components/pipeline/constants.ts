@@ -79,3 +79,35 @@ export const statusConfig = {
   finished: { title: "Selesai", color: "border-emerald-500", bgColor: "bg-emerald-500/10", textColor: "text-emerald-400" },
   sold: { title: "Terjual", color: "border-primary", bgColor: "bg-primary/10", textColor: "text-primary" },
 };
+
+// Get empty pipeline data (for real data fetching)
+export const getEmptyPipelineData = (): PipelineData => ({
+  concept: {
+    title: "Konsep",
+    color: "border-purple-500",
+    bgColor: "bg-purple-500/10",
+    textColor: "text-purple-400",
+    items: []
+  },
+  wip: {
+    title: "Proses",
+    color: "border-blue-500",
+    bgColor: "bg-blue-500/10",
+    textColor: "text-blue-400",
+    items: []
+  },
+  finished: {
+    title: "Selesai",
+    color: "border-emerald-500",
+    bgColor: "bg-emerald-500/10",
+    textColor: "text-emerald-400",
+    items: []
+  },
+  sold: {
+    title: "Terjual",
+    color: "border-primary",
+    bgColor: "bg-primary/10",
+    textColor: "text-primary",
+    items: []
+  },
+});

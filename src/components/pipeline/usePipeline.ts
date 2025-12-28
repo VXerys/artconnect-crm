@@ -1,6 +1,8 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { arrayMove } from "@dnd-kit/sortable";
 import { DragStartEvent, DragEndEvent, DragOverEvent } from "@dnd-kit/core";
+import { useAuth } from "@/context/AuthContext";
+import { pipelineService } from "@/lib/services/pipeline.service";
 import { 
   PipelineData, 
   PipelineItem, 
@@ -8,10 +10,13 @@ import {
   PipelineFormData, 
   PipelineFormErrors 
 } from "./types";
-import { initialPipelineData, initialFormData } from "./constants";
+import { initialFormData, getEmptyPipelineData } from "./constants";
+import { toast } from "sonner";
 
 export const usePipeline = () => {
-  const [pipelineData, setPipelineData] = useState<PipelineData>(initialPipelineData);
+  const { user } = useAuth();
+  const [pipelineData, setPipelineData] = useState<PipelineData>(getEmptyPipelineData());
+  const [loading, setLoading] = useState(true);
   const [activeItem, setActiveItem] = useState<PipelineItem | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
@@ -20,6 +25,63 @@ export const usePipeline = () => {
   const [formData, setFormData] = useState<PipelineFormData>(initialFormData);
   const [formErrors, setFormErrors] = useState<PipelineFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch pipeline data from Supabase
+  const fetchPipeline = useCallback(async () => {
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const data = await pipelineService.getPipelineData(user.id);
+      
+      // Map database items to local PipelineItem type
+      const mappedData: PipelineData = {
+        concept: {
+          title: "Konsep",
+          color: "border-purple-500",
+          bgColor: "bg-purple-500/10",
+          textColor: "text-purple-400",
+          items: data.concept.items.map(mapDbItemToLocal),
+        },
+        wip: {
+          title: "Proses",
+          color: "border-blue-500",
+          bgColor: "bg-blue-500/10",
+          textColor: "text-blue-400",
+          items: data.wip.items.map(mapDbItemToLocal),
+        },
+        finished: {
+          title: "Selesai",
+          color: "border-emerald-500",
+          bgColor: "bg-emerald-500/10",
+          textColor: "text-emerald-400",
+          items: data.finished.items.map(mapDbItemToLocal),
+        },
+        sold: {
+          title: "Terjual",
+          color: "border-primary",
+          bgColor: "bg-primary/10",
+          textColor: "text-primary",
+          items: data.sold.items.map(mapDbItemToLocal),
+        },
+      };
+      
+      setPipelineData(mappedData);
+    } catch (error) {
+      console.error('Error fetching pipeline:', error);
+      toast.error('Gagal memuat pipeline');
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.id]);
+
+  // Initial fetch
+  useEffect(() => {
+    fetchPipeline();
+  }, [fetchPipeline]);
 
   // Find which column an item belongs to
   const findColumnByItemId = useCallback((itemId: string): PipelineStatus | null => {
@@ -81,11 +143,11 @@ export const usePipeline = () => {
     });
   }, [findColumnByItemId, pipelineData]);
 
-  const handleDragEnd = useCallback((event: DragEndEvent) => {
+  const handleDragEnd = useCallback(async (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveItem(null);
 
-    if (!over) return;
+    if (!over || !user?.id) return;
 
     const activeId = active.id as string;
     const overId = over.id as string;
@@ -117,13 +179,24 @@ export const usePipeline = () => {
         return prev;
       });
     }
-  }, [findColumnByItemId, pipelineData]);
+
+    // Update in database (fire and forget, UI already updated)
+    try {
+      const item = pipelineData[activeColumn].items.find(i => i.id === activeId);
+      if (item && (item as any).dbId && overColumn !== activeColumn) {
+        await pipelineService.moveToStatus((item as any).dbId, overColumn);
+      }
+    } catch (error) {
+      console.error('Error updating item position:', error);
+    }
+  }, [findColumnByItemId, pipelineData, user?.id]);
 
   // Move item via menu
-  const handleMoveToColumn = useCallback((item: PipelineItem, targetStatus: PipelineStatus) => {
+  const handleMoveToColumn = useCallback(async (item: PipelineItem, targetStatus: PipelineStatus) => {
     const currentColumn = findColumnByItemId(item.id);
     if (!currentColumn || currentColumn === targetStatus) return;
 
+    // Optimistic update
     setPipelineData(prev => {
       const sourceItems = prev[currentColumn].items.filter(i => i.id !== item.id);
       const targetItems = [...prev[targetStatus].items, item];
@@ -134,7 +207,20 @@ export const usePipeline = () => {
         [targetStatus]: { ...prev[targetStatus], items: targetItems },
       };
     });
-  }, [findColumnByItemId]);
+
+    // Update in database
+    try {
+      const dbId = (item as any).dbId;
+      if (dbId) {
+        await pipelineService.moveToStatus(dbId, targetStatus);
+      }
+    } catch (error) {
+      console.error('Error moving item:', error);
+      toast.error('Gagal memindahkan item');
+      // Revert on error
+      await fetchPipeline();
+    }
+  }, [findColumnByItemId, fetchPipeline]);
 
   // Form handlers
   const handleInputChange = useCallback((field: keyof PipelineFormData, value: string) => {
@@ -169,82 +255,81 @@ export const usePipeline = () => {
 
   // Add item
   const handleAddItem = useCallback(async () => {
-    if (!validateForm()) return;
+    if (!validateForm() || !user?.id) return;
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 500));
 
-    const newItem: PipelineItem = {
-      id: `item-${Date.now()}`,
-      title: formData.title,
-      medium: formData.medium,
-      dueDate: formData.dueDate,
-      price: formData.price || undefined,
-      description: formData.description || undefined,
-    };
+    try {
+      const priceValue = formData.price 
+        ? parseInt(formData.price.replace(/\D/g, '')) 
+        : null;
 
-    setPipelineData(prev => ({
-      ...prev,
-      [formData.status]: {
-        ...prev[formData.status],
-        items: [...prev[formData.status].items, newItem],
-      },
-    }));
+      await pipelineService.create({
+        user_id: user.id,
+        title: formData.title,
+        medium: formData.medium,
+        due_date: formData.dueDate,
+        estimated_price: priceValue,
+        description: formData.description || null,
+        status: formData.status,
+        image_url: formData.image || null,
+      });
 
-    setIsSubmitting(false);
-    setIsAddDialogOpen(false);
-    resetForm();
-  }, [formData, validateForm, resetForm]);
+      await fetchPipeline();
+      setIsAddDialogOpen(false);
+      resetForm();
+      toast.success('Item berhasil ditambahkan!');
+    } catch (error) {
+      console.error('Error adding item:', error);
+      toast.error('Gagal menambahkan item');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [formData, user?.id, validateForm, resetForm, fetchPipeline]);
 
   // Edit item
   const handleEditItem = useCallback(async () => {
-    if (!validateForm() || !selectedItem) return;
+    if (!validateForm() || !selectedItem || !user?.id) return;
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 500));
 
-    const currentColumn = findColumnByItemId(selectedItem.id);
-    if (!currentColumn) return;
+    try {
+      const currentColumn = findColumnByItemId(selectedItem.id);
+      if (!currentColumn) return;
 
-    const updatedItem: PipelineItem = {
-      ...selectedItem,
-      title: formData.title,
-      medium: formData.medium,
-      dueDate: formData.dueDate,
-      price: formData.price || undefined,
-      description: formData.description || undefined,
-    };
+      const priceValue = formData.price 
+        ? parseInt(formData.price.replace(/\D/g, '')) 
+        : null;
 
-    if (formData.status !== currentColumn) {
-      setPipelineData(prev => {
-        const sourceItems = prev[currentColumn].items.filter(i => i.id !== selectedItem.id);
-        const targetItems = [...prev[formData.status].items, updatedItem];
-        return {
-          ...prev,
-          [currentColumn]: { ...prev[currentColumn], items: sourceItems },
-          [formData.status]: { ...prev[formData.status], items: targetItems },
-        };
-      });
-    } else {
-      setPipelineData(prev => ({
-        ...prev,
-        [currentColumn]: {
-          ...prev[currentColumn],
-          items: prev[currentColumn].items.map(i => 
-            i.id === selectedItem.id ? updatedItem : i
-          ),
-        },
-      }));
+      const dbId = (selectedItem as any).dbId;
+      if (dbId) {
+        await pipelineService.update(dbId, {
+          title: formData.title,
+          medium: formData.medium,
+          due_date: formData.dueDate,
+          estimated_price: priceValue,
+          description: formData.description || null,
+          status: formData.status,
+          image_url: formData.image || null,
+        });
+      }
+
+      await fetchPipeline();
+      setIsEditDialogOpen(false);
+      resetForm();
+      toast.success('Item berhasil diperbarui!');
+    } catch (error) {
+      console.error('Error updating item:', error);
+      toast.error('Gagal memperbarui item');
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
-    setIsEditDialogOpen(false);
-    resetForm();
-  }, [formData, selectedItem, validateForm, findColumnByItemId, resetForm]);
+  }, [formData, selectedItem, user?.id, validateForm, findColumnByItemId, resetForm, fetchPipeline]);
 
   // Delete item
-  const handleDeleteItem = useCallback((item: PipelineItem) => {
+  const handleDeleteItem = useCallback(async (item: PipelineItem) => {
     const column = findColumnByItemId(item.id);
     if (!column) return;
 
+    // Optimistic update
     setPipelineData(prev => ({
       ...prev,
       [column]: {
@@ -252,7 +337,20 @@ export const usePipeline = () => {
         items: prev[column].items.filter(i => i.id !== item.id),
       },
     }));
-  }, [findColumnByItemId]);
+
+    // Delete from database
+    try {
+      const dbId = (item as any).dbId;
+      if (dbId) {
+        await pipelineService.delete(dbId);
+      }
+      toast.success('Item berhasil dihapus!');
+    } catch (error) {
+      console.error('Error deleting item:', error);
+      toast.error('Gagal menghapus item');
+      await fetchPipeline();
+    }
+  }, [findColumnByItemId, fetchPipeline]);
 
   // View item
   const handleViewItem = useCallback((item: PipelineItem) => {
@@ -314,6 +412,7 @@ export const usePipeline = () => {
     formData,
     formErrors,
     isSubmitting,
+    loading,
     
     // Drag handlers
     handleDragStart,
@@ -338,5 +437,22 @@ export const usePipeline = () => {
     
     // Utils
     formatPriceInput,
+    refreshPipeline: fetchPipeline,
   };
 };
+
+// Helper function to map database item to local type
+function mapDbItemToLocal(dbItem: any): PipelineItem {
+  return {
+    id: dbItem.id,
+    title: dbItem.title,
+    medium: dbItem.medium || '',
+    dueDate: dbItem.due_date || '',
+    price: dbItem.estimated_price 
+      ? `Rp ${new Intl.NumberFormat('id-ID').format(dbItem.estimated_price)}`
+      : undefined,
+    image: dbItem.image_url || undefined,
+    description: dbItem.description || undefined,
+    dbId: dbItem.id, // Keep for database operations
+  };
+}

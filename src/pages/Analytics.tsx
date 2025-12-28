@@ -1,5 +1,7 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { useAnalyticsData } from "@/hooks/useAnalyticsData";
+import { Loader2 } from "lucide-react";
 
 // Analytics Components
 import {
@@ -11,30 +13,63 @@ import {
   TopArtworksList,
   TrafficSourcesCard,
   QuickInsightsCard,
-  analyticsStats,
-  salesData,
-  artworkStatusData,
-  contactActivityData,
-  topArtworks,
-  trafficSources,
   DateRange,
 } from "@/components/analytics";
 
 const Analytics = () => {
   const [selectedRange, setSelectedRange] = useState<DateRange>("30d");
+  
+  // Fetch real data from Supabase
+  const {
+    stats,
+    salesData,
+    artworkStatusData,
+    contactActivityData,
+    topArtworks,
+    trafficSources,
+    totalRevenue,
+    revenueGrowth,
+    loading,
+    error,
+  } = useAnalyticsData();
 
-  // Calculate total revenue
-  const totalRevenue = salesData.reduce((sum, d) => sum + d.value, 0);
+  // Format total revenue for display
   const formatTotalRevenue = totalRevenue >= 1000000 
     ? `Rp ${(totalRevenue / 1000000).toFixed(1)}M` 
-    : `Rp ${totalRevenue.toLocaleString()}`;
+    : `Rp ${totalRevenue.toLocaleString('id-ID')}`;
 
-  // Calculate growth
-  const lastMonth = salesData[salesData.length - 1]?.value || 0;
-  const prevMonth = salesData[salesData.length - 2]?.value || 0;
-  const revenueGrowth = prevMonth > 0 
-    ? `+${Math.round(((lastMonth - prevMonth) / prevMonth) * 100)}%` 
-    : "+0%";
+  // Loading state
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center space-y-4">
+            <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto" />
+            <p className="text-muted-foreground">Memuat data analitik...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center space-y-4">
+            <p className="text-destructive">{error}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="text-primary hover:underline"
+            >
+              Coba lagi
+            </button>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -55,7 +90,7 @@ const Analytics = () => {
               Ringkasan Performa
             </h2>
           </div>
-          <AnalyticsStatsGrid stats={analyticsStats} />
+          <AnalyticsStatsGrid stats={stats} />
         </section>
 
         {/* Charts Row - Sales Trend & Artwork Status */}

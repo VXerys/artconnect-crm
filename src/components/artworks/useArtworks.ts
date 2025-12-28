@@ -1,11 +1,17 @@
-import { useState, useRef, useCallback, useMemo } from "react";
+import { useState, useRef, useCallback, useMemo, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { artworksService } from "@/lib/services/artworks.service";
+import { activityService } from "@/lib/services/activity.service";
 import { Artwork, ArtworkFormData, ArtworkFormErrors, ViewMode, ArtworkStatus } from "./types";
-import { initialArtworks, initialFormData } from "./constants";
+import { initialFormData } from "./constants";
+import { toast } from "sonner";
 
 export const useArtworks = () => {
+  const { user } = useAuth();
   const [view, setView] = useState<ViewMode>('grid');
   const [filter, setFilter] = useState<string>('all');
-  const [artworks, setArtworks] = useState<Artwork[]>(initialArtworks);
+  const [artworks, setArtworks] = useState<Artwork[]>([]);
+  const [loading, setLoading] = useState(true);
   
   // Dialog states
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -19,6 +25,45 @@ export const useArtworks = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch artworks from Supabase
+  const fetchArtworks = useCallback(async () => {
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const result = await artworksService.getAll(user.id, {}, { limit: 100 });
+      
+      // Map database artworks to local Artwork type
+      const mappedArtworks: Artwork[] = result.data.map(dbArtwork => ({
+        id: dbArtwork.id as unknown as number,
+        title: dbArtwork.title,
+        medium: dbArtwork.medium || '',
+        dimensions: dbArtwork.dimensions || '',
+        status: dbArtwork.status,
+        price: dbArtwork.price || null,
+        year: dbArtwork.year || new Date().getFullYear(),
+        image: dbArtwork.image_url || "https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400",
+        description: dbArtwork.description || '',
+        dbId: dbArtwork.id, // Keep original string ID for database operations
+      }));
+      
+      setArtworks(mappedArtworks);
+    } catch (error) {
+      console.error('Error fetching artworks:', error);
+      toast.error('Gagal memuat karya seni');
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.id]);
+
+  // Initial fetch
+  useEffect(() => {
+    fetchArtworks();
+  }, [fetchArtworks]);
 
   // Filtered artworks
   const filteredArtworks = useMemo(() => {
@@ -121,76 +166,118 @@ export const useArtworks = () => {
 
   // Handle Add artwork submit
   const handleAddSubmit = useCallback(async () => {
-    if (!validateForm()) return;
+    if (!validateForm() || !user?.id) return;
 
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 500));
 
-    const priceValue = typeof formData.price === 'string' 
-      ? parseInt(formData.price.replace(/\D/g, '')) 
-      : formData.price;
-    const yearValue = typeof formData.year === 'string' 
-      ? parseInt(formData.year) 
-      : formData.year;
+    try {
+      const priceValue = typeof formData.price === 'string' 
+        ? parseInt(formData.price.replace(/\D/g, '')) 
+        : formData.price;
+      const yearValue = typeof formData.year === 'string' 
+        ? parseInt(formData.year) 
+        : formData.year;
 
-    const newArtwork: Artwork = {
-      id: Math.max(...artworks.map(a => a.id), 0) + 1,
-      title: formData.title,
-      medium: formData.medium,
-      dimensions: formData.dimensions,
-      status: formData.status as ArtworkStatus,
-      price: priceValue || null,
-      year: yearValue,
-      image: formData.image || "https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400",
-      description: formData.description,
-    };
+      const newArtwork = await artworksService.create({
+        user_id: user.id,
+        title: formData.title,
+        medium: formData.medium,
+        dimensions: formData.dimensions,
+        status: formData.status as ArtworkStatus,
+        price: priceValue || null,
+        year: yearValue,
+        image_url: formData.image || null,
+        description: formData.description || null,
+      });
 
-    setArtworks(prev => [newArtwork, ...prev]);
-    setIsSubmitting(false);
-    setIsAddDialogOpen(false);
-    resetForm();
-  }, [formData, artworks, validateForm, resetForm]);
+      // Log activity
+      try {
+        await activityService.logArtworkCreated(user.id, newArtwork.id, newArtwork.title);
+      } catch (e) {
+        console.warn('Could not log activity:', e);
+      }
+
+      // Refresh the list
+      await fetchArtworks();
+      
+      setIsAddDialogOpen(false);
+      resetForm();
+      toast.success('Karya seni berhasil ditambahkan!');
+    } catch (error) {
+      console.error('Error adding artwork:', error);
+      toast.error('Gagal menambahkan karya seni');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [formData, user?.id, validateForm, resetForm, fetchArtworks]);
 
   // Handle Edit artwork submit
   const handleEditSubmit = useCallback(async () => {
-    if (!validateForm() || !selectedArtwork) return;
+    if (!validateForm() || !selectedArtwork || !user?.id) return;
 
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 500));
 
-    const priceValue = typeof formData.price === 'string' 
-      ? parseInt(formData.price.replace(/\D/g, '')) 
-      : formData.price;
-    const yearValue = typeof formData.year === 'string' 
-      ? parseInt(formData.year) 
-      : formData.year;
+    try {
+      const priceValue = typeof formData.price === 'string' 
+        ? parseInt(formData.price.replace(/\D/g, '')) 
+        : formData.price;
+      const yearValue = typeof formData.year === 'string' 
+        ? parseInt(formData.year) 
+        : formData.year;
 
-    const updatedArtwork: Artwork = {
-      ...selectedArtwork,
-      title: formData.title,
-      medium: formData.medium,
-      dimensions: formData.dimensions,
-      status: formData.status as ArtworkStatus,
-      price: priceValue || null,
-      year: yearValue,
-      image: formData.image || selectedArtwork.image,
-      description: formData.description,
-    };
+      const dbId = (selectedArtwork as any).dbId || selectedArtwork.id.toString();
 
-    setArtworks(prev => prev.map(a => a.id === selectedArtwork.id ? updatedArtwork : a));
-    setIsSubmitting(false);
-    setIsEditDialogOpen(false);
-    resetForm();
-  }, [formData, selectedArtwork, validateForm, resetForm]);
+      await artworksService.update(dbId, {
+        title: formData.title,
+        medium: formData.medium,
+        dimensions: formData.dimensions,
+        status: formData.status as ArtworkStatus,
+        price: priceValue || null,
+        year: yearValue,
+        image_url: formData.image || null,
+        description: formData.description || null,
+      });
+
+      // Log activity
+      try {
+        await activityService.logArtworkUpdated(user.id, dbId, formData.title);
+      } catch (e) {
+        console.warn('Could not log activity:', e);
+      }
+
+      // Refresh the list
+      await fetchArtworks();
+      
+      setIsEditDialogOpen(false);
+      resetForm();
+      toast.success('Karya seni berhasil diperbarui!');
+    } catch (error) {
+      console.error('Error updating artwork:', error);
+      toast.error('Gagal memperbarui karya seni');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [formData, selectedArtwork, user?.id, validateForm, resetForm, fetchArtworks]);
 
   // Handle Delete artwork
-  const handleDeleteConfirm = useCallback(() => {
+  const handleDeleteConfirm = useCallback(async () => {
     if (!selectedArtwork) return;
 
-    setArtworks(prev => prev.filter(a => a.id !== selectedArtwork.id));
-    setIsDeleteDialogOpen(false);
-    setSelectedArtwork(null);
-  }, [selectedArtwork]);
+    try {
+      const dbId = (selectedArtwork as any).dbId || selectedArtwork.id.toString();
+      await artworksService.delete(dbId);
+
+      // Refresh the list
+      await fetchArtworks();
+      
+      setIsDeleteDialogOpen(false);
+      setSelectedArtwork(null);
+      toast.success('Karya seni berhasil dihapus!');
+    } catch (error) {
+      console.error('Error deleting artwork:', error);
+      toast.error('Gagal menghapus karya seni');
+    }
+  }, [selectedArtwork, fetchArtworks]);
 
   // Open View dialog
   const openViewDialog = useCallback((artwork: Artwork) => {
@@ -262,6 +349,7 @@ export const useArtworks = () => {
     isSubmitting,
     imagePreview,
     fileInputRef,
+    loading,
     
     // Dialog states
     isAddDialogOpen,
@@ -297,5 +385,8 @@ export const useArtworks = () => {
     isDialogOpen: isAddDialogOpen,
     handleDialogClose: handleAddDialogClose,
     handleSubmit: handleAddSubmit,
+
+    // Refresh function
+    refreshArtworks: fetchArtworks,
   };
 };

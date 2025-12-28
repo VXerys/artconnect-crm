@@ -1,9 +1,57 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Lightbulb, ArrowRight } from "lucide-react";
+import { Lightbulb, ArrowRight, TrendingUp, Palette, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { quickInsights } from "./constants";
+import { useAuth } from "@/context/AuthContext";
+
+interface QuickInsight {
+  id: number;
+  icon: React.ElementType;
+  title: string;
+  description: string;
+  color: string;
+  bgColor: string;
+}
 
 export const QuickInsightsCard = () => {
+  const { user } = useAuth();
+  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Seniman';
+
+  // Dynamic insights based on context
+  const quickInsights: QuickInsight[] = [
+    {
+      id: 1,
+      icon: Palette,
+      title: "Mulai Berkarya",
+      description: "Tambahkan karya seni Anda ke inventaris untuk mulai melacak nilai dan status",
+      color: "text-purple-400",
+      bgColor: "bg-purple-500/10",
+    },
+    {
+      id: 2,
+      icon: TrendingUp,
+      title: "Pantau Performa",
+      description: "Data analitik akan terupdate otomatis sesuai dengan aktivitas Anda",
+      color: "text-emerald-400",
+      bgColor: "bg-emerald-500/10",
+    },
+    {
+      id: 3,
+      icon: Info,
+      title: "Bangun Jaringan",
+      description: "Tambahkan kontak galeri, kolektor, dan museum untuk memperluas jejaring",
+      color: "text-blue-400",
+      bgColor: "bg-blue-500/10",
+    },
+    {
+      id: 4,
+      icon: Lightbulb,
+      title: `Selamat Datang, ${userName}!`,
+      description: "Eksplorasi fitur ArtConnect untuk mengelola karir seni Anda dengan lebih efektif",
+      color: "text-primary",
+      bgColor: "bg-primary/10",
+    },
+  ];
+
   return (
     <Card className="bg-card border-border overflow-hidden">
       {/* Header */}
@@ -24,7 +72,7 @@ export const QuickInsightsCard = () => {
       {/* Insights Grid */}
       <CardContent className="p-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {quickInsights.map((insight, index) => (
+          {quickInsights.map((insight) => (
             <div 
               key={insight.id}
               className={cn(
