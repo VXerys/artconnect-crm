@@ -289,3 +289,77 @@
   scrollbar-color: hsl(var(--border)) transparent;
 }
 
+/* ============================================
+   SCROLL-TRIGGERED ANIMATIONS
+   GPU-accelerated using transform & opacity
+   ============================================ */
+
+/* Base state - hidden and ready to animate */
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity, transform;
+}
+
+/* Visible state */
+.animate-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered delays for children */
+.animate-on-scroll.delay-100 { transition-delay: 0.1s; }
+.animate-on-scroll.delay-200 { transition-delay: 0.2s; }
+.animate-on-scroll.delay-300 { transition-delay: 0.3s; }
+.animate-on-scroll.delay-400 { transition-delay: 0.4s; }
+.animate-on-scroll.delay-500 { transition-delay: 0.5s; }
+
+/* Fade in from left */
+.animate-on-scroll.from-left {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+.animate-on-scroll.from-left.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Fade in from right */
+.animate-on-scroll.from-right {
+  opacity: 0;
+  transform: translateX(30px);
+}
+.animate-on-scroll.from-right.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Scale up effect */
+.animate-on-scroll.scale-up {
+  opacity: 0;
+  transform: scale(0.95);
+}
+.animate-on-scroll.scale-up.is-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Seamless section spacing */
+.landing-section {
+  position: relative;
+  z-index: 1;
+}
+
+/* Unified background glow */
+.landing-glow {
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+}

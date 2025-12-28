@@ -12,10 +12,11 @@ import {
   ChevronLeft,
   Menu
 } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -32,8 +33,15 @@ const navItems = [
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/auth/login");
+  };
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -105,13 +113,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               <Settings className="w-5 h-5 flex-shrink-0" />
               {!collapsed && <span className="font-medium text-sm">Pengaturan</span>}
             </Link>
-            <Link
-              to="/"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors text-left"
             >
               <LogOut className="w-5 h-5 flex-shrink-0" />
               {!collapsed && <span className="font-medium text-sm">Keluar</span>}
-            </Link>
+            </button>
           </div>
         </div>
       </aside>

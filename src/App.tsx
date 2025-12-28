@@ -3,16 +3,43 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+// Context Providers
+import { AuthProvider } from "./context/AuthContext";
+
+// Components
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+
+// Public Pages
 import Index from "./pages/Index";
+import AboutPage from "./pages/AboutPage";
+import GuidePage from "./pages/GuidePage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import NotFound from "./pages/NotFound";
+
+// Auth Pages
+import LoginPage from "./pages/auth/LoginPage";
+import RegisterPage from "./pages/auth/RegisterPage";
+import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
+import AuthCallback from "./pages/auth/AuthCallback";
+
+// Protected Pages (Dashboard)
 import Dashboard from "./pages/Dashboard";
 import Artworks from "./pages/Artworks";
 import Contacts from "./pages/Contacts";
 import Pipeline from "./pages/Pipeline";
 import Analytics from "./pages/Analytics";
 import Reports from "./pages/Reports";
-import NotFound from "./pages/NotFound";
+import Settings from "./pages/Settings";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: 1,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -20,17 +47,90 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/artworks" element={<Artworks />} />
-          <Route path="/contacts" element={<Contacts />} />
-          <Route path="/pipeline" element={<Pipeline />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/reports" element={<Reports />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            {/* ============================================ */}
+            {/* PUBLIC ROUTES */}
+            {/* ============================================ */}
+            <Route path="/" element={<Index />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/guide" element={<GuidePage />} />
+            <Route path="/privacy" element={<PrivacyPolicyPage />} />
+
+            {/* ============================================ */}
+            {/* AUTH ROUTES */}
+            {/* ============================================ */}
+            <Route path="/auth/login" element={<LoginPage />} />
+            <Route path="/auth/register" element={<RegisterPage />} />
+            <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
+
+            {/* ============================================ */}
+            {/* PROTECTED ROUTES (Require Authentication) */}
+            {/* ============================================ */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/artworks"
+              element={
+                <ProtectedRoute>
+                  <Artworks />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/contacts"
+              element={
+                <ProtectedRoute>
+                  <Contacts />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/pipeline"
+              element={
+                <ProtectedRoute>
+                  <Pipeline />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/analytics"
+              element={
+                <ProtectedRoute>
+                  <Analytics />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reports"
+              element={
+                <ProtectedRoute>
+                  <Reports />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ============================================ */}
+            {/* CATCH-ALL ROUTE */}
+            {/* ============================================ */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
