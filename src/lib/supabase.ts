@@ -6,16 +6,19 @@ import { Database } from './database.types';
 // ============================================================================
 
 // Environment variables - Vite requires VITE_ prefix for client-side access
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-// Validate environment variables
-if (!supabaseUrl) {
-  throw new Error('Missing VITE_SUPABASE_URL environment variable');
-}
+// Validate environment variables - warn in console but don't crash the app
+const isMissingConfig = !supabaseUrl || !supabaseAnonKey;
 
-if (!supabaseAnonKey) {
-  throw new Error('Missing VITE_SUPABASE_ANON_KEY environment variable');
+if (isMissingConfig) {
+  console.warn(
+    '⚠️ Supabase environment variables are not configured.\n' +
+    'Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your Netlify dashboard:\n' +
+    'Site settings > Build & deploy > Environment variables\n' +
+    'The app will load but authentication features will not work until configured.'
+  );
 }
 
 // ============================================================================

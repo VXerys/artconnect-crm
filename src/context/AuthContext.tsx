@@ -47,6 +47,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Initialize auth state
   useEffect(() => {
+    // Check if Supabase is properly configured
+    const isSupabaseConfigured = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
+    
+    if (!isSupabaseConfigured) {
+      console.warn('Supabase not configured - skipping auth initialization');
+      setLoading(false);
+      return;
+    }
+
     // Get initial session
     const initializeAuth = async () => {
       try {
@@ -63,28 +72,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initializeAuth();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
-        console.log('Auth state changed:', event);
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
-        setLoading(false);
+    let subscription: { unsubscribe: () => void } | null = null;
+    
+    try {
+      const { data } = supabase.auth.onAuthStateChange(
+        async (event, currentSession) => {
+          console.log('Auth state changed:', event);
+          setSession(currentSession);
+          setUser(currentSession?.user ?? null);
+          setLoading(false);
 
-        // Handle specific auth events
-        if (event === 'SIGNED_IN') {
-          // Optionally sync user to database here
-          console.log('User signed in:', currentSession?.user?.email);
-        } else if (event === 'SIGNED_OUT') {
-          console.log('User signed out');
-        } else if (event === 'TOKEN_REFRESHED') {
-          console.log('Token refreshed');
+          // Handle specific auth events
+          if (event === 'SIGNED_IN') {
+            console.log('User signed in:', currentSession?.user?.email);
+          } else if (event === 'SIGNED_OUT') {
+            console.log('User signed out');
+          } else if (event === 'TOKEN_REFRESHED') {
+            console.log('Token refreshed');
+          }
         }
-      }
-    );
+      );
+      subscription = data.subscription;
+    } catch (error) {
+      console.error('Error setting up auth listener:', error);
+      setLoading(false);
+    }
 
     // Cleanup subscription
     return () => {
-      subscription.unsubscribe();
+      subscription?.unsubscribe();
     };
   }, []);
 
