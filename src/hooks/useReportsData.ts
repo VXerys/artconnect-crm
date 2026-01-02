@@ -48,35 +48,46 @@ export const useReportsData = (): ReportsData => {
         const totalArtworks = Object.values(statusCounts).reduce((a, b) => a + b, 0);
         const soldCount = statusCounts.sold;
 
-        // Get sales data
+        // Get sales data from sold artworks
         let totalSalesAmount = 0;
         let monthlyData: Array<{ month: string; sales: number; count: number }> = [];
         let topArtworkData = { title: 'N/A', price: 0 };
-        let conversionRate = 0;
+        let conversionRate = totalArtworks > 0 ? Math.round((soldCount / totalArtworks) * 100) : 0;
+        
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        const salesByMonth: Record<string, { sales: number; count: number }> = {};
+        const now = new Date();
 
         try {
-          const salesResult = await salesService.getAll(userId, {}, { limit: 500 });
-          totalSalesAmount = salesResult.data.reduce((sum, sale) => sum + (sale.amount || 0), 0);
+          // Get all artworks and calculate sales from sold ones
+          const allArtworksResult = await artworksService.getAll(userId, {}, { limit: 500 });
           
-          // Calculate conversion rate (sold / total artworks)
-          conversionRate = totalArtworks > 0 ? Math.round((soldCount / totalArtworks) * 100) : 0;
-          
-          // Group sales by month
-          const salesByMonth: Record<string, { sales: number; count: number }> = {};
-          const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-          const now = new Date();
-          
-          salesResult.data.forEach(sale => {
-            const date = new Date(sale.created_at);
-            const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
-            if (!salesByMonth[monthKey]) {
-              salesByMonth[monthKey] = { sales: 0, count: 0 };
+          let highestPrice = 0;
+          allArtworksResult.data.forEach(artwork => {
+            if (artwork.status === 'sold' && artwork.price) {
+              totalSalesAmount += artwork.price;
+              
+              // Track top artwork
+              if (artwork.price > highestPrice) {
+                highestPrice = artwork.price;
+                topArtworkData = {
+                  title: artwork.title,
+                  price: artwork.price,
+                };
+              }
+              
+              // Group by month
+              const saleDate = new Date(artwork.updated_at || artwork.created_at);
+              const monthKey = `${saleDate.getFullYear()}-${saleDate.getMonth()}`;
+              if (!salesByMonth[monthKey]) {
+                salesByMonth[monthKey] = { sales: 0, count: 0 };
+              }
+              salesByMonth[monthKey].sales += artwork.price;
+              salesByMonth[monthKey].count += 1;
             }
-            salesByMonth[monthKey].sales += sale.amount || 0;
-            salesByMonth[monthKey].count += 1;
           });
 
-          // Get last 6 months for chart
+          // Generate last 6 months for chart
           for (let i = 5; i >= 0; i--) {
             const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
             const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
@@ -87,20 +98,12 @@ export const useReportsData = (): ReportsData => {
               count: data.count,
             });
           }
-
-          // Get top selling artwork
-          const topSale = salesResult.data
-            .sort((a, b) => (b.amount || 0) - (a.amount || 0))[0];
-          if (topSale) {
-            topArtworkData = {
-              title: topSale.title || 'Artwork',
-              price: topSale.amount || 0,
-            };
-          }
         } catch (e) {
-          console.warn('Could not fetch sales data:', e);
-          const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'];
-          monthlyData = monthNames.map(month => ({ month, sales: 0, count: 0 }));
+          console.warn('Could not fetch artworks for sales data:', e);
+          for (let i = 5; i >= 0; i--) {
+            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            monthlyData.push({ month: monthNames[date.getMonth()], sales: 0, count: 0 });
+          }
         }
 
         // Get contacts count

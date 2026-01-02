@@ -139,49 +139,78 @@ export const useDashboardData = (): DashboardData => {
         }));
         setRecentContacts(mappedContacts);
 
-        // Fetch sales data
+        // Fetch all artworks to calculate sold revenue
         let totalSalesAmount = 0;
+        let soldArtworksCount = 0;
         let monthlySalesData: ChartDataPoint[] = [];
-        try {
-          const salesResult = await salesService.getAll(userId, {}, { limit: 100 });
-          totalSalesAmount = salesResult.data.reduce((sum, sale) => sum + (sale.amount || 0), 0);
-          
-          // Group sales by month for chart
-          const salesByMonth: Record<string, { sales: number; artworks: number }> = {};
-          const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-          
-          salesResult.data.forEach(sale => {
-            const date = new Date(sale.created_at);
-            const monthKey = monthNames[date.getMonth()];
-            if (!salesByMonth[monthKey]) {
-              salesByMonth[monthKey] = { sales: 0, artworks: 0 };
-            }
-            salesByMonth[monthKey].sales += sale.amount || 0;
-            salesByMonth[monthKey].artworks += 1;
-          });
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        const salesByMonth: Record<string, { sales: number; artworks: number }> = {};
+        const now = new Date();
 
-          // Get last 6 months
-          const now = new Date();
+        try {
+          // Get all artworks to find sold ones
+          const allArtworksResult = await artworksService.getAll(userId, {}, { limit: 500 });
+          
+          // Calculate revenue from sold artworks
+          allArtworksResult.data.forEach(artwork => {
+            if (artwork.status === 'sold' && artwork.price) {
+              totalSalesAmount += artwork.price;
+              soldArtworksCount += 1;
+              
+              // Group by month for chart (use updated_at as sale date)
+              const saleDate = new Date(artwork.updated_at || artwork.created_at);
+              const monthKey = `${saleDate.getFullYear()}-${saleDate.getMonth()}`;
+              if (!salesByMonth[monthKey]) {
+                salesByMonth[monthKey] = { sales: 0, artworks: 0 };
+              }
+              salesByMonth[monthKey].sales += artwork.price;
+              salesByMonth[monthKey].artworks += 1;
+            }
+          });
+          
+          // Also try to fetch from sales table (for explicit sales records)
+          try {
+            const salesResult = await salesService.getAll(userId, {}, { limit: 100 });
+            salesResult.data.forEach(sale => {
+              // Avoid double counting - only add if not already counted from artworks
+              // For now, just add to chart data
+              const date = new Date(sale.created_at);
+              const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
+              if (!salesByMonth[monthKey]) {
+                salesByMonth[monthKey] = { sales: 0, artworks: 0 };
+              }
+              // Only add if this sale wasn't from an artwork we already counted
+              if (sale.amount && !sale.artwork_id) {
+                salesByMonth[monthKey].sales += sale.amount;
+                salesByMonth[monthKey].artworks += 1;
+                totalSalesAmount += sale.amount;
+              }
+            });
+          } catch (e) {
+            console.warn('Could not fetch from sales table:', e);
+          }
+
+          // Generate last 6 months chart data
           for (let i = 5; i >= 0; i--) {
             const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            const monthKey = monthNames[date.getMonth()];
+            const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
             monthlySalesData.push({
-              month: monthKey,
+              month: monthNames[date.getMonth()],
               sales: salesByMonth[monthKey]?.sales || 0,
               artworks: salesByMonth[monthKey]?.artworks || 0,
             });
           }
         } catch (e) {
-          // Sales service might fail if table doesn't exist
-          console.warn('Could not fetch sales data:', e);
-          monthlySalesData = [
-            { month: 'Jan', sales: 0, artworks: 0 },
-            { month: 'Feb', sales: 0, artworks: 0 },
-            { month: 'Mar', sales: 0, artworks: 0 },
-            { month: 'Apr', sales: 0, artworks: 0 },
-            { month: 'Mei', sales: 0, artworks: 0 },
-            { month: 'Jun', sales: 0, artworks: 0 },
-          ];
+          console.warn('Could not fetch artworks for sales calculation:', e);
+          // Fallback empty chart
+          for (let i = 5; i >= 0; i--) {
+            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            monthlySalesData.push({
+              month: monthNames[date.getMonth()],
+              sales: 0,
+              artworks: 0,
+            });
+          }
         }
 
         setSalesChartData(monthlySalesData);
