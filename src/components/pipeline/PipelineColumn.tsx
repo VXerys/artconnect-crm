@@ -2,8 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Sparkles } from "lucide-react";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { useDroppable } from "@dnd-kit/core";
 import { PipelineCard } from "./PipelineCard";
 import { PipelineItem, PipelineStatus, PipelineColumn as PipelineColumnType } from "./types";
+import { cn } from "@/lib/utils";
 
 interface PipelineColumnProps {
   columnKey: PipelineStatus;
@@ -13,7 +15,7 @@ interface PipelineColumnProps {
   onEditItem: (item: PipelineItem) => void;
   onDeleteItem: (item: PipelineItem) => void;
   onMoveToColumn: (item: PipelineItem, status: PipelineStatus) => void;
-  maxVisibleCards?: number; // Maximum cards visible before scroll
+  maxVisibleCards?: number;
 }
 
 export const PipelineColumnComponent = ({
@@ -24,14 +26,25 @@ export const PipelineColumnComponent = ({
   onEditItem,
   onDeleteItem,
   onMoveToColumn,
-  maxVisibleCards = 4, // Default: show 4 cards, then scroll
+  maxVisibleCards = 4,
 }: PipelineColumnProps) => {
+  // Make the column a droppable target for cross-column drops
+  const { setNodeRef, isOver } = useDroppable({
+    id: columnKey,
+  });
+
   // Calculate max height based on card height (~120px per card) + padding
   const maxHeight = maxVisibleCards * 130 + 20;
 
   return (
-    <div className="flex-shrink-0 w-80" id={columnKey}>
-      <Card className={`bg-card border-border border-t-4 ${column.color} flex flex-col`}>
+    <div ref={setNodeRef} className="flex-shrink-0 w-80">
+      <Card 
+        className={cn(
+          "bg-card border-border border-t-4 flex flex-col transition-all duration-200",
+          column.color,
+          isOver && "ring-2 ring-primary/50 bg-primary/5"
+        )}
+      >
         <CardHeader className="pb-3 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -60,7 +73,10 @@ export const PipelineColumnComponent = ({
               strategy={verticalListSortingStrategy}
             >
               {column.items.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-8 text-center">
+                <div className={cn(
+                  "flex flex-col items-center justify-center py-8 text-center rounded-lg border-2 border-dashed transition-colors",
+                  isOver ? "border-primary bg-primary/10" : "border-transparent"
+                )}>
                   <div className={`p-3 rounded-full ${column.bgColor} mb-3`}>
                     <Sparkles className={`w-5 h-5 ${column.textColor}`} />
                   </div>
