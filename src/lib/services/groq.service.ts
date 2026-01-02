@@ -455,39 +455,61 @@ Berikan 5-7 rekomendasi strategis untuk pengembangan bisnis seni.`;
 
   /**
    * Sanitize JSON string to remove control characters that break parsing
+   * This handles the case where AI returns JSON with newlines that need cleaning
    */
   private sanitizeJsonString(jsonStr: string): string {
-    // Remove BOM and other invisible characters
+    // Step 1: Remove BOM and trim
     let sanitized = jsonStr.trim();
     
-    // Replace problematic control characters inside string values
-    // This regex matches strings and replaces control chars within them
-    sanitized = sanitized.replace(/[\x00-\x1F\x7F]/g, (char) => {
-      switch (char) {
-        case '\n': return '\\n';
-        case '\r': return '\\r';
-        case '\t': return '\\t';
-        case '\b': return '\\b';
-        case '\f': return '\\f';
-        default: return ''; // Remove other control characters
-      }
-    });
+    // Step 2: First, try to parse as-is (maybe it's already valid)
+    try {
+      JSON.parse(sanitized);
+      return sanitized; // Already valid JSON
+    } catch {
+      // Continue with sanitization
+    }
     
-    // Fix common JSON issues from AI responses
+    // Step 3: Remove all newlines, carriage returns, and tabs 
+    // (they're only used for formatting, not needed in JSON structure)
+    sanitized = sanitized
+      .replace(/\r\n/g, ' ')  // Windows newlines
+      .replace(/\n/g, ' ')    // Unix newlines  
+      .replace(/\r/g, ' ')    // Old Mac newlines
+      .replace(/\t/g, ' ');   // Tabs
+    
+    // Step 4: Clean up multiple spaces
+    sanitized = sanitized.replace(/\s+/g, ' ');
+    
+    // Step 5: Remove spaces after { and [ and before } and ]
+    sanitized = sanitized
+      .replace(/\{\s+/g, '{')
+      .replace(/\s+\}/g, '}')
+      .replace(/\[\s+/g, '[')
+      .replace(/\s+\]/g, ']')
+      .replace(/,\s+/g, ',')
+      .replace(/:\s+/g, ':');
+    
+    // Step 6: Fix common JSON issues from AI responses
     // Remove trailing commas before closing brackets
     sanitized = sanitized.replace(/,(\s*[}\]])/g, '$1');
     
-    // Ensure proper escaping of backslashes
-    sanitized = sanitized.replace(/\\(?!["\\/bfnrtu])/g, '\\\\');
-    
-    return sanitized;
+    // Step 7: Try parsing again
+    try {
+      JSON.parse(sanitized);
+      return sanitized;
+    } catch (e) {
+      console.error('[Groq] JSON still invalid after sanitization:', e);
+      // Return the sanitized version anyway, let the caller handle the error
+      return sanitized;
+    }
   }
 
   /**
-   * Create a fallback report when AI response parsing fails
+   * Create a comprehensive fallback report when AI response parsing fails
+   * This generates actual data tables from the raw data, not just summaries
    */
   private createFallbackReport(reportData: ReportData): FormattedReport {
-    console.log('[Groq] Creating fallback report for:', reportData.type);
+    console.log('[Groq] Creating comprehensive fallback report for:', reportData.type);
     
     const titles: Record<string, string> = {
       inventory: 'Laporan Inventaris Karya Seni',
@@ -497,53 +519,228 @@ Berikan 5-7 rekomendasi strategis untuk pengembangan bisnis seni.`;
       combined: 'Laporan Lengkap Bisnis Seni',
     };
     
-    // Extract basic stats from data
     const data = reportData.data;
+    const sections: ReportSection[] = [];
+    
+    // Build stats section
     const statsSection: StatItem[] = [];
     
-    // Try to extract common data points
+    // Extract all available stats
     if (typeof data.totalArtworks === 'number') {
-      statsSection.push({ label: 'Total Karya', value: String(data.totalArtworks) });
+      statsSection.push({ label: 'Total Karya', value: String(data.totalArtworks), trend: 'neutral' });
     }
-    if (typeof data.totalRevenue === 'number') {
+    if (data.totalEstimatedValueFormatted) {
+      statsSection.push({ label: 'Nilai Estimasi', value: String(data.totalEstimatedValueFormatted), trend: 'neutral' });
+    }
+    if (typeof data.totalRevenue === 'number' || data.totalRevenueFormatted) {
       statsSection.push({ 
         label: 'Total Pendapatan', 
-        value: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(data.totalRevenue as number) 
+        value: data.totalRevenueFormatted as string || new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(data.totalRevenue as number),
+        trend: 'neutral'
       });
     }
     if (typeof data.totalContacts === 'number') {
-      statsSection.push({ label: 'Total Kontak', value: String(data.totalContacts) });
+      statsSection.push({ label: 'Total Kontak', value: String(data.totalContacts), trend: 'neutral' });
     }
     if (typeof data.totalSalesCount === 'number') {
-      statsSection.push({ label: 'Jumlah Penjualan', value: String(data.totalSalesCount) });
+      statsSection.push({ label: 'Jumlah Penjualan', value: String(data.totalSalesCount), trend: 'neutral' });
     }
     if (typeof data.totalActivities === 'number') {
-      statsSection.push({ label: 'Total Aktivitas', value: String(data.totalActivities) });
+      statsSection.push({ label: 'Total Aktivitas', value: String(data.totalActivities), trend: 'neutral' });
     }
+    if (typeof data.availableArtworksCount === 'number') {
+      statsSection.push({ label: 'Karya Tersedia', value: String(data.availableArtworksCount), trend: 'neutral' });
+    }
+    if (typeof data.vipContactsCount === 'number') {
+      statsSection.push({ label: 'Kontak VIP', value: String(data.vipContactsCount), trend: 'neutral' });
+    }
+
+    if (statsSection.length > 0) {
+      sections.push({
+        title: 'Statistik Utama',
+        type: 'stats',
+        content: statsSection,
+      });
+    }
+
+    // Build data tables based on report type
+    if (reportData.type === 'inventory' || reportData.type === 'combined') {
+      // Status distribution table
+      if (Array.isArray(data.statusDistribution) && data.statusDistribution.length > 0) {
+        sections.push({
+          title: 'Distribusi Status Karya',
+          type: 'table',
+          content: {
+            headers: ['Status', 'Jumlah', 'Persentase'],
+            rows: (data.statusDistribution as Array<{status: string; count: number; percentage: number}>)
+              .map(s => [s.status, String(s.count), `${s.percentage}%`]),
+          },
+        });
+      }
+      
+      // Top artworks table
+      if (Array.isArray(data.topValuedArtworks) && data.topValuedArtworks.length > 0) {
+        sections.push({
+          title: 'Karya Bernilai Tertinggi',
+          type: 'table',
+          content: {
+            headers: ['Judul', 'Harga', 'Medium', 'Status'],
+            rows: (data.topValuedArtworks as Array<{title: string; priceFormatted: string; medium: string; status: string}>)
+              .slice(0, 10)
+              .map(a => [a.title, a.priceFormatted, a.medium, a.status]),
+          },
+        });
+      }
+
+      // Artworks list table
+      if (Array.isArray(data.artworksList) && data.artworksList.length > 0) {
+        sections.push({
+          title: 'Daftar Karya Seni',
+          type: 'table',
+          content: {
+            headers: ['Judul', 'Medium', 'Dimensi', 'Tahun', 'Status', 'Harga'],
+            rows: (data.artworksList as Array<{title: string; medium: string; dimensions: string; year: string; status: string; priceFormatted: string}>)
+              .slice(0, 20)
+              .map(a => [a.title, a.medium, a.dimensions, a.year, a.status, a.priceFormatted]),
+          },
+        });
+      }
+    }
+
+    if (reportData.type === 'sales' || reportData.type === 'combined') {
+      // Monthly breakdown table
+      if (Array.isArray(data.monthlyBreakdown) && data.monthlyBreakdown.length > 0) {
+        sections.push({
+          title: 'Tren Penjualan Bulanan',
+          type: 'table',
+          content: {
+            headers: ['Periode', 'Pendapatan', 'Jumlah Transaksi'],
+            rows: (data.monthlyBreakdown as Array<{period: string; revenueFormatted: string; salesCount: number}>)
+              .map(m => [m.period, m.revenueFormatted, String(m.salesCount)]),
+          },
+        });
+      }
+
+      // Top sales table  
+      if (Array.isArray(data.topSales) && data.topSales.length > 0) {
+        sections.push({
+          title: 'Top Penjualan',
+          type: 'table',
+          content: {
+            headers: ['Judul', 'Nilai', 'Tanggal', 'Status'],
+            rows: (data.topSales as Array<{title: string; amountFormatted: string; date: string; status: string}>)
+              .slice(0, 10)
+              .map(s => [s.title, s.amountFormatted, s.date, s.status]),
+          },
+        });
+      }
+
+      // Sales list table
+      if (Array.isArray(data.salesList) && data.salesList.length > 0) {
+        sections.push({
+          title: 'Daftar Transaksi',
+          type: 'table',
+          content: {
+            headers: ['Judul', 'Nilai', 'Tanggal', 'Status', 'Metode Pembayaran'],
+            rows: (data.salesList as Array<{title: string; amountFormatted: string; date: string; status: string; paymentMethod: string}>)
+              .slice(0, 20)
+              .map(s => [s.title, s.amountFormatted, s.date, s.status, s.paymentMethod]),
+          },
+        });
+      }
+    }
+
+    if (reportData.type === 'contacts' || reportData.type === 'combined') {
+      // Contact type distribution table
+      if (Array.isArray(data.byType) && data.byType.length > 0) {
+        sections.push({
+          title: 'Segmentasi Kontak',
+          type: 'table',
+          content: {
+            headers: ['Kategori', 'Jumlah', 'Persentase'],
+            rows: (data.byType as Array<{type: string; count: number; percentage: number}>)
+              .map(t => [t.type, String(t.count), `${t.percentage}%`]),
+          },
+        });
+      }
+
+      // Top buyers table
+      if (Array.isArray(data.topBuyers) && data.topBuyers.length > 0) {
+        sections.push({
+          title: 'Top Pembeli',
+          type: 'table',
+          content: {
+            headers: ['Nama', 'Tipe', 'Perusahaan', 'Total Pembelian'],
+            rows: (data.topBuyers as Array<{name: string; type: string; company: string; totalPurchasesFormatted: string}>)
+              .slice(0, 10)
+              .map(b => [b.name, b.type, b.company, b.totalPurchasesFormatted]),
+          },
+        });
+      }
+
+      // Contacts list table
+      if (Array.isArray(data.contactsList) && data.contactsList.length > 0) {
+        sections.push({
+          title: 'Daftar Kontak',
+          type: 'table',
+          content: {
+            headers: ['Nama', 'Tipe', 'Perusahaan', 'Lokasi', 'Email'],
+            rows: (data.contactsList as Array<{name: string; type: string; company: string; location: string; email: string}>)
+              .slice(0, 20)
+              .map(c => [c.name, c.type, c.company, c.location, c.email]),
+          },
+        });
+      }
+    }
+
+    if (reportData.type === 'activity' || reportData.type === 'combined') {
+      // Activity type distribution table
+      if (Array.isArray(data.byType) && data.byType.length > 0) {
+        sections.push({
+          title: 'Distribusi Tipe Aktivitas',
+          type: 'table',
+          content: {
+            headers: ['Tipe', 'Jumlah', 'Persentase'],
+            rows: (data.byType as Array<{type: string; count: number; percentage: number}>)
+              .map(t => [t.type, String(t.count), `${t.percentage}%`]),
+          },
+        });
+      }
+
+      // Recent activities table
+      if (Array.isArray(data.recentActivities) && data.recentActivities.length > 0) {
+        sections.push({
+          title: 'Aktivitas Terbaru',
+          type: 'table',
+          content: {
+            headers: ['Tipe', 'Judul', 'Tanggal', 'Waktu'],
+            rows: (data.recentActivities as Array<{type: string; title: string; date: string; time: string}>)
+              .slice(0, 20)
+              .map(a => [a.type, a.title, a.date, a.time]),
+          },
+        });
+      }
+    }
+
+    // Add summary section
+    sections.push({
+      title: 'Ringkasan',
+      type: 'text',
+      content: `Laporan ini berisi ${sections.length - 1} bagian data yang berhasil diproses. ` +
+               `Data telah diformat secara otomatis dari sistem untuk memudahkan analisis. ` +
+               `Untuk insight dan rekomendasi yang lebih mendalam, silakan coba generate laporan kembali.`,
+    });
 
     return {
       title: titles[reportData.type] || reportData.title,
-      summary: `Laporan ini dibuat secara otomatis berdasarkan data yang tersedia. ` +
-               `Terdapat ${statsSection.length} metrik utama yang berhasil dianalisis. ` +
-               `Silakan gunakan data ini sebagai dasar untuk analisis lebih lanjut.`,
-      sections: [
-        {
-          title: 'Statistik Utama',
-          type: 'stats',
-          content: statsSection.length > 0 ? statsSection : [
-            { label: 'Status', value: 'Data berhasil dimuat' }
-          ],
-        },
-        {
-          title: 'Catatan',
-          type: 'text',
-          content: 'Laporan ini menggunakan template fallback karena terjadi kesalahan saat memproses respons AI. ' +
-                   'Data dasar tetap tersedia dan dapat digunakan untuk referensi.',
-        },
-      ],
+      summary: `Laporan ${titles[reportData.type] || reportData.title} ini menampilkan data lengkap dari sistem ArtConnect CRM. ` +
+               `Terdapat ${statsSection.length} metrik utama dan ${sections.length - 1} tabel data yang telah dianalisis.`,
+      sections,
       recommendations: [
-        'Periksa koneksi internet dan coba generate laporan kembali',
-        'Jika masalah berlanjut, hubungi dukungan teknis',
+        'Tinjau data di atas untuk memahami kondisi bisnis saat ini',
+        'Gunakan data statistik sebagai dasar pengambilan keputusan',
+        'Lakukan follow-up pada item yang memerlukan perhatian',
+        'Update data secara berkala untuk analisis yang akurat',
       ],
       generatedAt: new Date().toISOString(),
     };
