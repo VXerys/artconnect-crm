@@ -4,6 +4,7 @@ import { artworksService } from '@/lib/services/artworks.service';
 import { contactsService } from '@/lib/services/contacts.service';
 import { salesService } from '@/lib/services/sales.service';
 import { activityService } from '@/lib/services/activity.service';
+import { pipelineService } from '@/lib/services/pipeline.service';
 import type { StatItem, DashboardArtwork, DashboardContact, ActivityItem, ChartDataPoint } from '@/components/dashboard/types';
 import { Palette, Users, DollarSign, TrendingUp, ShoppingBag, UserPlus, Eye, RefreshCw } from 'lucide-react';
 
@@ -234,6 +235,19 @@ export const useDashboardData = (): DashboardData => {
           setRecentActivities([]);
         }
 
+        // Fetch pipeline items count (items that are not sold)
+        let activePipelineCount = 0;
+        try {
+          const pipelineData = await pipelineService.getPipelineData(userId);
+          // Count all items except sold
+          activePipelineCount = 
+            pipelineData.concept.items.length + 
+            pipelineData.wip.items.length + 
+            pipelineData.finished.items.length;
+        } catch (e) {
+          console.warn('Could not fetch pipeline data:', e);
+        }
+
         // Update stats
         setStats([
           {
@@ -272,7 +286,7 @@ export const useDashboardData = (): DashboardData => {
           {
             id: "interactions",
             title: "Pipeline Aktif",
-            value: statusCounts.wip.toString(),
+            value: activePipelineCount.toString(),
             change: "+0",
             trend: "up" as const,
             icon: TrendingUp,
