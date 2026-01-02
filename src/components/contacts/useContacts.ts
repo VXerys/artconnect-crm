@@ -138,7 +138,18 @@ export const useContacts = () => {
   // Add contact
   const handleAddContact = useCallback(async () => {
     const userId = getUserId();
-    if (!validateForm() || !userId) return;
+    console.log('handleAddContact called, userId:', userId);
+    
+    if (!validateForm()) {
+      console.log('Form validation failed');
+      return;
+    }
+    
+    if (!userId) {
+      console.error('No userId available - profile not loaded');
+      toast.error('Sesi belum siap. Silakan refresh halaman.');
+      return;
+    }
 
     setIsSubmitting(true);
 
