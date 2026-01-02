@@ -395,44 +395,72 @@ class ReportGeneratorService {
 
     let sectionsHTML = '';
     
-    for (const section of report.sections) {
+    // Safely iterate through sections with validation
+    const sections = Array.isArray(report.sections) ? report.sections : [];
+    
+    for (const section of sections) {
+      if (!section || !section.title) continue;
+      
       sectionsHTML += `<div class="section">
-        <h2>${section.title}</h2>`;
+        <h2>${this.escapeHtml(section.title)}</h2>`;
 
       if (section.type === 'text') {
-        sectionsHTML += `<p>${section.content}</p>`;
+        const textContent = typeof section.content === 'string' ? section.content : String(section.content || '');
+        sectionsHTML += `<p>${this.escapeHtml(textContent)}</p>`;
+        
       } else if (section.type === 'table') {
+        // Validate table structure
         const tableData = section.content as TableData;
-        sectionsHTML += `
-          <table>
-            <thead>
-              <tr>
-                ${tableData.headers.map(h => `<th>${h}</th>`).join('')}
-              </tr>
-            </thead>
-            <tbody>
-              ${tableData.rows.map(row => `
+        if (tableData && Array.isArray(tableData.headers) && Array.isArray(tableData.rows)) {
+          sectionsHTML += `
+            <table>
+              <thead>
                 <tr>
-                  ${row.map(cell => `<td>${cell}</td>`).join('')}
+                  ${tableData.headers.map(h => `<th>${this.escapeHtml(String(h))}</th>`).join('')}
                 </tr>
-              `).join('')}
-            </tbody>
-          </table>`;
+              </thead>
+              <tbody>
+                ${tableData.rows.map(row => `
+                  <tr>
+                    ${Array.isArray(row) ? row.map(cell => `<td>${this.escapeHtml(String(cell))}</td>`).join('') : ''}
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>`;
+        } else {
+          // Fallback for invalid table data
+          sectionsHTML += `<p><em>Data tabel tidak tersedia</em></p>`;
+        }
+        
       } else if (section.type === 'stats') {
-        const stats = section.content as StatItem[];
-        sectionsHTML += `
-          <div class="stats-grid">
-            ${stats.map(stat => `
-              <div class="stat-card">
-                <div class="stat-label">${stat.label}</div>
-                <div class="stat-value">${stat.value}</div>
-                ${stat.change ? `<div class="stat-change ${stat.trend}">${stat.change}</div>` : ''}
-              </div>
-            `).join('')}
-          </div>`;
+        // Validate stats is an array
+        const stats = Array.isArray(section.content) ? section.content as StatItem[] : [];
+        if (stats.length > 0) {
+          sectionsHTML += `
+            <div class="stats-grid">
+              ${stats.map(stat => {
+                if (!stat || typeof stat !== 'object') return '';
+                const label = stat.label || 'N/A';
+                const value = stat.value || '0';
+                const trend = stat.trend || '';
+                const change = stat.change || '';
+                return `
+                  <div class="stat-card">
+                    <div class="stat-label">${this.escapeHtml(String(label))}</div>
+                    <div class="stat-value">${this.escapeHtml(String(value))}</div>
+                    ${change ? `<div class="stat-change ${trend}">${this.escapeHtml(String(change))}</div>` : ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>`;
+        } else {
+          sectionsHTML += `<p><em>Statistik tidak tersedia</em></p>`;
+        }
+        
       } else if (section.type === 'chart') {
+        const chartContent = typeof section.content === 'string' ? section.content : 'Grafik akan ditampilkan di sini';
         sectionsHTML += `<div class="chart-placeholder">
-          <p><em>${section.content}</em></p>
+          <p><em>${this.escapeHtml(chartContent)}</em></p>
         </div>`;
       }
 
@@ -780,6 +808,15 @@ class ReportGeneratorService {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Escape HTML special characters to prevent XSS
+   */
+  private escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
 }
 

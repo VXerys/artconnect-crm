@@ -155,35 +155,53 @@ class GroqService {
    * Generate a formatted report using AI
    */
   async generateReport(reportData: ReportData): Promise<FormattedReport> {
-    const systemPrompt = `Kamu adalah asisten AI profesional yang ahli dalam membuat laporan bisnis untuk seniman dan galeri seni. 
-Tugasmu adalah menganalisis data dan menghasilkan laporan yang terstruktur, informatif, dan mudah dipahami.
+    // Best practices prompt for reliable JSON output
+    const systemPrompt = `Kamu adalah asisten AI profesional yang ahli membuat laporan bisnis untuk seniman dan galeri seni.
 
-INSTRUKSI PENTING:
-1. Selalu gunakan Bahasa Indonesia yang formal namun mudah dipahami
-2. Format output dalam JSON yang valid
-3. Berikan ringkasan eksekutif yang jelas di bagian summary
-4. Buat struktur sections yang rapi dengan tipe yang sesuai:
-   - "text" untuk paragraf deskriptif
-   - "table" untuk data tabular dengan headers dan rows
-   - "stats" untuk statistik dengan label, value, trend (up/down/neutral), dan change
-   - "chart" untuk rekomendasi visualisasi (deskripsi saja)
-5. Sertakan rekomendasi yang actionable berdasarkan analisis data
-6. Pastikan semua angka mata uang diformat dalam Rupiah (Rp)
-7. Berikan insight yang berguna dan tidak hanya merepetisi data
+ATURAN KETAT UNTUK OUTPUT:
+1. HANYA keluarkan JSON yang valid, TANPA teks tambahan sebelum atau sesudahnya
+2. JANGAN gunakan karakter newline (\\n) di dalam string - gunakan spasi saja
+3. JANGAN gunakan karakter tab atau special characters
+4. Gunakan Bahasa Indonesia yang formal
+5. Semua mata uang dalam format "Rp X.XXX.XXX"
 
-FORMAT OUTPUT JSON:
+STRUKTUR JSON YANG HARUS DIIKUTI:
 {
-  "title": "Judul Laporan",
-  "summary": "Ringkasan eksekutif 2-3 paragraf yang menjelaskan highlight utama dan insight penting",
+  "title": "Judul Laporan Singkat",
+  "summary": "Ringkasan eksekutif dalam 2-3 kalimat yang menjelaskan insight utama. Pastikan tidak ada newline.",
   "sections": [
     {
-      "title": "Judul Bagian",
-      "type": "text|table|stats|chart",
-      "content": "Konten sesuai tipe"
+      "title": "Statistik Utama",
+      "type": "stats",
+      "content": [
+        {"label": "Total Karya", "value": "25", "trend": "up", "change": "+5"},
+        {"label": "Pendapatan", "value": "Rp 50.000.000", "trend": "up", "change": "+15%"}
+      ]
+    },
+    {
+      "title": "Ringkasan",
+      "type": "text",
+      "content": "Paragraf deskriptif tanpa karakter newline di dalamnya."
+    },
+    {
+      "title": "Data Detail",
+      "type": "table",
+      "content": {
+        "headers": ["Kolom1", "Kolom2", "Kolom3"],
+        "rows": [["data1", "data2", "data3"], ["data4", "data5", "data6"]]
+      }
     }
   ],
-  "recommendations": ["Rekomendasi 1", "Rekomendasi 2"]
-}`;
+  "recommendations": ["Rekomendasi pertama yang actionable", "Rekomendasi kedua"]
+}
+
+TIPE SECTION:
+- "stats": content HARUS array of objects dengan {label, value, trend?, change?}
+- "text": content HARUS string tanpa newline
+- "table": content HARUS object dengan {headers: string[], rows: string[][]}
+- "chart": content HARUS string deskripsi grafik
+
+PENTING: Pastikan JSON valid dan dapat di-parse. Tidak boleh ada trailing commas.`;
 
     const userPrompt = this.buildUserPrompt(reportData);
 
