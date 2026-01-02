@@ -267,48 +267,168 @@ PENTING: Pastikan JSON valid dan dapat di-parse. Tidak boleh ada trailing commas
     // Add type-specific instructions
     switch (type) {
       case 'inventory':
-        prompt += `FOKUS ANALISIS:
-- Total karya seni dan distribusi berdasarkan status (tersedia, terjual, dipamerkan, dll)
-- Nilai total estimasi inventaris
-- Distribusi berdasarkan medium/kategori
-- Karya dengan nilai tertinggi
-- Rekomendasi pengelolaan inventaris`;
+        prompt += `FOKUS ANALISIS DAN SECTIONS YANG HARUS DIBUAT:
+
+1. SECTION "Statistik Utama" (type: stats):
+   - Total karya seni dan persentase berdasarkan status
+   - Total nilai estimasi inventaris dan nilai rata-rata
+   - Jumlah karya tersedia untuk dijual
+
+2. SECTION "Distribusi Berdasarkan Status" (type: table):
+   - Tabel dengan kolom: Status, Jumlah, Persentase
+   - Gunakan data dari statusDistribution
+
+3. SECTION "Distribusi Berdasarkan Medium" (type: table):
+   - Tabel dengan kolom: Medium, Jumlah, Total Nilai
+   - Gunakan data dari byMedium
+
+4. SECTION "Karya Bernilai Tertinggi" (type: table):
+   - Tabel dengan kolom: Judul, Harga, Medium, Status
+   - Gunakan data dari topValuedArtworks (maksimal 10)
+
+5. SECTION "Daftar Inventaris" (type: table):
+   - Tabel lengkap karya seni dengan kolom: Judul, Medium, Dimensi, Tahun, Status, Harga
+   - Gunakan data dari artworksList
+
+6. SECTION "Analisis dan Insight" (type: text):
+   - Berikan analisis mendalam tentang kondisi inventaris
+   - Identifikasi pola dan peluang
+
+Berikan 3-5 rekomendasi konkret untuk pengelolaan inventaris.`;
         break;
 
       case 'sales':
-        prompt += `FOKUS ANALISIS:
-- Total pendapatan dan tren penjualan
-- Karya terjual terbaik (top performers)
-- Rata-rata harga penjualan
-- Perbandingan dengan periode sebelumnya jika tersedia
-- Proyeksi dan rekomendasi strategi penjualan`;
+        prompt += `FOKUS ANALISIS DAN SECTIONS YANG HARUS DIBUAT:
+
+1. SECTION "Ringkasan Penjualan" (type: stats):
+   - Total pendapatan (gunakan totalRevenueFormatted)
+   - Jumlah penjualan total
+   - Rata-rata nilai penjualan
+   - Penjualan selesai vs pending
+
+2. SECTION "Tren Penjualan Bulanan" (type: table):
+   - Tabel dengan kolom: Periode, Pendapatan, Jumlah Transaksi
+   - Gunakan data dari monthlyBreakdown
+   - Jelaskan tren yang terlihat
+
+3. SECTION "Top Penjualan" (type: table):
+   - Tabel dengan kolom: Judul, Nilai, Tanggal, Status
+   - Gunakan data dari topSales (maksimal 10)
+
+4. SECTION "Status Penjualan" (type: table):
+   - Tabel dengan kolom: Status, Jumlah, Total Nilai
+   - Gunakan data dari salesByStatus
+
+5. SECTION "Daftar Transaksi" (type: table):
+   - Tabel lengkap dengan kolom: Judul, Nilai, Tanggal, Status, Metode Pembayaran
+   - Gunakan data dari salesList
+
+6. SECTION "Analisis Performa" (type: text):
+   - Analisis tren penjualan
+   - Identifikasi periode terbaik dan terburuk
+   - Insight tentang preferensi pembeli
+
+Berikan 3-5 rekomendasi konkret untuk meningkatkan penjualan.`;
         break;
 
       case 'contacts':
-        prompt += `FOKUS ANALISIS:
-- Total kontak dan segmentasi (galeri, kolektor, museum, dll)
-- Distribusi berdasarkan kategori
-- Kontak paling aktif atau bernilai tinggi
-- Peluang kolaborasi atau follow-up
-- Rekomendasi strategi networking`;
+        prompt += `FOKUS ANALISIS DAN SECTIONS YANG HARUS DIBUAT:
+
+1. SECTION "Statistik Jaringan" (type: stats):
+   - Total kontak
+   - Kontak aktif
+   - Kontak VIP
+   - Total nilai pembelian dari kontak
+
+2. SECTION "Segmentasi Kontak" (type: table):
+   - Tabel dengan kolom: Kategori, Jumlah, Persentase
+   - Gunakan data dari byType
+
+3. SECTION "Distribusi Lokasi" (type: table):
+   - Tabel dengan kolom: Lokasi, Jumlah
+   - Gunakan data dari topLocations (top 10)
+
+4. SECTION "Top Pembeli" (type: table):
+   - Tabel dengan kolom: Nama, Tipe, Perusahaan, Total Pembelian
+   - Gunakan data dari topBuyers
+
+5. SECTION "Kontak VIP" (type: table):
+   - Tabel dengan kolom: Nama, Tipe, Perusahaan, Lokasi
+   - Gunakan data dari vipContacts
+
+6. SECTION "Daftar Kontak" (type: table):
+   - Tabel lengkap dengan kolom: Nama, Tipe, Perusahaan, Lokasi, Email
+   - Gunakan data dari contactsList
+
+7. SECTION "Peluang Kolaborasi" (type: text):
+   - Identifikasi peluang kerjasama berdasarkan segmentasi
+   - Rekomendasi follow-up untuk kontak potensial
+
+Berikan 3-5 rekomendasi konkret untuk memperluas jaringan.`;
         break;
 
       case 'activity':
-        prompt += `FOKUS ANALISIS:
-- Total aktivitas dan jenisnya
-- Timeline aktivitas penting
-- Meeting dan event yang direncanakan
-- Follow-up yang pending
-- Rekomendasi prioritas aktivitas`;
+        prompt += `FOKUS ANALISIS DAN SECTIONS YANG HARUS DIBUAT:
+
+1. SECTION "Statistik Aktivitas" (type: stats):
+   - Total aktivitas
+   - Aktivitas minggu ini
+   - Aktivitas bulan ini
+
+2. SECTION "Distribusi Tipe Aktivitas" (type: table):
+   - Tabel dengan kolom: Tipe Aktivitas, Jumlah, Persentase
+   - Gunakan data dari byType
+
+3. SECTION "Timeline Aktivitas" (type: table):
+   - Tabel dengan kolom: Tanggal, Jumlah Aktivitas
+   - Gunakan data dari timeline
+
+4. SECTION "Aktivitas Penting" (type: table):
+   - Tabel dengan kolom: Tipe, Judul, Tanggal
+   - Gunakan data dari importantActivities (penjualan, dll)
+
+5. SECTION "Aktivitas Terbaru" (type: table):
+   - Tabel lengkap dengan kolom: Tipe, Judul, Tanggal, Waktu
+   - Gunakan data dari recentActivities (maksimal 20)
+
+6. SECTION "Analisis Produktivitas" (type: text):
+   - Analisis pola aktivitas
+   - Identifikasi periode paling produktif
+   - Insight tentang fokus kerja
+
+Berikan 3-5 rekomendasi konkret untuk meningkatkan produktivitas.`;
         break;
 
       case 'combined':
-        prompt += `FOKUS ANALISIS:
-- Overview menyeluruh dari semua aspek bisnis
-- Korelasi antara inventaris, penjualan, kontak, dan aktivitas
-- Performa keseluruhan bisnis seni
-- Highlight pencapaian utama
-- Rekomendasi strategis untuk pengembangan`;
+        prompt += `FOKUS ANALISIS DAN SECTIONS YANG HARUS DIBUAT:
+
+1. SECTION "Ringkasan Bisnis" (type: stats):
+   - Total karya seni
+   - Total pendapatan
+   - Total kontak
+   - Total aktivitas
+
+2. SECTION "Performa Inventaris" (type: text):
+   - Ringkasan kondisi inventaris
+   - Status karya dan nilai total
+
+3. SECTION "Performa Penjualan" (type: text):
+   - Ringkasan tren penjualan
+   - Top performer
+
+4. SECTION "Jaringan & Kontak" (type: text):
+   - Ringkasan segmentasi kontak
+   - VIP dan top buyers
+
+5. SECTION "Aktivitas Bisnis" (type: text):
+   - Ringkasan aktivitas
+   - Highlight penting
+
+6. SECTION "Analisis Korelasi" (type: text):
+   - Hubungan antara inventaris, penjualan, kontak, dan aktivitas
+   - Insight bisnis keseluruhan
+
+Berikan 5-7 rekomendasi strategis untuk pengembangan bisnis seni.`;
         break;
     }
 

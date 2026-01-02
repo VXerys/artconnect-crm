@@ -122,50 +122,116 @@ class ReportGeneratorService {
 
   /**
    * Fetch inventory data for report
+   * Includes: Daftar semua karya, Nilai estimasi, Status dan lokasi
    */
   private async fetchInventoryData(userId: string): Promise<Record<string, unknown>> {
     try {
       const [artworksResult, statusCounts] = await Promise.all([
-        artworksService.getAll(userId, {}, { limit: 100 }),
+        artworksService.getAll(userId, {}, { limit: 200 }),
         artworksService.getCountByStatus(userId),
       ]);
 
       const artworks = artworksResult.data;
       const totalValue = artworks.reduce((sum, a) => sum + (a.price || 0), 0);
       
+      // Status distribution with labels
+      const statusLabels: Record<string, string> = {
+        concept: 'Konsep',
+        wip: 'Dalam Proses',
+        finished: 'Selesai',
+        sold: 'Terjual',
+      };
+      
+      const statusDistributionFormatted = Object.entries(statusCounts).map(([status, count]) => ({
+        status: statusLabels[status] || status,
+        count: count,
+        percentage: artworks.length > 0 ? Math.round((count / artworks.length) * 100) : 0,
+      }));
+      
       // Group by medium
-      const byMedium: Record<string, number> = {};
+      const byMedium: Record<string, { count: number; totalValue: number }> = {};
       artworks.forEach(a => {
         const medium = a.medium || 'Tidak diketahui';
-        byMedium[medium] = (byMedium[medium] || 0) + 1;
+        if (!byMedium[medium]) {
+          byMedium[medium] = { count: 0, totalValue: 0 };
+        }
+        byMedium[medium].count += 1;
+        byMedium[medium].totalValue += a.price || 0;
+      });
+      
+      // Group by category
+      const byCategory: Record<string, number> = {};
+      artworks.forEach(a => {
+        const category = a.category || 'Tanpa Kategori';
+        byCategory[category] = (byCategory[category] || 0) + 1;
+      });
+      
+      // Group by year
+      const byYear: Record<string, number> = {};
+      artworks.forEach(a => {
+        const year = a.year ? String(a.year) : 'Tidak diketahui';
+        byYear[year] = (byYear[year] || 0) + 1;
       });
 
       // Top valued artworks
       const topArtworks = [...artworks]
+        .filter(a => a.price && a.price > 0)
         .sort((a, b) => (b.price || 0) - (a.price || 0))
-        .slice(0, 5)
+        .slice(0, 10)
         .map(a => ({
           title: a.title,
           price: a.price,
-          medium: a.medium,
-          status: a.status,
+          priceFormatted: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(a.price || 0),
+          medium: a.medium || 'N/A',
+          status: statusLabels[a.status] || a.status,
+          year: a.year || 'N/A',
+          dimensions: a.dimensions || 'N/A',
         }));
+      
+      // Available artworks (not sold)
+      const availableArtworks = artworks.filter(a => a.status !== 'sold');
+      const availableValue = availableArtworks.reduce((sum, a) => sum + (a.price || 0), 0);
+
+      // Full artwork list for table (limited to 50 for report)
+      const fullArtworkList = artworks.slice(0, 50).map(a => ({
+        title: a.title,
+        medium: a.medium || 'N/A',
+        dimensions: a.dimensions || 'N/A',
+        year: a.year || 'N/A',
+        status: statusLabels[a.status] || a.status,
+        priceFormatted: a.price ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(a.price) : 'Belum ditentukan',
+        category: a.category || 'Tanpa Kategori',
+      }));
 
       return {
+        // Summary stats
         totalArtworks: artworks.length,
-        statusDistribution: statusCounts,
         totalEstimatedValue: totalValue,
+        totalEstimatedValueFormatted: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(totalValue),
         averageValue: artworks.length > 0 ? Math.round(totalValue / artworks.length) : 0,
-        byMedium,
-        topValuedArtworks: topArtworks,
-        artworksList: artworks.slice(0, 20).map(a => ({
-          title: a.title,
-          medium: a.medium,
-          status: a.status,
-          price: a.price,
-          year: a.year,
-          dimensions: a.dimensions,
+        averageValueFormatted: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(artworks.length > 0 ? Math.round(totalValue / artworks.length) : 0),
+        
+        // Available inventory
+        availableArtworksCount: availableArtworks.length,
+        availableInventoryValue: availableValue,
+        availableInventoryValueFormatted: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(availableValue),
+        
+        // Distributions
+        statusDistribution: statusDistributionFormatted,
+        byMedium: Object.entries(byMedium).map(([medium, data]) => ({
+          medium,
+          count: data.count,
+          totalValue: data.totalValue,
+          totalValueFormatted: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(data.totalValue),
         })),
+        byCategory: Object.entries(byCategory).map(([category, count]) => ({ category, count })),
+        byYear: Object.entries(byYear).sort((a, b) => b[0].localeCompare(a[0])).map(([year, count]) => ({ year, count })),
+        
+        // Top artworks
+        topValuedArtworks: topArtworks,
+        
+        // Full list for table
+        artworksList: fullArtworkList,
       };
     } catch (error) {
       console.error('Error fetching inventory data:', error);
@@ -175,11 +241,12 @@ class ReportGeneratorService {
 
   /**
    * Fetch sales data for report
+   * Includes: Total pendapatan, Top karya terjual, Grafik penjualan, Analisis pembeli
    */
   private async fetchSalesData(userId: string, period?: { startDate: string; endDate: string }): Promise<Record<string, unknown>> {
     try {
       // Get sales from sales service
-      const salesResult = await salesService.getAll(userId, {}, { limit: 100 });
+      const salesResult = await salesService.getAll(userId, {}, { limit: 200 });
       const sales = salesResult.data;
 
       // Filter by period if provided
@@ -195,46 +262,99 @@ class ReportGeneratorService {
 
       const totalRevenue = filteredSales.reduce((sum, s) => sum + (s.total_amount || 0), 0);
       const totalSalesCount = filteredSales.length;
+      const completedSales = filteredSales.filter(s => s.status === 'completed');
+      const pendingSales = filteredSales.filter(s => s.status === 'pending');
 
-      // Monthly breakdown
-      const monthlyData: Record<string, { revenue: number; count: number }> = {};
+      // Status labels
+      const statusLabels: Record<string, string> = {
+        pending: 'Menunggu',
+        completed: 'Selesai',
+        cancelled: 'Dibatalkan',
+        refunded: 'Dikembalikan',
+      };
+
+      // Monthly breakdown for chart data
+      const monthlyData: Record<string, { revenue: number; count: number; month: string }> = {};
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      
       filteredSales.forEach(s => {
         const date = new Date(s.created_at);
         const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
         if (!monthlyData[monthKey]) {
-          monthlyData[monthKey] = { revenue: 0, count: 0 };
+          monthlyData[monthKey] = { 
+            revenue: 0, 
+            count: 0, 
+            month: `${monthNames[date.getMonth()]} ${date.getFullYear()}` 
+          };
         }
         monthlyData[monthKey].revenue += s.total_amount || 0;
         monthlyData[monthKey].count += 1;
       });
 
-      // Top sales
-      const topSales = [...filteredSales]
-        .sort((a, b) => (b.total_amount || 0) - (a.total_amount || 0))
-        .slice(0, 5)
-        .map(s => ({
-          title: s.title || 'N/A',
-          description: s.description || '',
-          amount: s.total_amount,
-          date: s.created_at,
-          status: s.status,
+      // Format monthly data for chart (sorted by date)
+      const monthlyBreakdownFormatted = Object.entries(monthlyData)
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([key, data]) => ({
+          period: data.month,
+          revenue: data.revenue,
+          revenueFormatted: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(data.revenue),
+          salesCount: data.count,
         }));
 
-      return {
-        totalRevenue,
-        totalSalesCount,
-        averageSaleValue: totalSalesCount > 0 ? Math.round(totalRevenue / totalSalesCount) : 0,
-        monthlyBreakdown: monthlyData,
-        topSales,
-        salesList: filteredSales.slice(0, 20).map(s => ({
+      // Top selling items
+      const topSales = [...filteredSales]
+        .filter(s => s.total_amount && s.total_amount > 0)
+        .sort((a, b) => (b.total_amount || 0) - (a.total_amount || 0))
+        .slice(0, 10)
+        .map(s => ({
           title: s.title || 'N/A',
-          description: s.description || '',
           amount: s.total_amount,
-          date: s.created_at,
-          status: s.status,
-          paymentMethod: s.payment_method,
-        })),
-        period: period || 'Semua waktu',
+          amountFormatted: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(s.total_amount || 0),
+          date: new Date(s.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+          status: statusLabels[s.status] || s.status,
+          paymentMethod: s.payment_method || 'N/A',
+        }));
+
+      // Full sales list
+      const fullSalesList = filteredSales.slice(0, 50).map(s => ({
+        title: s.title || 'N/A',
+        amountFormatted: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(s.total_amount || 0),
+        date: new Date(s.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+        status: statusLabels[s.status] || s.status,
+        paymentMethod: s.payment_method || 'N/A',
+      }));
+
+      // Sales by status
+      const salesByStatus = Object.entries(statusLabels).map(([status, label]) => ({
+        status: label,
+        count: filteredSales.filter(s => s.status === status).length,
+        total: filteredSales.filter(s => s.status === status).reduce((sum, s) => sum + (s.total_amount || 0), 0),
+      })).filter(s => s.count > 0);
+
+      return {
+        // Summary stats
+        totalRevenue,
+        totalRevenueFormatted: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(totalRevenue),
+        totalSalesCount,
+        completedSalesCount: completedSales.length,
+        pendingSalesCount: pendingSales.length,
+        averageSaleValue: totalSalesCount > 0 ? Math.round(totalRevenue / totalSalesCount) : 0,
+        averageSaleValueFormatted: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(totalSalesCount > 0 ? Math.round(totalRevenue / totalSalesCount) : 0),
+        
+        // Monthly data for chart
+        monthlyBreakdown: monthlyBreakdownFormatted,
+        
+        // Status breakdown
+        salesByStatus,
+
+        // Top sales
+        topSales,
+        
+        // Full list
+        salesList: fullSalesList,
+        
+        // Period info
+        period: period ? `${new Date(period.startDate).toLocaleDateString('id-ID')} - ${new Date(period.endDate).toLocaleDateString('id-ID')}` : 'Semua waktu',
       };
     } catch (error) {
       console.error('Error fetching sales data:', error);
@@ -246,13 +366,14 @@ class ReportGeneratorService {
 
         return {
           totalRevenue,
+          totalRevenueFormatted: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(totalRevenue),
           totalSalesCount: soldArtworks.length,
           averageSaleValue: soldArtworks.length > 0 ? Math.round(totalRevenue / soldArtworks.length) : 0,
           soldArtworks: soldArtworks.map(a => ({
             title: a.title,
-            price: a.price,
-            medium: a.medium,
-            soldDate: a.updated_at,
+            priceFormatted: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(a.price || 0),
+            medium: a.medium || 'N/A',
+            soldDate: new Date(a.updated_at).toLocaleDateString('id-ID'),
           })),
         };
       } catch (e) {
@@ -263,18 +384,30 @@ class ReportGeneratorService {
 
   /**
    * Fetch contacts data for report
+   * Includes: Daftar kontak, Kategori & segmentasi, Peluang kerjasama
    */
   private async fetchContactsData(userId: string): Promise<Record<string, unknown>> {
     try {
-      const contactsResult = await contactsService.getAll(userId, {}, { limit: 100 });
+      const contactsResult = await contactsService.getAll(userId, {}, { limit: 200 });
       const contacts = contactsResult.data;
 
-      // Group by type (gallery, collector, museum, curator)
-      const byType: Record<string, number> = {};
-      contacts.forEach(c => {
-        const contactType = c.type || 'Lainnya';
-        byType[contactType] = (byType[contactType] || 0) + 1;
-      });
+      // Type labels
+      const typeLabels: Record<string, string> = {
+        gallery: 'Galeri',
+        collector: 'Kolektor',
+        museum: 'Museum',
+        curator: 'Kurator',
+      };
+
+      // Group by type with formatted labels
+      const byTypeFormatted = Object.entries(typeLabels).map(([type, label]) => {
+        const count = contacts.filter(c => c.type === type).length;
+        return {
+          type: label,
+          count,
+          percentage: contacts.length > 0 ? Math.round((count / contacts.length) * 100) : 0,
+        };
+      }).filter(t => t.count > 0);
 
       // Group by location
       const byLocation: Record<string, number> = {};
@@ -283,18 +416,76 @@ class ReportGeneratorService {
         byLocation[location] = (byLocation[location] || 0) + 1;
       });
 
-      return {
-        totalContacts: contacts.length,
-        byType,
-        byLocation,
-        contactsList: contacts.slice(0, 20).map(c => ({
+      // Top locations
+      const topLocations = Object.entries(byLocation)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10)
+        .map(([location, count]) => ({ location, count }));
+
+      // VIP contacts
+      const vipContacts = contacts
+        .filter(c => c.is_vip)
+        .slice(0, 10)
+        .map(c => ({
           name: c.name,
-          type: c.type,
-          company: c.company,
-          location: c.location,
-          email: c.email,
-          phone: c.phone,
-        })),
+          type: typeLabels[c.type] || c.type,
+          company: c.company || 'N/A',
+          location: c.location || 'N/A',
+          totalPurchases: c.total_purchases || 0,
+          purchasesFormatted: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(c.total_purchases || 0),
+        }));
+
+      // Top contacts by purchase value
+      const topBuyers = [...contacts]
+        .filter(c => c.total_purchases && c.total_purchases > 0)
+        .sort((a, b) => (b.total_purchases || 0) - (a.total_purchases || 0))
+        .slice(0, 10)
+        .map(c => ({
+          name: c.name,
+          type: typeLabels[c.type] || c.type,
+          company: c.company || 'N/A',
+          purchaseCount: c.purchase_count || 0,
+          totalPurchasesFormatted: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(c.total_purchases || 0),
+        }));
+
+      // Active contacts (recently contacted)
+      const activeContacts = contacts.filter(c => c.is_active).length;
+
+      // Full contact list
+      const fullContactList = contacts.slice(0, 50).map(c => ({
+        name: c.name,
+        type: typeLabels[c.type] || c.type,
+        company: c.company || 'N/A',
+        location: c.location || 'N/A',
+        email: c.email || 'N/A',
+        phone: c.phone || 'N/A',
+        isVIP: c.is_vip ? 'Ya' : 'Tidak',
+        rating: c.rating ? `${c.rating}/5` : 'N/A',
+      }));
+
+      // Calculate total purchase value from all contacts
+      const totalContactPurchases = contacts.reduce((sum, c) => sum + (c.total_purchases || 0), 0);
+
+      return {
+        // Summary
+        totalContacts: contacts.length,
+        activeContactsCount: activeContacts,
+        vipContactsCount: vipContacts.length,
+        totalContactPurchases,
+        totalContactPurchasesFormatted: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(totalContactPurchases),
+
+        // Segmentation by type
+        byType: byTypeFormatted,
+
+        // Location distribution
+        topLocations,
+
+        // VIP and top buyers
+        vipContacts,
+        topBuyers,
+
+        // Full list
+        contactsList: fullContactList,
       };
     } catch (error) {
       console.error('Error fetching contacts data:', error);
@@ -304,11 +495,12 @@ class ReportGeneratorService {
 
   /**
    * Fetch activity data for report
+   * Includes: Timeline aktivitas, Follow-up tasks, Meeting & events, Catatan penting
    */
   private async fetchActivityData(userId: string, period?: { startDate: string; endDate: string }): Promise<Record<string, unknown>> {
     try {
       // activityService.getAll returns FormattedActivity[] directly
-      const activities = await activityService.getAll(userId, 100);
+      const activities = await activityService.getAll(userId, 200);
 
       // Filter by period if provided
       let filteredActivities = activities;
@@ -321,24 +513,102 @@ class ReportGeneratorService {
         });
       }
 
-      // Group by activity_type
-      const byType: Record<string, number> = {};
+      // Activity type labels
+      const typeLabels: Record<string, string> = {
+        artwork_created: 'Karya Dibuat',
+        artwork_updated: 'Karya Diperbarui',
+        artwork_sold: 'Karya Terjual',
+        contact_added: 'Kontak Ditambahkan',
+        contact_updated: 'Kontak Diperbarui',
+        sale_created: 'Penjualan Dibuat',
+        sale_completed: 'Penjualan Selesai',
+        report_generated: 'Laporan Dibuat',
+        user_login: 'Login',
+        user_profile_updated: 'Profil Diperbarui',
+      };
+
+      // Group by activity_type with formatted labels
+      const byTypeFormatted = Object.entries(
+        filteredActivities.reduce((acc, a) => {
+          const type = a.activity_type || 'Lainnya';
+          acc[type] = (acc[type] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>)
+      ).map(([type, count]) => ({
+        type: typeLabels[type] || type,
+        count,
+        percentage: filteredActivities.length > 0 ? Math.round((count / filteredActivities.length) * 100) : 0,
+      })).sort((a, b) => b.count - a.count);
+
+      // Group by date for timeline
+      const byDate: Record<string, { date: string; activities: Array<{ type: string; title: string; time: string }> }> = {};
       filteredActivities.forEach(a => {
-        const type = a.activity_type || 'Lainnya';
-        byType[type] = (byType[type] || 0) + 1;
+        const date = new Date(a.created_at);
+        const dateKey = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        const time = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        
+        if (!byDate[dateKey]) {
+          byDate[dateKey] = { date: dateKey, activities: [] };
+        }
+        byDate[dateKey].activities.push({
+          type: typeLabels[a.activity_type] || a.activity_type,
+          title: a.title,
+          time,
+        });
       });
 
-      return {
-        totalActivities: filteredActivities.length,
-        byType,
-        recentActivities: filteredActivities.slice(0, 20).map(a => ({
-          type: a.activity_type,
+      // Timeline - last 7 days with activity count
+      const timeline = Object.values(byDate).slice(0, 7);
+
+      // Recent activities with full details
+      const recentActivities = filteredActivities.slice(0, 30).map(a => ({
+        type: typeLabels[a.activity_type] || a.activity_type,
+        title: a.title,
+        description: a.description || 'N/A',
+        date: new Date(a.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+        time: new Date(a.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+        relativeTime: a.relativeTime,
+      }));
+
+      // Important activities (sales completed, artworks sold)
+      const importantActivities = filteredActivities
+        .filter(a => ['sale_completed', 'artwork_sold', 'sale_created'].includes(a.activity_type))
+        .slice(0, 10)
+        .map(a => ({
+          type: typeLabels[a.activity_type] || a.activity_type,
           title: a.title,
-          description: a.description,
-          date: a.created_at,
-          relativeTime: a.relativeTime,
-        })),
-        period: period || 'Semua waktu',
+          description: a.description || '',
+          date: new Date(a.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+        }));
+
+      // Activity summary by week
+      const now = new Date();
+      const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      
+      const thisWeekCount = filteredActivities.filter(a => new Date(a.created_at) >= oneWeekAgo).length;
+      const thisMonthCount = filteredActivities.filter(a => new Date(a.created_at) >= oneMonthAgo).length;
+
+      return {
+        // Summary
+        totalActivities: filteredActivities.length,
+        thisWeekActivities: thisWeekCount,
+        thisMonthActivities: thisMonthCount,
+
+        // By type distribution
+        byType: byTypeFormatted,
+
+        // Timeline view
+        timeline,
+
+        // Recent activities
+        recentActivities,
+
+        // Important activities (sales, etc.)
+        importantActivities,
+
+        // Period info
+        period: period ? `${new Date(period.startDate).toLocaleDateString('id-ID')} - ${new Date(period.endDate).toLocaleDateString('id-ID')}` : 'Semua waktu',
       };
     } catch (error) {
       console.error('Error fetching activity data:', error);
