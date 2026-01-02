@@ -7,7 +7,8 @@ import { initialFormData } from "./constants";
 import { toast } from "sonner";
 
 export const useArtworks = () => {
-  const { user } = useAuth();
+  const { user, getUserId, profile } = useAuth();
+  const userId = profile?.id || null;
   const [view, setView] = useState<ViewMode>('grid');
   const [filter, setFilter] = useState<string>('all');
   const [artworks, setArtworks] = useState<Artwork[]>([]);
@@ -28,14 +29,14 @@ export const useArtworks = () => {
 
   // Fetch artworks from Supabase
   const fetchArtworks = useCallback(async () => {
-    if (!user?.id) {
+    if (!userId) {
       setLoading(false);
       return;
     }
 
     try {
       setLoading(true);
-      const result = await artworksService.getAll(user.id, {}, { limit: 100 });
+      const result = await artworksService.getAll(userId, {}, { limit: 100 });
       
       // Map database artworks to local Artwork type
       const mappedArtworks: Artwork[] = result.data.map(dbArtwork => ({
@@ -58,12 +59,14 @@ export const useArtworks = () => {
     } finally {
       setLoading(false);
     }
-  }, [user?.id]);
+  }, [userId]);
 
-  // Initial fetch
+  // Initial fetch - wait for profile to load
   useEffect(() => {
-    fetchArtworks();
-  }, [fetchArtworks]);
+    if (userId) {
+      fetchArtworks();
+    }
+  }, [fetchArtworks, userId]);
 
   // Filtered artworks
   const filteredArtworks = useMemo(() => {
@@ -166,7 +169,10 @@ export const useArtworks = () => {
 
   // Handle Add artwork submit
   const handleAddSubmit = useCallback(async () => {
-    if (!validateForm() || !user?.id) return;
+    if (!validateForm() || !userId) {
+      if (!userId) toast.error('Sesi belum siap. Silakan refresh halaman.');
+      return;
+    }
 
     setIsSubmitting(true);
 
@@ -179,7 +185,7 @@ export const useArtworks = () => {
         : formData.year;
 
       const newArtwork = await artworksService.create({
-        user_id: user.id,
+        user_id: userId,
         title: formData.title,
         medium: formData.medium,
         dimensions: formData.dimensions,
@@ -192,7 +198,7 @@ export const useArtworks = () => {
 
       // Log activity
       try {
-        await activityService.logArtworkCreated(user.id, newArtwork.id, newArtwork.title);
+        await activityService.logArtworkCreated(userId, newArtwork.id, newArtwork.title);
       } catch (e) {
         console.warn('Could not log activity:', e);
       }
@@ -209,11 +215,11 @@ export const useArtworks = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, user?.id, validateForm, resetForm, fetchArtworks]);
+  }, [formData, userId, validateForm, resetForm, fetchArtworks]);
 
   // Handle Edit artwork submit
   const handleEditSubmit = useCallback(async () => {
-    if (!validateForm() || !selectedArtwork || !user?.id) return;
+    if (!validateForm() || !selectedArtwork || !userId) return;
 
     setIsSubmitting(true);
 
@@ -240,7 +246,7 @@ export const useArtworks = () => {
 
       // Log activity
       try {
-        await activityService.logArtworkUpdated(user.id, dbId, formData.title);
+        await activityService.logArtworkUpdated(userId, dbId, formData.title);
       } catch (e) {
         console.warn('Could not log activity:', e);
       }
@@ -257,7 +263,7 @@ export const useArtworks = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, selectedArtwork, user?.id, validateForm, resetForm, fetchArtworks]);
+  }, [formData, selectedArtwork, userId, validateForm, resetForm, fetchArtworks]);
 
   // Handle Delete artwork
   const handleDeleteConfirm = useCallback(async () => {
