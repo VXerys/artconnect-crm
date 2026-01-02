@@ -10,6 +10,8 @@ export { pipelineService } from './pipeline.service';
 export { userService } from './user.service';
 export { activityService } from './activity.service';
 export { notificationsService } from './notifications.service';
+export { groqService } from './groq.service';
+export { reportGeneratorService } from './report-generator.service';
 
 // Export types from artworks service
 export type {
@@ -56,6 +58,22 @@ export type {
   CreateNotificationParams,
 } from './notifications.service';
 
+// Export types from groq service
+export type {
+  GroqMessage,
+  ReportData,
+  FormattedReport,
+  ReportSection,
+  TableData,
+  StatItem,
+} from './groq.service';
+
+// Export types from report generator service
+export type {
+  GenerateReportOptions,
+  GeneratedReportResult,
+} from './report-generator.service';
+
 // Common types
 export interface PaginatedResult<T> {
   data: T[];
@@ -64,3 +82,4 @@ export interface PaginatedResult<T> {
   limit: number;
   totalPages: number;
 }
+

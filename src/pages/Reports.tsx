@@ -2,7 +2,9 @@ import { useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { toast } from "sonner";
 import { useReportsData } from "@/hooks/useReportsData";
+import { useAuth } from "@/context/AuthContext";
 import { Loader2 } from "lucide-react";
+import { reportGeneratorService } from "@/lib/services/report-generator.service";
 
 // Reports Components
 import {
@@ -20,6 +22,8 @@ import {
 } from "@/components/reports";
 
 const Reports = () => {
+  const { profile } = useAuth();
+  const userId = profile?.id;
   const [isGenerating, setIsGenerating] = useState(false);
   const [scheduledReports, setScheduledReports] = useState(initialScheduledReports);
   const [recentReports, setRecentReports] = useState(staticRecentReports);
@@ -34,59 +38,121 @@ const Reports = () => {
     error,
   } = useReportsData();
 
-  // Handle quick report generation
-  const handleGenerateReport = (reportId: string, format: "csv" | "pdf") => {
-    toast.success(`Generating ${format.toUpperCase()} report...`, {
-      description: `Laporan ${reportId} sedang dibuat`,
+  // Handle quick report generation with AI
+  const handleGenerateReport = async (reportId: string, format: "csv" | "pdf") => {
+    if (!userId) {
+      toast.error("Silakan login terlebih dahulu");
+      return;
+    }
+
+    setIsGenerating(true);
+    toast.loading(`🤖 AI sedang menganalisis data dan membuat laporan ${format.toUpperCase()}...`, {
+      id: 'report-generating',
+      description: `Laporan ${reportId} sedang diproses`,
     });
     
-    // Simulate download
-    setTimeout(() => {
-      toast.success("Laporan berhasil dibuat!", {
-        description: `File ${reportId}_report.${format} siap didownload`,
+    try {
+      const result = await reportGeneratorService.generateReport({
+        type: reportId as 'inventory' | 'sales' | 'contacts' | 'activity' | 'combined',
+        format: format,
+        userId: userId,
+        includeCharts: true,
+        includeImages: false,
       });
 
-      // Add to recent reports
-      const newReport = {
-        id: Date.now(),
-        name: `${reportId}_${new Date().toISOString().split('T')[0]}.${format}`,
-        type: reportId as 'inventory' | 'sales' | 'contacts' | 'activity',
-        date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
-        size: `${Math.floor(Math.random() * 100 + 20)} KB`,
-        format: format as 'csv' | 'pdf' | 'xlsx',
-        status: 'completed' as const,
-      };
-      setRecentReports(prev => [newReport, ...prev].slice(0, 10));
-    }, 1500);
+      if (result.success) {
+        toast.success("✨ Laporan AI berhasil dibuat!", {
+          id: 'report-generating',
+          description: `File ${result.filename} siap didownload`,
+        });
+
+        // Add to recent reports
+        const newReport = {
+          id: Date.now(),
+          name: result.filename,
+          type: reportId as 'inventory' | 'sales' | 'contacts' | 'activity',
+          date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+          size: result.blob ? `${Math.round(result.blob.size / 1024)} KB` : '0 KB',
+          format: format as 'csv' | 'pdf' | 'xlsx',
+          status: 'completed' as const,
+        };
+        setRecentReports(prev => [newReport, ...prev].slice(0, 10));
+      } else {
+        toast.error("Gagal membuat laporan", {
+          id: 'report-generating',
+          description: result.error || "Terjadi kesalahan saat membuat laporan",
+        });
+      }
+    } catch (error) {
+      console.error('Error generating report:', error);
+      toast.error("Gagal membuat laporan", {
+        id: 'report-generating',
+        description: error instanceof Error ? error.message : "Terjadi kesalahan",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
-  // Handle custom report generation
-  const handleCustomReportGenerate = (formData: CustomReportFormData) => {
+  // Handle custom report generation with AI
+  const handleCustomReportGenerate = async (formData: CustomReportFormData) => {
+    if (!userId) {
+      toast.error("Silakan login terlebih dahulu");
+      return;
+    }
+
     setIsGenerating(true);
     
-    toast.success("Memproses laporan kustom...", {
+    toast.loading("🤖 AI sedang menganalisis data...", {
+      id: 'custom-report-generating',
       description: `Tipe: ${formData.reportType}, Format: ${formData.format.toUpperCase()}`,
     });
 
-    // Simulate generation
-    setTimeout(() => {
-      setIsGenerating(false);
-      toast.success("Laporan kustom berhasil dibuat!", {
-        description: "File siap didownload",
+    try {
+      const result = await reportGeneratorService.generateReport({
+        type: formData.reportType as 'inventory' | 'sales' | 'contacts' | 'activity' | 'combined',
+        format: formData.format,
+        period: formData.startDate && formData.endDate ? {
+          startDate: formData.startDate,
+          endDate: formData.endDate,
+        } : undefined,
+        includeCharts: formData.includeCharts,
+        includeImages: formData.includeImages,
+        userId: userId,
       });
 
-      // Add to recent reports
-      const newReport = {
-        id: Date.now(),
-        name: `custom_${formData.reportType}_${new Date().toISOString().split('T')[0]}.${formData.format}`,
-        type: formData.reportType as 'inventory' | 'sales' | 'contacts' | 'activity',
-        date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
-        size: `${Math.floor(Math.random() * 100 + 50)} KB`,
-        format: formData.format as 'csv' | 'pdf' | 'xlsx',
-        status: 'completed' as const,
-      };
-      setRecentReports(prev => [newReport, ...prev].slice(0, 10));
-    }, 2000);
+      if (result.success) {
+        toast.success("✨ Laporan kustom AI berhasil dibuat!", {
+          id: 'custom-report-generating',
+          description: "File siap didownload",
+        });
+
+        // Add to recent reports
+        const newReport = {
+          id: Date.now(),
+          name: result.filename,
+          type: formData.reportType as 'inventory' | 'sales' | 'contacts' | 'activity',
+          date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+          size: result.blob ? `${Math.round(result.blob.size / 1024)} KB` : '0 KB',
+          format: formData.format as 'csv' | 'pdf' | 'xlsx',
+          status: 'completed' as const,
+        };
+        setRecentReports(prev => [newReport, ...prev].slice(0, 10));
+      } else {
+        toast.error("Gagal membuat laporan kustom", {
+          id: 'custom-report-generating',
+          description: result.error || "Terjadi kesalahan saat membuat laporan",
+        });
+      }
+    } catch (error) {
+      console.error('Error generating custom report:', error);
+      toast.error("Gagal membuat laporan kustom", {
+        id: 'custom-report-generating',
+        description: error instanceof Error ? error.message : "Terjadi kesalahan",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   // Handle schedule report
