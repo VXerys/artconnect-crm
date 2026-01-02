@@ -28,7 +28,8 @@ interface AnalyticsData {
 }
 
 export const useAnalyticsData = (): AnalyticsData => {
-  const { user } = useAuth();
+  const { profile } = useAuth();
+  const userId = profile?.id || null;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -51,7 +52,7 @@ export const useAnalyticsData = (): AnalyticsData => {
 
   useEffect(() => {
     const fetchAnalyticsData = async () => {
-      if (!user?.id) {
+      if (!userId) {
         setLoading(false);
         return;
       }
@@ -61,11 +62,11 @@ export const useAnalyticsData = (): AnalyticsData => {
         setError(null);
 
         // Get artwork counts by status
-        const statusCounts = await artworksService.getCountByStatus(user.id);
+        const statusCounts = await artworksService.getCountByStatus(userId);
         const totalArtworks = Object.values(statusCounts).reduce((a, b) => a + b, 0);
 
         // Get contacts count
-        const contactsResult = await contactsService.getAll(user.id, {}, { limit: 1 });
+        const contactsResult = await contactsService.getAll(userId, {}, { limit: 1 });
         const totalContacts = contactsResult.count;
 
         // Get sales data
@@ -75,7 +76,7 @@ export const useAnalyticsData = (): AnalyticsData => {
         let lastMonthSales = 0;
 
         try {
-          const salesResult = await salesService.getAll(user.id, {}, { limit: 500 });
+          const salesResult = await salesService.getAll(userId, {}, { limit: 500 });
           totalSalesAmount = salesResult.data.reduce((sum, sale) => sum + (sale.amount || 0), 0);
           
           // Group sales by month
@@ -138,7 +139,7 @@ export const useAnalyticsData = (): AnalyticsData => {
         // Get activities for contact activity chart
         let activityChartData: ContactActivityData[] = [];
         try {
-          const activityStats = await activityService.getStats(user.id, 180);
+          const activityStats = await activityService.getStats(userId, 180);
           const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
           const now = new Date();
           
@@ -166,7 +167,7 @@ export const useAnalyticsData = (): AnalyticsData => {
 
         // Get top artworks (most expensive or recently sold)
         try {
-          const artworksResult = await artworksService.getAll(user.id, {}, { limit: 10, orderBy: 'price', orderDirection: 'desc' });
+          const artworksResult = await artworksService.getAll(userId, {}, { limit: 10, orderBy: 'price', orderDirection: 'desc' });
           const topArtworksList: TopArtwork[] = artworksResult.data
             .filter(a => a.price && a.price > 0)
             .slice(0, 4)
@@ -243,7 +244,7 @@ export const useAnalyticsData = (): AnalyticsData => {
     };
 
     fetchAnalyticsData();
-  }, [user?.id]);
+  }, [userId]);
 
   return {
     stats,

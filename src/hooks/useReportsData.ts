@@ -16,7 +16,8 @@ interface ReportsData {
 }
 
 export const useReportsData = (): ReportsData => {
-  const { user } = useAuth();
+  const { profile } = useAuth();
+  const userId = profile?.id || null;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -33,7 +34,7 @@ export const useReportsData = (): ReportsData => {
 
   useEffect(() => {
     const fetchReportsData = async () => {
-      if (!user?.id) {
+      if (!userId) {
         setLoading(false);
         return;
       }
@@ -43,7 +44,7 @@ export const useReportsData = (): ReportsData => {
         setError(null);
 
         // Get artwork counts
-        const statusCounts = await artworksService.getCountByStatus(user.id);
+        const statusCounts = await artworksService.getCountByStatus(userId);
         const totalArtworks = Object.values(statusCounts).reduce((a, b) => a + b, 0);
         const soldCount = statusCounts.sold;
 
@@ -54,7 +55,7 @@ export const useReportsData = (): ReportsData => {
         let conversionRate = 0;
 
         try {
-          const salesResult = await salesService.getAll(user.id, {}, { limit: 500 });
+          const salesResult = await salesService.getAll(userId, {}, { limit: 500 });
           totalSalesAmount = salesResult.data.reduce((sum, sale) => sum + (sale.amount || 0), 0);
           
           // Calculate conversion rate (sold / total artworks)
@@ -103,7 +104,7 @@ export const useReportsData = (): ReportsData => {
         }
 
         // Get contacts count
-        const contactsResult = await contactsService.getAll(user.id, {}, { limit: 1 });
+        const contactsResult = await contactsService.getAll(userId, {}, { limit: 1 });
         const totalContacts = contactsResult.count;
 
         // Calculate average price
@@ -171,7 +172,7 @@ export const useReportsData = (): ReportsData => {
     };
 
     fetchReportsData();
-  }, [user?.id]);
+  }, [userId]);
 
   return {
     metrics,

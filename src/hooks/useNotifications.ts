@@ -10,7 +10,8 @@ import { notificationsService } from '@/lib/services/notifications.service';
  * Hook to easily create notifications from anywhere in the app
  */
 export const useNotifications = () => {
-  const { user } = useAuth();
+  const { profile } = useAuth();
+  const userId = profile?.id || null;
 
   /**
    * Create a generic notification
@@ -21,11 +22,11 @@ export const useNotifications = () => {
     type: 'info' | 'success' | 'warning' | 'error' = 'info',
     actionUrl?: string
   ) => {
-    if (!user?.id) return null;
+    if (!userId) return null;
     
     try {
       return await notificationsService.create({
-        userId: user.id,
+        userId,
         title,
         message,
         type,
@@ -35,7 +36,7 @@ export const useNotifications = () => {
       console.error('Failed to create notification:', error);
       return null;
     }
-  }, [user?.id]);
+  }, [userId]);
 
   /**
    * Notify when a new artwork is created
@@ -44,7 +45,7 @@ export const useNotifications = () => {
     artworkTitle: string,
     artworkId: string
   ) => {
-    if (!user?.id) return null;
+    if (!userId) return null;
     
     return await notify(
       '🎨 Karya Baru Ditambahkan',
@@ -52,7 +53,7 @@ export const useNotifications = () => {
       'success',
       `/artworks`
     );
-  }, [user?.id, notify]);
+  }, [userId, notify]);
 
   /**
    * Notify when an artwork is sold
@@ -62,15 +63,15 @@ export const useNotifications = () => {
     amount: number,
     artworkId: string
   ) => {
-    if (!user?.id) return null;
+    if (!userId) return null;
     
     return await notificationsService.notifyArtworkSold(
-      user.id,
+      userId,
       artworkTitle,
       amount,
       artworkId
     );
-  }, [user?.id]);
+  }, [userId]);
 
   /**
    * Notify when a new contact is added
@@ -79,14 +80,14 @@ export const useNotifications = () => {
     contactName: string,
     contactId: string
   ) => {
-    if (!user?.id) return null;
+    if (!userId) return null;
     
     return await notificationsService.notifyNewContact(
-      user.id,
+      userId,
       contactName,
       contactId
     );
-  }, [user?.id]);
+  }, [userId]);
 
   /**
    * Notify when a payment is received
@@ -95,14 +96,14 @@ export const useNotifications = () => {
     amount: number,
     saleId: string
   ) => {
-    if (!user?.id) return null;
+    if (!userId) return null;
     
     return await notificationsService.notifyPaymentReceived(
-      user.id,
+      userId,
       amount,
       saleId
     );
-  }, [user?.id]);
+  }, [userId]);
 
   /**
    * Notify when a due date is approaching
@@ -112,15 +113,15 @@ export const useNotifications = () => {
     dueDate: string,
     itemId: string
   ) => {
-    if (!user?.id) return null;
+    if (!userId) return null;
     
     return await notificationsService.notifyDueDateApproaching(
-      user.id,
+      userId,
       itemTitle,
       dueDate,
       itemId
     );
-  }, [user?.id]);
+  }, [userId]);
 
   /**
    * Notify when a sale is completed
@@ -130,7 +131,7 @@ export const useNotifications = () => {
     amount: number,
     saleId: string
   ) => {
-    if (!user?.id) return null;
+    if (!userId) return null;
     
     return await notify(
       '✅ Penjualan Selesai',
@@ -138,7 +139,7 @@ export const useNotifications = () => {
       'success',
       `/reports`
     );
-  }, [user?.id, notify]);
+  }, [userId, notify]);
 
   /**
    * Notify when status changes in pipeline
@@ -148,7 +149,7 @@ export const useNotifications = () => {
     newStatus: string,
     itemId: string
   ) => {
-    if (!user?.id) return null;
+    if (!userId) return null;
     
     const statusLabels: Record<string, string> = {
       concept: 'Konsep',
@@ -163,13 +164,13 @@ export const useNotifications = () => {
       'info',
       `/pipeline`
     );
-  }, [user?.id, notify]);
+  }, [userId, notify]);
 
   /**
    * Notify welcome message for new users
    */
   const notifyWelcome = useCallback(async (userName: string) => {
-    if (!user?.id) return null;
+    if (!userId) return null;
     
     return await notify(
       '👋 Selamat Datang di ArtConnect!',
@@ -177,7 +178,7 @@ export const useNotifications = () => {
       'info',
       '/dashboard'
     );
-  }, [user?.id, notify]);
+  }, [userId, notify]);
 
   /**
    * Notify when report is generated
@@ -186,14 +187,14 @@ export const useNotifications = () => {
     reportName: string,
     reportId: string
   ) => {
-    if (!user?.id) return null;
+    if (!userId) return null;
     
     return await notificationsService.notifyReportReady(
-      user.id,
+      userId,
       reportName,
       reportId
     );
-  }, [user?.id]);
+  }, [userId]);
 
   return {
     notify,

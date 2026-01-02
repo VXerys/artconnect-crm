@@ -14,7 +14,8 @@ import { initialFormData, getEmptyPipelineData } from "./constants";
 import { toast } from "sonner";
 
 export const usePipeline = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const userId = profile?.id || null;
   const [pipelineData, setPipelineData] = useState<PipelineData>(getEmptyPipelineData());
   const [loading, setLoading] = useState(true);
   const [activeItem, setActiveItem] = useState<PipelineItem | null>(null);
@@ -28,14 +29,14 @@ export const usePipeline = () => {
 
   // Fetch pipeline data from Supabase
   const fetchPipeline = useCallback(async () => {
-    if (!user?.id) {
+    if (!userId) {
       setLoading(false);
       return;
     }
 
     try {
       setLoading(true);
-      const data = await pipelineService.getPipelineData(user.id);
+      const data = await pipelineService.getPipelineData(userId);
       
       // Map database items to local PipelineItem type
       const mappedData: PipelineData = {
@@ -76,12 +77,14 @@ export const usePipeline = () => {
     } finally {
       setLoading(false);
     }
-  }, [user?.id]);
+  }, [userId]);
 
-  // Initial fetch
+  // Initial fetch - wait for profile to load
   useEffect(() => {
-    fetchPipeline();
-  }, [fetchPipeline]);
+    if (userId) {
+      fetchPipeline();
+    }
+  }, [fetchPipeline, userId]);
 
   // Find which column an item belongs to
   const findColumnByItemId = useCallback((itemId: string): PipelineStatus | null => {
@@ -147,7 +150,7 @@ export const usePipeline = () => {
     const { active, over } = event;
     setActiveItem(null);
 
-    if (!over || !user?.id) return;
+    if (!over || !userId) return;
 
     const activeId = active.id as string;
     const overId = over.id as string;
@@ -189,7 +192,7 @@ export const usePipeline = () => {
     } catch (error) {
       console.error('Error updating item position:', error);
     }
-  }, [findColumnByItemId, pipelineData, user?.id]);
+  }, [findColumnByItemId, pipelineData, userId]);
 
   // Move item via menu
   const handleMoveToColumn = useCallback(async (item: PipelineItem, targetStatus: PipelineStatus) => {
@@ -255,7 +258,10 @@ export const usePipeline = () => {
 
   // Add item
   const handleAddItem = useCallback(async () => {
-    if (!validateForm() || !user?.id) return;
+    if (!validateForm() || !userId) {
+      if (!userId) toast.error('Sesi belum siap. Silakan refresh halaman.');
+      return;
+    }
     setIsSubmitting(true);
 
     try {
@@ -264,7 +270,7 @@ export const usePipeline = () => {
         : null;
 
       await pipelineService.create({
-        user_id: user.id,
+        user_id: userId,
         title: formData.title,
         medium: formData.medium,
         due_date: formData.dueDate,
@@ -284,11 +290,11 @@ export const usePipeline = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, user?.id, validateForm, resetForm, fetchPipeline]);
+  }, [formData, userId, validateForm, resetForm, fetchPipeline]);
 
   // Edit item
   const handleEditItem = useCallback(async () => {
-    if (!validateForm() || !selectedItem || !user?.id) return;
+    if (!validateForm() || !selectedItem || !userId) return;
     setIsSubmitting(true);
 
     try {
@@ -322,7 +328,7 @@ export const usePipeline = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, selectedItem, user?.id, validateForm, findColumnByItemId, resetForm, fetchPipeline]);
+  }, [formData, selectedItem, userId, validateForm, findColumnByItemId, resetForm, fetchPipeline]);
 
   // Delete item
   const handleDeleteItem = useCallback(async (item: PipelineItem) => {
