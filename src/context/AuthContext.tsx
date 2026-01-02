@@ -8,16 +8,22 @@ import {
   signOut as supabaseSignOut,
   resetPassword as supabaseResetPassword,
 } from '../lib/supabase';
+import { usersService } from '../lib/services/users.service';
+import type { User as DBUser } from '../lib/database.types';
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 interface AuthContextType {
-  // State
-  user: User | null;
+  // Auth State
+  user: User | null;           // Supabase Auth user
   session: Session | null;
   loading: boolean;
+  
+  // Database User Profile
+  profile: DBUser | null;      // Database user profile with users.id
+  profileLoading: boolean;
   
   // Auth methods
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
@@ -28,6 +34,12 @@ interface AuthContextType {
   
   // Utils
   isAuthenticated: boolean;
+  
+  // Helper to get the correct user_id for database operations
+  getUserId: () => string | null;
+  
+  // Refresh profile
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -44,6 +56,51 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<DBUser | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+
+  // Fetch user profile from database
+  const fetchProfile = useCallback(async (authUser: User | null) => {
+    if (!authUser) {
+      setProfile(null);
+      return;
+    }
+
+    setProfileLoading(true);
+    try {
+      const dbProfile = await usersService.getByAuthId(authUser.id);
+      setProfile(dbProfile);
+      
+      if (!dbProfile) {
+        console.warn('No database profile found for user:', authUser.id);
+        // Try to create one if it doesn't exist
+        try {
+          const newProfile = await usersService.create(
+            authUser.id,
+            authUser.email || '',
+            authUser.user_metadata?.full_name || authUser.user_metadata?.name,
+            authUser.user_metadata?.avatar_url || authUser.user_metadata?.picture
+          );
+          setProfile(newProfile);
+          console.log('Created new database profile:', newProfile.id);
+        } catch (createError) {
+          console.error('Could not create profile:', createError);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      setProfile(null);
+    } finally {
+      setProfileLoading(false);
+    }
+  }, []);
+
+  // Refresh profile manually
+  const refreshProfile = useCallback(async () => {
+    if (user) {
+      await fetchProfile(user);
+    }
+  }, [user, fetchProfile]);
 
   // Initialize auth state
   useEffect(() => {
@@ -62,6 +119,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const { data: { session: initialSession } } = await supabase.auth.getSession();
         setSession(initialSession);
         setUser(initialSession?.user ?? null);
+        
+        // Fetch profile after getting session
+        if (initialSession?.user) {
+          await fetchProfile(initialSession.user);
+        }
       } catch (error) {
         console.error('Error initializing auth:', error);
       } finally {
@@ -82,13 +144,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(currentSession?.user ?? null);
           setLoading(false);
 
-          // Handle specific auth events
-          if (event === 'SIGNED_IN') {
-            console.log('User signed in:', currentSession?.user?.email);
+          // Fetch profile on auth changes
+          if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+            if (currentSession?.user) {
+              await fetchProfile(currentSession.user);
+            }
           } else if (event === 'SIGNED_OUT') {
+            setProfile(null);
             console.log('User signed out');
-          } else if (event === 'TOKEN_REFRESHED') {
-            console.log('Token refreshed');
           }
         }
       );
@@ -102,7 +165,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => {
       subscription?.unsubscribe();
     };
-  }, []);
+  }, [fetchProfile]);
+
+  // Get the correct user_id for database operations
+  const getUserId = useCallback((): string | null => {
+    // Return the database user ID, not the auth ID
+    return profile?.id || null;
+  }, [profile]);
 
   // Sign in with email/password
   const signIn = useCallback(async (email: string, password: string) => {
@@ -152,6 +221,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (error) {
         return { error: new Error(error.message) };
       }
+      setProfile(null);
       return { error: null };
     } catch (err) {
       return { error: err as Error };
@@ -175,12 +245,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     user,
     session,
     loading,
+    profile,
+    profileLoading,
     signIn,
     signUp,
     signInWithGoogle: handleGoogleSignIn,
     signOut: handleSignOut,
     resetPassword: handleResetPassword,
     isAuthenticated: !!user,
+    getUserId,
+    refreshProfile,
   };
 
   return (

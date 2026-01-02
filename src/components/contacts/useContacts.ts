@@ -8,7 +8,7 @@ import { initialFormData, isValidEmail, isValidPhone } from "./constants";
 import { toast } from "sonner";
 
 export const useContacts = () => {
-  const { user } = useAuth();
+  const { getUserId, profile, profileLoading } = useAuth();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
@@ -24,14 +24,15 @@ export const useContacts = () => {
 
   // Fetch contacts from Supabase
   const fetchContacts = useCallback(async () => {
-    if (!user?.id) {
+    const userId = getUserId();
+    if (!userId) {
       setLoading(false);
       return;
     }
 
     try {
       setLoading(true);
-      const result = await contactsService.getAll(user.id, {}, { limit: 100 });
+      const result = await contactsService.getAll(userId, {}, { limit: 100 });
       
       // Map database contacts to local Contact type
       const mappedContacts: Contact[] = result.data.map(dbContact => ({
@@ -56,12 +57,16 @@ export const useContacts = () => {
     } finally {
       setLoading(false);
     }
-  }, [user?.id]);
+  }, [getUserId]);
 
-  // Initial fetch
+  // Initial fetch - wait for profile to be loaded
   useEffect(() => {
-    fetchContacts();
-  }, [fetchContacts]);
+    if (!profileLoading && profile) {
+      fetchContacts();
+    } else if (!profileLoading && !profile) {
+      setLoading(false);
+    }
+  }, [fetchContacts, profile, profileLoading]);
 
   // Filtered contacts
   const filteredContacts = useMemo(() => {
@@ -132,13 +137,14 @@ export const useContacts = () => {
 
   // Add contact
   const handleAddContact = useCallback(async () => {
-    if (!validateForm() || !user?.id) return;
+    const userId = getUserId();
+    if (!validateForm() || !userId) return;
 
     setIsSubmitting(true);
 
     try {
       const newContact = await contactsService.create({
-        user_id: user.id,
+        user_id: userId,
         name: formData.name,
         type: formData.type as ContactType,
         email: formData.email,
@@ -152,8 +158,8 @@ export const useContacts = () => {
 
       // Log activity and create notification
       try {
-        await activityService.logContactAdded(user.id, newContact.id, newContact.name);
-        await notificationsService.notifyNewContact(user.id, newContact.name, newContact.id);
+        await activityService.logContactAdded(userId, newContact.id, newContact.name);
+        await notificationsService.notifyNewContact(userId, newContact.name, newContact.id);
       } catch (e) {
         console.warn('Could not log activity or notification:', e);
       }
@@ -170,11 +176,12 @@ export const useContacts = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, user?.id, validateForm, resetForm, fetchContacts]);
+  }, [formData, getUserId, validateForm, resetForm, fetchContacts]);
 
   // Edit contact
   const handleEditContact = useCallback(async () => {
-    if (!validateForm() || !selectedContact || !user?.id) return;
+    const userId = getUserId();
+    if (!validateForm() || !selectedContact || !userId) return;
 
     setIsSubmitting(true);
 
@@ -205,7 +212,7 @@ export const useContacts = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, selectedContact, user?.id, validateForm, resetForm, fetchContacts]);
+  }, [formData, selectedContact, getUserId, validateForm, resetForm, fetchContacts]);
 
   // Delete contact
   const handleDeleteContact = useCallback(async () => {
