@@ -194,19 +194,40 @@ FORMAT OUTPUT JSON:
 
     try {
       const response = await this.generateCompletion(messages);
+      console.log('[Groq] Raw response length:', response.length);
       
-      // Parse JSON from response
+      // Extract JSON from response (AI might include extra text before/after)
       const jsonMatch = response.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
-        throw new Error('Invalid response format from AI');
+        console.error('[Groq] No JSON found in response:', response.substring(0, 500));
+        throw new Error('Invalid response format from AI - no JSON object found');
       }
 
-      const parsed = JSON.parse(jsonMatch[0]) as FormattedReport;
-      parsed.generatedAt = new Date().toISOString();
+      // Sanitize JSON string to remove control characters
+      const sanitizedJson = this.sanitizeJsonString(jsonMatch[0]);
+      console.log('[Groq] Sanitized JSON length:', sanitizedJson.length);
       
-      return parsed;
+      try {
+        const parsed = JSON.parse(sanitizedJson) as FormattedReport;
+        parsed.generatedAt = new Date().toISOString();
+        
+        // Validate required fields
+        if (!parsed.title || !parsed.summary || !parsed.sections) {
+          console.error('[Groq] Parsed JSON missing required fields:', Object.keys(parsed));
+          throw new Error('Invalid report structure from AI');
+        }
+        
+        console.log('[Groq] Report parsed successfully:', parsed.title);
+        return parsed;
+      } catch (parseError) {
+        console.error('[Groq] JSON parse error:', parseError);
+        console.error('[Groq] Problematic JSON (first 1000 chars):', sanitizedJson.substring(0, 1000));
+        
+        // Try to create a fallback report
+        return this.createFallbackReport(reportData);
+      }
     } catch (error) {
-      console.error('Error generating report:', error);
+      console.error('[Groq] Error generating report:', error);
       throw new Error('Gagal menghasilkan laporan. Silakan coba lagi.');
     }
   }
@@ -292,6 +313,102 @@ FORMAT OUTPUT JSON:
     ];
 
     return this.generateCompletion(messages);
+  }
+
+  /**
+   * Sanitize JSON string to remove control characters that break parsing
+   */
+  private sanitizeJsonString(jsonStr: string): string {
+    // Remove BOM and other invisible characters
+    let sanitized = jsonStr.trim();
+    
+    // Replace problematic control characters inside string values
+    // This regex matches strings and replaces control chars within them
+    sanitized = sanitized.replace(/[\x00-\x1F\x7F]/g, (char) => {
+      switch (char) {
+        case '\n': return '\\n';
+        case '\r': return '\\r';
+        case '\t': return '\\t';
+        case '\b': return '\\b';
+        case '\f': return '\\f';
+        default: return ''; // Remove other control characters
+      }
+    });
+    
+    // Fix common JSON issues from AI responses
+    // Remove trailing commas before closing brackets
+    sanitized = sanitized.replace(/,(\s*[}\]])/g, '$1');
+    
+    // Ensure proper escaping of backslashes
+    sanitized = sanitized.replace(/\\(?!["\\/bfnrtu])/g, '\\\\');
+    
+    return sanitized;
+  }
+
+  /**
+   * Create a fallback report when AI response parsing fails
+   */
+  private createFallbackReport(reportData: ReportData): FormattedReport {
+    console.log('[Groq] Creating fallback report for:', reportData.type);
+    
+    const titles: Record<string, string> = {
+      inventory: 'Laporan Inventaris Karya Seni',
+      sales: 'Laporan Penjualan',
+      contacts: 'Laporan Kontak & Jaringan',
+      activity: 'Laporan Aktivitas',
+      combined: 'Laporan Lengkap Bisnis Seni',
+    };
+    
+    // Extract basic stats from data
+    const data = reportData.data;
+    const statsSection: StatItem[] = [];
+    
+    // Try to extract common data points
+    if (typeof data.totalArtworks === 'number') {
+      statsSection.push({ label: 'Total Karya', value: String(data.totalArtworks) });
+    }
+    if (typeof data.totalRevenue === 'number') {
+      statsSection.push({ 
+        label: 'Total Pendapatan', 
+        value: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(data.totalRevenue as number) 
+      });
+    }
+    if (typeof data.totalContacts === 'number') {
+      statsSection.push({ label: 'Total Kontak', value: String(data.totalContacts) });
+    }
+    if (typeof data.totalSalesCount === 'number') {
+      statsSection.push({ label: 'Jumlah Penjualan', value: String(data.totalSalesCount) });
+    }
+    if (typeof data.totalActivities === 'number') {
+      statsSection.push({ label: 'Total Aktivitas', value: String(data.totalActivities) });
+    }
+
+    return {
+      title: titles[reportData.type] || reportData.title,
+      summary: `Laporan ini dibuat secara otomatis berdasarkan data yang tersedia. ` +
+               `Terdapat ${statsSection.length} metrik utama yang berhasil dianalisis. ` +
+               `Silakan gunakan data ini sebagai dasar untuk analisis lebih lanjut.`,
+      sections: [
+        {
+          title: 'Statistik Utama',
+          type: 'stats',
+          content: statsSection.length > 0 ? statsSection : [
+            { label: 'Status', value: 'Data berhasil dimuat' }
+          ],
+        },
+        {
+          title: 'Catatan',
+          type: 'text',
+          content: 'Laporan ini menggunakan template fallback karena terjadi kesalahan saat memproses respons AI. ' +
+                   'Data dasar tetap tersedia dan dapat digunakan untuk referensi.',
+        },
+      ],
+      recommendations: [
+        'Periksa koneksi internet dan coba generate laporan kembali',
+        'Jika masalah berlanjut, hubungi dukungan teknis',
+      ],
+      generatedAt: new Date().toISOString(),
+    };
   }
 }
 
