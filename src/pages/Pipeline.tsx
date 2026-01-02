@@ -1,16 +1,19 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Layers, RotateCcw } from "lucide-react";
 import {
   DndContext,
   DragOverlay,
   closestCorners,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { cn } from "@/lib/utils";
+import { useResponsive, useOrientation } from "@/lib/responsive";
 
 // Pipeline Components
 import {
@@ -26,10 +29,14 @@ import {
 } from "@/components/pipeline";
 
 const Pipeline = () => {
+  const { isMobile, isTablet, isTouchDevice, isLgUp, value } = useResponsive();
+  const { isLandscape, isPortrait } = useOrientation();
+  
   // Use the custom hook for all pipeline logic
   const {
     pipelineData,
     activeItem,
+    loading,
     isAddDialogOpen,
     isViewDialogOpen,
     isEditDialogOpen,
@@ -53,13 +60,20 @@ const Pipeline = () => {
     handleViewDialogClose,
     handleViewToEdit,
     formatPriceInput,
+    refreshPipeline,
   } = usePipeline();
 
-  // DnD Sensors
+  // DnD Sensors - optimized for touch devices
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 5,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -67,25 +81,83 @@ const Pipeline = () => {
     })
   );
 
+  // Calculate total items
+  const totalItems = Object.values(pipelineData).reduce(
+    (sum, col) => sum + col.items.length, 
+    0
+  );
+
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col h-full">
+        {/* Header Section */}
+        <div className={cn(
+          "flex flex-col gap-4 mb-6",
+          isLgUp && "flex-row items-center justify-between"
+        )}>
+          {/* Title & Description */}
           <div>
-            <h1 className="font-display text-3xl font-bold">Pipeline Karya</h1>
-            <p className="text-muted-foreground">Visualisasi siklus hidup karya seni Anda</p>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
+                <Layers className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h1 className={cn(
+                  "font-display font-bold leading-tight",
+                  value({ xs: "text-2xl", md: "text-3xl", default: "text-3xl" })
+                )}>
+                  Pipeline Karya
+                </h1>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  {totalItems} karya dalam pipeline
+                </p>
+              </div>
+            </div>
           </div>
           
-          <Button 
-            variant="default" 
-            className="gap-2 shadow-glow hover:shadow-lg transition-all duration-300"
-            onClick={() => handleOpenAddDialogForColumn("concept")}
-          >
-            <Plus className="w-4 h-4" />
-            Tambah Karya
-          </Button>
+          {/* Action Buttons */}
+          <div className={cn(
+            "flex gap-2",
+            isMobile && "w-full"
+          )}>
+            <Button
+              variant="outline"
+              size={isMobile ? "default" : "sm"}
+              className="gap-2"
+              onClick={refreshPipeline}
+              disabled={loading}
+            >
+              <RotateCcw className={cn("w-4 h-4", loading && "animate-spin")} />
+              {!isMobile && "Refresh"}
+            </Button>
+            <Button 
+              variant="default" 
+              size={isMobile ? "default" : "default"}
+              className={cn(
+                "gap-2 shadow-lg shadow-primary/25",
+                "hover:shadow-xl hover:shadow-primary/30",
+                "transition-all duration-300",
+                isMobile && "flex-1"
+              )}
+              onClick={() => handleOpenAddDialogForColumn("concept")}
+            >
+              <Plus className="w-4 h-4" />
+              Tambah Karya
+            </Button>
+          </div>
         </div>
+
+        {/* Mobile/Tablet Orientation Hint */}
+        {(isMobile || isTablet) && isPortrait && (
+          <div className="mb-4 p-3 rounded-lg bg-primary/10 border border-primary/20 flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-primary/20">
+              <RotateCcw className="w-4 h-4 text-primary" />
+            </div>
+            <p className="text-sm text-primary">
+              Putar perangkat ke landscape untuk tampilan yang lebih baik.
+            </p>
+          </div>
+        )}
 
         {/* Kanban Board with DnD */}
         <DndContext
@@ -95,7 +167,21 @@ const Pipeline = () => {
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
-          <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0">
+          {/* Scrollable Kanban Container */}
+          <div className={cn(
+            // Base layout
+            "flex gap-4 pb-4",
+            // Horizontal scroll on mobile
+            "overflow-x-auto overflow-y-hidden",
+            // Scroll snap
+            "snap-x snap-mandatory",
+            // Extended padding for mobile scroll
+            "-mx-4 px-4 md:-mx-6 md:px-6 lg:mx-0 lg:px-0",
+            // Height management
+            "flex-1 min-h-0",
+            // Scrollbar styling
+            "scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
+          )}>
             {(Object.entries(pipelineData) as [PipelineStatus, PipelineColumn][]).map(([key, column]) => (
               <PipelineColumnComponent
                 key={key}
@@ -110,13 +196,21 @@ const Pipeline = () => {
             ))}
           </div>
 
-          <DragOverlay>
+          {/* Drag Overlay */}
+          <DragOverlay dropAnimation={{
+            duration: 250,
+            easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)",
+          }}>
             {activeItem ? <DragOverlayItem item={activeItem} /> : null}
           </DragOverlay>
         </DndContext>
 
-        {/* Summary Section */}
-        <PipelineSummary pipelineData={pipelineData} />
+        {/* Summary Section - Hidden on mobile portrait */}
+        {!(isMobile && isPortrait) && (
+          <div className="mt-6">
+            <PipelineSummary pipelineData={pipelineData} />
+          </div>
+        )}
 
         {/* Dialogs */}
         <AddItemDialog
