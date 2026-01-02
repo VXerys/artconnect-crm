@@ -7,21 +7,45 @@ const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 // Get API key from environment variables
 // Supports multiple naming conventions for different platforms:
-// - VITE_GROQ_API_KEY (Vite standard)
-// - PUBLIC_GROQ_API_KEY (Some platforms)
+// - VITE_GROQ_API_KEY (Vite standard - required prefix for client-side access)
+// - PUBLIC_GROQ_API_KEY (Some platforms like SvelteKit)
 const getApiKey = (): string => {
-  // Vite uses import.meta.env for environment variables
-  const apiKey = 
-    import.meta.env.VITE_GROQ_API_KEY || 
-    import.meta.env.PUBLIC_GROQ_API_KEY ||
-    '';
+  // Debug: Log available env vars (will be replaced at build time by Vite)
+  console.log('[Groq] Checking environment variables...');
+  
+  // Vite replaces these at build time, so we need to check them explicitly
+  // The string "import.meta.env.VITE_GROQ_API_KEY" gets replaced with the actual value
+  let apiKey = '';
+  
+  // Check VITE_ prefix first (standard Vite convention)
+  if (typeof import.meta.env.VITE_GROQ_API_KEY === 'string' && 
+      import.meta.env.VITE_GROQ_API_KEY.length > 0 &&
+      !import.meta.env.VITE_GROQ_API_KEY.includes('VITE_GROQ_API_KEY')) {
+    apiKey = import.meta.env.VITE_GROQ_API_KEY;
+    console.log('[Groq] Found VITE_GROQ_API_KEY');
+  }
+  // Fallback to PUBLIC_ prefix
+  else if (typeof import.meta.env.PUBLIC_GROQ_API_KEY === 'string' && 
+           import.meta.env.PUBLIC_GROQ_API_KEY.length > 0 &&
+           !import.meta.env.PUBLIC_GROQ_API_KEY.includes('PUBLIC_GROQ_API_KEY')) {
+    apiKey = import.meta.env.PUBLIC_GROQ_API_KEY;
+    console.log('[Groq] Found PUBLIC_GROQ_API_KEY');
+  }
   
   if (!apiKey) {
+    // Log what we found for debugging
+    console.error('[Groq] API key not found in environment variables');
+    console.error('[Groq] VITE_GROQ_API_KEY:', import.meta.env.VITE_GROQ_API_KEY ? 'exists but empty/invalid' : 'undefined');
+    console.error('[Groq] MODE:', import.meta.env.MODE);
+    console.error('[Groq] All env keys:', Object.keys(import.meta.env));
+    
     throw new Error(
-      'Groq API key not found. Please set VITE_GROQ_API_KEY in your .env file. ' +
-      'For Netlify, add VITE_GROQ_API_KEY to your environment variables in the Netlify dashboard.'
+      'Groq API key not found. Please ensure VITE_GROQ_API_KEY is set in your environment. ' +
+      'For Netlify: 1) Add VITE_GROQ_API_KEY to Environment Variables, 2) Trigger a new deployment (Clear cache and deploy).'
     );
   }
+  
+  console.log('[Groq] API key loaded successfully (length:', apiKey.length, ')');
   return apiKey;
 };
 
