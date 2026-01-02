@@ -27,7 +27,7 @@ interface DashboardData {
 }
 
 export const useDashboardData = (): DashboardData => {
-  const { user } = useAuth();
+  const { user, getUserId, profile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -93,9 +93,14 @@ export const useDashboardData = (): DashboardData => {
 
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Seniman';
 
+  // Get userId from profile
+  const userId = profile?.id || null;
+
   useEffect(() => {
     const fetchDashboardData = async () => {
-      if (!user?.id) {
+      console.log('Dashboard fetching data, userId:', userId);
+      if (!userId) {
+        console.log('No userId, skipping dashboard fetch');
         setLoading(false);
         return;
       }
@@ -105,12 +110,12 @@ export const useDashboardData = (): DashboardData => {
         setError(null);
 
         // Fetch artworks count by status
-        const statusCounts = await artworksService.getCountByStatus(user.id);
+        const statusCounts = await artworksService.getCountByStatus(userId);
         setArtworkStatusCounts(statusCounts);
         const totalArtworksCount = Object.values(statusCounts).reduce((a, b) => a + b, 0);
 
         // Fetch recent artworks
-        const artworksResult = await artworksService.getRecent(user.id, 4);
+        const artworksResult = await artworksService.getRecent(userId, 4);
         const mappedArtworks: DashboardArtwork[] = artworksResult.map(artwork => ({
           id: artwork.id as unknown as number,
           title: artwork.title,
@@ -123,7 +128,7 @@ export const useDashboardData = (): DashboardData => {
         setRecentArtworks(mappedArtworks);
 
         // Fetch contacts count
-        const contactsResult = await contactsService.getAll(user.id, {}, { limit: 4 });
+        const contactsResult = await contactsService.getAll(userId, {}, { limit: 4 });
         const totalContacts = contactsResult.count;
         const mappedContacts: DashboardContact[] = contactsResult.data.map(contact => ({
           id: contact.id as unknown as number,
@@ -138,7 +143,7 @@ export const useDashboardData = (): DashboardData => {
         let totalSalesAmount = 0;
         let monthlySalesData: ChartDataPoint[] = [];
         try {
-          const salesResult = await salesService.getAll(user.id, {}, { limit: 100 });
+          const salesResult = await salesService.getAll(userId, {}, { limit: 100 });
           totalSalesAmount = salesResult.data.reduce((sum, sale) => sum + (sale.amount || 0), 0);
           
           // Group sales by month for chart
@@ -184,7 +189,7 @@ export const useDashboardData = (): DashboardData => {
 
         // Fetch activities
         try {
-          const activitiesResult = await activityService.getRecent(user.id, 5);
+          const activitiesResult = await activityService.getRecent(userId, 5);
           const mappedActivities: ActivityItem[] = activitiesResult.map((activity, index) => ({
             id: index + 1,
             type: mapActivityType(activity.activity_type),
@@ -257,7 +262,7 @@ export const useDashboardData = (): DashboardData => {
     };
 
     fetchDashboardData();
-  }, [user?.id]);
+  }, [userId]);
 
   const totalArtworks = Object.values(artworkStatusCounts).reduce((a, b) => a + b, 0);
 

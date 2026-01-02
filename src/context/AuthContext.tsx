@@ -50,58 +50,75 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
+    console.log('=== FETCHING PROFILE ===');
+    console.log('Auth user ID:', authUser.id);
+    console.log('Auth user email:', authUser.email);
     setProfileLoading(true);
     
     try {
       // Try to get existing profile
+      console.log('Querying users table for auth_id:', authUser.id);
       const { data, error } = await supabase
         .from('users')
         .select('*')
         .eq('auth_id', authUser.id)
         .maybeSingle();
       
+      console.log('Query result - data:', data);
+      console.log('Query result - error:', error);
+      
       if (error) {
-        console.warn('Profile fetch error:', error.message);
+        console.error('Profile fetch error:', error.message, error.code);
         setProfile(null);
         return;
       }
       
       if (data) {
+        console.log('✅ Profile found! ID:', (data as DBUser).id);
         setProfile(data as DBUser);
       } else {
         // No profile found - try to create one
-        console.log('Creating profile for:', authUser.email);
+        console.log('❌ No profile found, attempting to create...');
+        const insertData = {
+          auth_id: authUser.id,
+          email: authUser.email || '',
+          full_name: authUser.user_metadata?.full_name || authUser.user_metadata?.name || 'User',
+          avatar_url: authUser.user_metadata?.avatar_url || authUser.user_metadata?.picture,
+          role: 'artist',
+        };
+        console.log('Insert data:', insertData);
+        
         const { data: newProfile, error: createError } = await supabase
           .from('users')
-          .insert({
-            auth_id: authUser.id,
-            email: authUser.email || '',
-            full_name: authUser.user_metadata?.full_name || authUser.user_metadata?.name || 'User',
-            avatar_url: authUser.user_metadata?.avatar_url || authUser.user_metadata?.picture,
-            role: 'artist',
-          } as never)
+          .insert(insertData as never)
           .select()
           .single();
         
+        console.log('Insert result - data:', newProfile);
+        console.log('Insert result - error:', createError);
+        
         if (createError) {
-          console.warn('Profile create error:', createError.message);
+          console.error('Profile create error:', createError.message, createError.code);
           // Try fetching again in case of race condition
           const { data: retryData } = await supabase
             .from('users')
             .select('*')
             .eq('auth_id', authUser.id)
             .maybeSingle();
+          console.log('Retry fetch result:', retryData);
           if (retryData) {
             setProfile(retryData as DBUser);
           }
         } else if (newProfile) {
+          console.log('✅ Profile created! ID:', (newProfile as DBUser).id);
           setProfile(newProfile as DBUser);
         }
       }
     } catch (err) {
-      console.error('Profile error:', err);
+      console.error('Unexpected profile error:', err);
     } finally {
       setProfileLoading(false);
+      console.log('=== FETCH PROFILE COMPLETE ===');
     }
   }, []);
 
