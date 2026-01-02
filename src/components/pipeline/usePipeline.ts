@@ -155,26 +155,41 @@ export const usePipeline = () => {
     const activeId = active.id as string;
     const overId = over.id as string;
 
-    const activeColumn = findColumnByItemId(activeId);
-    let overColumn = findColumnByItemId(overId);
-
-    if (!overColumn && Object.keys(pipelineData).includes(overId)) {
-      overColumn = overId as PipelineStatus;
+    // Find the dbId from the item (it could be in any column now after dragOver)
+    let dbId: string | null = null;
+    let originalColumn: PipelineStatus | null = null;
+    
+    // Search for the item in all columns to find its dbId
+    for (const [key, column] of Object.entries(pipelineData)) {
+      const item = column.items.find(i => i.id === activeId);
+      if (item && (item as any).dbId) {
+        dbId = (item as any).dbId;
+        originalColumn = key as PipelineStatus;
+        break;
+      }
     }
 
-    if (!activeColumn || !overColumn) return;
+    // Determine the target column
+    let targetColumn = findColumnByItemId(overId);
+    if (!targetColumn && Object.keys(pipelineData).includes(overId)) {
+      targetColumn = overId as PipelineStatus;
+    }
 
-    if (activeColumn === overColumn) {
+    if (!targetColumn) return;
+
+    // Handle reorder within same column
+    const currentColumn = findColumnByItemId(activeId);
+    if (currentColumn && currentColumn === targetColumn && activeId !== overId) {
       setPipelineData(prev => {
-        const items = [...prev[activeColumn].items];
+        const items = [...prev[currentColumn].items];
         const oldIndex = items.findIndex(item => item.id === activeId);
         const newIndex = items.findIndex(item => item.id === overId);
 
-        if (oldIndex !== -1 && newIndex !== -1) {
+        if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
           return {
             ...prev,
-            [activeColumn]: {
-              ...prev[activeColumn],
+            [currentColumn]: {
+              ...prev[currentColumn],
               items: arrayMove(items, oldIndex, newIndex),
             },
           };
@@ -183,16 +198,19 @@ export const usePipeline = () => {
       });
     }
 
-    // Update in database (fire and forget, UI already updated)
-    try {
-      const item = pipelineData[activeColumn].items.find(i => i.id === activeId);
-      if (item && (item as any).dbId && overColumn !== activeColumn) {
-        await pipelineService.moveToStatus((item as any).dbId, overColumn);
+    // Save to database if column changed
+    if (dbId && originalColumn && targetColumn !== originalColumn) {
+      try {
+        console.log('Saving to database:', dbId, 'to', targetColumn);
+        await pipelineService.moveToStatus(dbId, targetColumn);
+        console.log('Saved successfully!');
+      } catch (error) {
+        console.error('Error saving item position:', error);
+        // Revert on error by refetching
+        await fetchPipeline();
       }
-    } catch (error) {
-      console.error('Error updating item position:', error);
     }
-  }, [findColumnByItemId, pipelineData, userId]);
+  }, [findColumnByItemId, pipelineData, userId, fetchPipeline]);
 
   // Move item via menu
   const handleMoveToColumn = useCallback(async (item: PipelineItem, targetStatus: PipelineStatus) => {

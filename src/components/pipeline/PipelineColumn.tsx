@@ -98,21 +98,24 @@ export const PipelineColumnComponent = ({
       ref={setNodeRef} 
       className={cn(
         "flex-shrink-0 snap-center",
-        columnWidth
+        columnWidth,
+        // Add padding for shadow overflow
+        "py-1"
       )}
     >
       <Card 
         className={cn(
-          // Base styles
-          "relative overflow-hidden border-0 flex flex-col transition-all duration-300",
+          // Base styles - NO overflow-hidden to prevent shadow clipping
+          "relative flex flex-col transition-all duration-300",
           // Gradient background
           `bg-gradient-to-b ${theme.gradient}`,
           // Border accent
           `border-t-4 ${theme.accent}`,
           // Glass effect
           "backdrop-blur-xl bg-card/80",
-          // Hover glow
-          `shadow-lg ${theme.glow} hover:shadow-xl`,
+          // Shadow and glow
+          "shadow-lg hover:shadow-2xl",
+          theme.glow,
           // Drop target highlight
           isOver && "ring-2 ring-primary ring-offset-2 ring-offset-background scale-[1.02]"
         )}

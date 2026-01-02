@@ -170,17 +170,19 @@ const Pipeline = () => {
           {/* Scrollable Kanban Container */}
           <div className={cn(
             // Base layout
-            "flex gap-4 pb-4",
-            // Horizontal scroll on mobile
-            "overflow-x-auto overflow-y-hidden",
-            // Scroll snap
-            "snap-x snap-mandatory",
-            // Extended padding for mobile scroll
-            "-mx-4 px-4 md:-mx-6 md:px-6 lg:mx-0 lg:px-0",
-            // Height management
-            "flex-1 min-h-0",
+            "flex gap-5 py-4",
+            // Allow horizontal scroll
+            "overflow-x-auto overflow-y-visible",
+            // Scroll snap for mobile
+            isMobile && "snap-x snap-mandatory",
+            // Extended padding for shadows/glow to not be clipped
+            "-mx-6 px-6 lg:-mx-8 lg:px-8",
+            // Ensure columns don't shrink
+            "min-w-0",
             // Scrollbar styling
-            "scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
+            "scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent hover:scrollbar-thumb-white/20",
+            // Add padding at the end for last column
+            "pr-8"
           )}>
             {(Object.entries(pipelineData) as [PipelineStatus, PipelineColumn][]).map(([key, column]) => (
               <PipelineColumnComponent
@@ -194,6 +196,8 @@ const Pipeline = () => {
                 onMoveToColumn={handleMoveToColumn}
               />
             ))}
+            {/* Spacer for end padding */}
+            <div className="w-4 flex-shrink-0" aria-hidden="true" />
           </div>
 
           {/* Drag Overlay */}
