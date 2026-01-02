@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { contactsService } from "@/lib/services/contacts.service";
 import { activityService } from "@/lib/services/activity.service";
+import { notificationsService } from "@/lib/services/notifications.service";
 import { Contact, ContactFormData, ContactFormErrors, ContactType, ContactsByType } from "./types";
 import { initialFormData, isValidEmail, isValidPhone } from "./constants";
 import { toast } from "sonner";
@@ -149,11 +150,12 @@ export const useContacts = () => {
         address: formData.address || null,
       });
 
-      // Log activity
+      // Log activity and create notification
       try {
         await activityService.logContactAdded(user.id, newContact.id, newContact.name);
+        await notificationsService.notifyNewContact(user.id, newContact.name, newContact.id);
       } catch (e) {
-        console.warn('Could not log activity:', e);
+        console.warn('Could not log activity or notification:', e);
       }
 
       // Refresh the list

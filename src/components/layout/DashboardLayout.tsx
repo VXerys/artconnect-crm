@@ -7,7 +7,6 @@ import {
   FileText,
   Settings,
   LogOut,
-  Bell,
   Search,
   ChevronLeft,
   Menu
@@ -17,6 +16,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import NotificationDropdown from "./NotificationDropdown";
+import UserAvatar from "./UserAvatar";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -151,13 +152,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
             {/* Actions */}
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full" />
-              </Button>
-              <div className="w-9 h-9 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center">
-                <span className="text-sm font-semibold text-primary">AS</span>
-              </div>
+              <NotificationDropdown />
+              <UserAvatar />
             </div>
           </div>
         </header>
