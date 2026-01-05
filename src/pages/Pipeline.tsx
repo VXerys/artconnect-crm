@@ -14,7 +14,7 @@ import {
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { cn } from "@/lib/utils";
-import { useResponsive, useOrientation } from "@/lib/responsive";
+import { useResponsive } from "@/lib/responsive";
 
 // Pipeline Components
 import {
@@ -30,8 +30,7 @@ import {
 } from "@/components/pipeline";
 
 const Pipeline = () => {
-  const { isMobile, isTablet, isTouchDevice, isLgUp, value } = useResponsive();
-  const { isLandscape, isPortrait } = useOrientation();
+  const { isMobile, isTablet, isPortrait } = useResponsive();
   
   // Use the custom hook for all pipeline logic
   const {
@@ -100,60 +99,56 @@ const Pipeline = () => {
   return (
     <DashboardLayout>
       <div className="flex flex-col h-full">
-        {/* Header Section */}
-        <div className={cn(
-          "flex flex-col gap-4 mb-6",
-          isLgUp && "flex-row items-center justify-between"
-        )}>
-          {/* Title & Description */}
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
-                <Layers className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <h1 className={cn(
-                  "font-display font-bold leading-tight",
-                  value({ xs: "text-2xl", md: "text-3xl", default: "text-3xl" })
-                )}>
-                  Pipeline Karya
-                </h1>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  {totalItems} karya dalam pipeline
-                </p>
-              </div>
-            </div>
-          </div>
+        {/* Header Section - Consistent with Contacts */}
+        <div className="relative mb-6">
+          {/* Decorative gradient */}
+          <div className="absolute -top-4 -left-4 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
+          <div className="absolute -top-2 right-20 w-20 h-20 bg-blue-500/10 rounded-full blur-2xl" />
           
-          {/* Action Buttons */}
-          <div className={cn(
-            "flex gap-2",
-            isMobile && "w-full"
-          )}>
-            <Button
-              variant="outline"
-              size={isMobile ? "default" : "sm"}
-              className="gap-2"
-              onClick={refreshPipeline}
-              disabled={loading}
-            >
-              <RotateCcw className={cn("w-4 h-4", loading && "animate-spin")} />
-              {!isMobile && "Refresh"}
-            </Button>
-            <Button 
-              variant="default" 
-              size={isMobile ? "default" : "default"}
-              className={cn(
-                "gap-2 shadow-lg shadow-primary/25",
-                "hover:shadow-xl hover:shadow-primary/30",
-                "transition-all duration-300",
-                isMobile && "flex-1"
-              )}
-              onClick={() => handleOpenAddDialogForColumn("concept")}
-            >
-              <Plus className="w-4 h-4" />
-              Tambah Karya
-            </Button>
+          <div className="relative flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 rounded-xl bg-primary/10">
+                  <Layers className="w-5 h-5 text-primary" />
+                </div>
+                <span className="text-xs font-medium text-primary uppercase tracking-wider">Pipeline</span>
+              </div>
+              <h1 className="font-display text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                Pipeline Karya
+              </h1>
+              <p className="text-muted-foreground mt-1 max-w-md">
+                {totalItems} karya dalam pipeline. Kelola alur kerja karya seni Anda.
+              </p>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className={cn(
+              "flex gap-2",
+              isMobile && "w-full"
+            )}>
+              <Button
+                variant="outline"
+                size={isMobile ? "default" : "sm"}
+                className="gap-2"
+                onClick={refreshPipeline}
+                disabled={loading}
+              >
+                <RotateCcw className={cn("w-4 h-4", loading && "animate-spin")} />
+                {!isMobile && "Refresh"}
+              </Button>
+              <Button 
+                variant="default" 
+                size="lg"
+                className={cn(
+                  "gap-2 shadow-glow hover:shadow-lg transition-all duration-300 group",
+                  isMobile && "flex-1"
+                )}
+                onClick={() => handleOpenAddDialogForColumn("concept")}
+              >
+                <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
+                Tambah Karya
+              </Button>
+            </div>
           </div>
         </div>
 

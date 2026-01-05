@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Palette, Menu, X, LayoutDashboard, LogOut, Loader2 } from "lucide-react";
+import { Menu, X, LayoutDashboard, LogOut, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
+import Logo from "@/components/ui/Logo";
 
 // Navigation items untuk landing page - menggunakan anchor links
 const navItems = [
@@ -112,14 +113,9 @@ const Navbar = () => {
           {/* Logo */}
           <button 
             onClick={() => scrollToSection("#hero")}
-            className="flex items-center gap-2 group"
+            className="group"
           >
-            <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-              <Palette className="w-5 h-5 text-primary" />
-            </div>
-            <span className="font-display text-xl font-bold">
-              Art<span className="text-primary">Connect</span>
-            </span>
+            <Logo size="sm" showText={true} />
           </button>
 
           {/* Desktop Navigation */}

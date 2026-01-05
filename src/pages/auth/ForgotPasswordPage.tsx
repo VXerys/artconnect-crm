@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Loader2, ArrowLeft, Palette, CheckCircle } from 'lucide-react';
+import Logo from '@/components/ui/Logo';
+import { Mail, Loader2, ArrowLeft, CheckCircle } from 'lucide-react';
 
 /**
  * Forgot Password Page
@@ -118,11 +119,8 @@ const ForgotPasswordPage: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center p-8 bg-white">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="p-2 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl">
-            <Palette className="w-6 h-6 text-white" />
-          </div>
-          <span className="text-2xl font-bold text-gray-900">ArtConnect</span>
+        <div className="flex items-center justify-center mb-8">
+          <Logo size="lg" forceTheme="light" />
         </div>
 
         {/* Header */}

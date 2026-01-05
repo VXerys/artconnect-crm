@@ -1,6 +1,6 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Palette, Sparkles, Image, TrendingUp } from "lucide-react";
+import { Plus, Palette, Sparkles } from "lucide-react";
 import PageLoading from "@/components/ui/PageLoading";
 
 // Artworks Components
@@ -73,86 +73,38 @@ const Artworks = () => {
   return (
     <DashboardLayout>
       <div className="space-y-8">
-        {/* Hero Header Section */}
-        <div className="relative overflow-hidden">
-          {/* Decorative backgrounds */}
-          <div className="absolute -top-10 -left-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl" />
-          <div className="absolute -top-5 right-10 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl" />
-          <div className="absolute top-10 right-40 w-20 h-20 bg-emerald-500/10 rounded-full blur-xl" />
+        {/* Header Section - Consistent with Contacts */}
+        <div className="relative">
+          {/* Decorative gradient */}
+          <div className="absolute -top-4 -left-4 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
+          <div className="absolute -top-2 right-20 w-20 h-20 bg-purple-500/10 rounded-full blur-2xl" />
           
-          <div className="relative">
-            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
-              {/* Left side - Title & Description */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
-                    <Palette className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <span className="text-xs font-semibold text-primary uppercase tracking-wider">Inventaris</span>
-                  </div>
+          <div className="relative flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 rounded-xl bg-primary/10">
+                  <Palette className="w-5 h-5 text-primary" />
                 </div>
-                
-                <div>
-                  <h1 className="font-display text-4xl lg:text-5xl font-bold">
-                    Karya Seni
-                  </h1>
-                  <p className="text-muted-foreground mt-2 max-w-lg">
-                    Kelola koleksi karya seni Anda dengan mudah. Tambah, edit, dan pantau status dari setiap karya.
-                  </p>
-                </div>
-
-                {/* Quick Stats */}
-                <div className="flex items-center gap-6 pt-2">
-                  <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-lg bg-secondary/50">
-                      <Image className="w-4 h-4 text-muted-foreground" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">{artworks.length}</p>
-                      <p className="text-xs text-muted-foreground">Total Karya</p>
-                    </div>
-                  </div>
-                  
-                  <div className="w-px h-10 bg-border" />
-                  
-                  <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-lg bg-emerald-500/10">
-                      <TrendingUp className="w-4 h-4 text-emerald-400" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-emerald-400">{soldCount}</p>
-                      <p className="text-xs text-muted-foreground">Terjual</p>
-                    </div>
-                  </div>
-                  
-                  <div className="w-px h-10 bg-border hidden sm:block" />
-                  
-                  <div className="hidden sm:flex items-center gap-2">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <Sparkles className="w-4 h-4 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-lg font-bold text-primary">{formatCurrency(totalValue)}</p>
-                      <p className="text-xs text-muted-foreground">Estimasi Nilai</p>
-                    </div>
-                  </div>
-                </div>
+                <span className="text-xs font-medium text-primary uppercase tracking-wider">Inventaris</span>
               </div>
-
-              {/* Right side - Add Button */}
-              <div className="flex-shrink-0">
-                <Button 
-                  size="lg"
-                  className="gap-2 shadow-glow hover:shadow-lg transition-all duration-300 group h-12 px-6"
-                  onClick={() => setIsAddDialogOpen(true)}
-                >
-                  <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
-                  <span>Tambah Karya</span>
-                  <Sparkles className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </Button>
-              </div>
+              <h1 className="font-display text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                Karya Seni
+              </h1>
+              <p className="text-muted-foreground mt-1 max-w-md">
+                Kelola koleksi karya seni Anda dengan mudah. Tambah, edit, dan pantau status setiap karya.
+              </p>
             </div>
+            
+            <Button 
+              variant="default" 
+              size="lg"
+              className="gap-2 shadow-glow hover:shadow-lg transition-all duration-300 group"
+              onClick={() => setIsAddDialogOpen(true)}
+            >
+              <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
+              Tambah Karya
+              <Sparkles className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </Button>
           </div>
         </div>
 

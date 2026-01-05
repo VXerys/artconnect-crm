@@ -1,4 +1,5 @@
-import { Palette, Github, Mail, Instagram, ArrowUpRight, Heart } from "lucide-react";
+import { Github, Mail, Instagram, ArrowUpRight, Heart } from "lucide-react";
+import Logo from "@/components/ui/Logo";
 import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 
@@ -68,14 +69,9 @@ const Footer = () => {
           <div className="lg:col-span-1">
             <button 
               onClick={scrollToTop}
-              className="flex items-center gap-2 mb-4 group"
+              className="mb-4 group"
             >
-              <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                <Palette className="w-5 h-5 text-primary" />
-              </div>
-              <span className="font-display text-xl font-bold">
-                Art<span className="text-primary">Connect</span>
-              </span>
+              <Logo size="sm" showText={true} />
             </button>
             <p className="text-muted-foreground text-sm leading-relaxed mb-6">
               Platform CRM berbasis web yang dirancang khusus untuk seniman visual independen. 

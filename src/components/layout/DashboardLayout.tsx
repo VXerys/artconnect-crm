@@ -18,6 +18,7 @@ import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import NotificationDropdown from "./NotificationDropdown";
 import UserAvatar from "./UserAvatar";
+import Logo from "@/components/ui/Logo";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -58,26 +59,27 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <aside 
         className={cn(
           "fixed lg:sticky top-0 left-0 h-screen bg-sidebar border-r border-sidebar-border z-50 transition-all duration-300",
-          collapsed ? "w-16" : "w-64",
+          collapsed ? "w-[72px]" : "w-52",
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
         <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="h-16 flex items-center justify-between px-4 border-b border-sidebar-border">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center flex-shrink-0">
-                <Palette className="w-4 h-4 text-primary" />
-              </div>
-              {!collapsed && (
-                <span className="font-display text-lg font-bold text-sidebar-foreground">
-                  Art<span className="text-primary">Connect</span>
-                </span>
-              )}
-            </Link>
+          {/* Logo Header - same height as top navbar (h-16) */}
+          <div className={cn(
+            "h-16 flex items-center border-b border-sidebar-border",
+            collapsed ? "justify-center" : "justify-between px-3"
+          )}>
+            {/* Logo - only show when expanded */}
+            {!collapsed && (
+              <Link to="/" className="flex items-center">
+                <Logo size="xs" showText={true} />
+              </Link>
+            )}
+            
+            {/* Collapse/Expand button */}
             <button 
               onClick={() => setCollapsed(!collapsed)}
-              className="hidden lg:flex w-6 h-6 rounded items-center justify-center hover:bg-sidebar-accent text-sidebar-foreground"
+              className="hidden lg:flex w-8 h-8 rounded-md items-center justify-center hover:bg-sidebar-accent text-sidebar-foreground transition-colors flex-shrink-0"
             >
               <ChevronLeft className={cn("w-4 h-4 transition-transform", collapsed && "rotate-180")} />
             </button>

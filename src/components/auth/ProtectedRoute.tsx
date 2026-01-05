@@ -1,7 +1,8 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { Loader2, Palette } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import Logo from '@/components/ui/Logo';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -18,16 +19,20 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   // Show loading spinner while checking auth state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="p-2 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl">
-              <Palette className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-xl font-bold text-gray-900 dark:text-white">ArtConnect</span>
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center animate-in fade-in duration-300">
+          {/* Logo */}
+          <div className="flex justify-center mb-6">
+            <Logo size="lg" forceTheme="light" />
           </div>
-          <Loader2 className="w-8 h-8 mx-auto text-amber-500 animate-spin" />
-          <p className="mt-2 text-gray-600 dark:text-gray-400">Memuat...</p>
+          
+          {/* Spinner */}
+          <div className="relative w-12 h-12 mx-auto mb-3">
+            <Loader2 className="w-12 h-12 text-amber-500 animate-spin" />
+          </div>
+          
+          {/* Text */}
+          <p className="text-gray-500 font-medium">Memuat...</p>
         </div>
       </div>
     );

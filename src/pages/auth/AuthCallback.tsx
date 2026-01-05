@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
-import { Loader2, Palette, CheckCircle, XCircle } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle } from 'lucide-react';
+import Logo from '@/components/ui/Logo';
 
 /**
  * Auth Callback Page
@@ -51,11 +52,8 @@ const AuthCallback: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="text-center p-8">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="p-2 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl">
-            <Palette className="w-8 h-8 text-white" />
-          </div>
-          <span className="text-2xl font-bold text-gray-900 dark:text-white">ArtConnect</span>
+        <div className="flex items-center justify-center mb-8">
+          <Logo size="lg" />
         </div>
 
         {/* Status Icon */}
