@@ -2,7 +2,6 @@ import { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { artworksService } from "@/lib/services/artworks.service";
 import { activityService } from "@/lib/services/activity.service";
-import { pipelineService } from "@/lib/services/pipeline.service";
 import { Artwork, ArtworkFormData, ArtworkFormErrors, ViewMode, ArtworkStatus } from "./types";
 import { initialFormData } from "./constants";
 import { toast } from "sonner";
@@ -197,23 +196,6 @@ export const useArtworks = () => {
         description: formData.description || null,
       });
 
-      // Sync with pipeline - automatically create pipeline item for the artwork
-      try {
-        await pipelineService.syncWithArtwork({
-          id: newArtwork.id,
-          user_id: userId,
-          title: newArtwork.title,
-          medium: newArtwork.medium,
-          status: newArtwork.status,
-          price: newArtwork.price,
-          image_url: newArtwork.image_url,
-          description: newArtwork.description,
-          currency: newArtwork.currency,
-        });
-      } catch (e) {
-        console.warn('Could not sync with pipeline:', e);
-      }
-
       // Log activity
       try {
         await activityService.logArtworkCreated(userId, newArtwork.id, newArtwork.title);
@@ -262,26 +244,6 @@ export const useArtworks = () => {
         description: formData.description || null,
       });
 
-      // Sync with pipeline - update or create pipeline item for the artwork
-      try {
-        const priceNum = typeof formData.price === 'string' 
-          ? parseInt(formData.price.replace(/\D/g, '')) 
-          : formData.price;
-        
-        await pipelineService.syncWithArtwork({
-          id: dbId,
-          user_id: userId,
-          title: formData.title,
-          medium: formData.medium,
-          status: formData.status as ArtworkStatus,
-          price: priceNum || null,
-          image_url: formData.image || null,
-          description: formData.description || null,
-        });
-      } catch (e) {
-        console.warn('Could not sync with pipeline:', e);
-      }
-
       // Log activity
       try {
         await activityService.logArtworkUpdated(userId, dbId, formData.title);
@@ -309,13 +271,6 @@ export const useArtworks = () => {
 
     try {
       const dbId = (selectedArtwork as any).dbId || selectedArtwork.id.toString();
-      
-      // Delete associated pipeline item first
-      try {
-        await pipelineService.deleteByArtworkId(dbId);
-      } catch (e) {
-        console.warn('Could not delete pipeline item:', e);
-      }
       
       // Delete the artwork
       await artworksService.delete(dbId);

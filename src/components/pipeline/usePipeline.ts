@@ -13,6 +13,7 @@ import {
 } from "./types";
 import { initialFormData, getEmptyPipelineData } from "./constants";
 import { toast } from "sonner";
+import type { ArtworkStatus, Artwork } from "@/lib/database.types";
 
 export const usePipeline = () => {
   const { user, profile } = useAuth();
@@ -28,7 +29,7 @@ export const usePipeline = () => {
   const [formErrors, setFormErrors] = useState<PipelineFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch pipeline data from Supabase
+  // Fetch pipeline data directly from artworks table
   const fetchPipeline = useCallback(async () => {
     if (!userId) {
       setLoading(false);
@@ -37,37 +38,54 @@ export const usePipeline = () => {
 
     try {
       setLoading(true);
-      const data = await pipelineService.getPipelineData(userId);
       
-      // Map database items to local PipelineItem type
+      // Fetch all artworks and group by status
+      const result = await artworksService.getAll(userId, {}, { limit: 200 });
+      const artworks = result.data;
+      
+      // Group artworks by status
+      const groupedArtworks: Record<ArtworkStatus, typeof artworks> = {
+        concept: [],
+        wip: [],
+        finished: [],
+        sold: [],
+      };
+      
+      artworks.forEach(artwork => {
+        if (groupedArtworks[artwork.status]) {
+          groupedArtworks[artwork.status].push(artwork);
+        }
+      });
+      
+      // Map to PipelineData structure
       const mappedData: PipelineData = {
         concept: {
           title: "Konsep",
           color: "border-purple-500",
           bgColor: "bg-purple-500/10",
           textColor: "text-purple-400",
-          items: data.concept.items.map(mapDbItemToLocal),
+          items: groupedArtworks.concept.map(mapArtworkToPipelineItem),
         },
         wip: {
           title: "Proses",
           color: "border-blue-500",
           bgColor: "bg-blue-500/10",
           textColor: "text-blue-400",
-          items: data.wip.items.map(mapDbItemToLocal),
+          items: groupedArtworks.wip.map(mapArtworkToPipelineItem),
         },
         finished: {
           title: "Selesai",
           color: "border-emerald-500",
           bgColor: "bg-emerald-500/10",
           textColor: "text-emerald-400",
-          items: data.finished.items.map(mapDbItemToLocal),
+          items: groupedArtworks.finished.map(mapArtworkToPipelineItem),
         },
         sold: {
           title: "Terjual",
           color: "border-primary",
           bgColor: "bg-primary/10",
           textColor: "text-primary",
-          items: data.sold.items.map(mapDbItemToLocal),
+          items: groupedArtworks.sold.map(mapArtworkToPipelineItem),
         },
       };
       
@@ -199,26 +217,15 @@ export const usePipeline = () => {
       });
     }
 
-    // Save to database if column changed
+    // Save to database if column changed - update artwork status directly
     if (dbId && originalColumn && targetColumn !== originalColumn) {
       try {
-        console.log('Saving to database:', dbId, 'to', targetColumn);
-        await pipelineService.moveToStatus(dbId, targetColumn);
-        
-        // Also update the linked artwork status if there's an artwork_id
-        const pipelineItem = await pipelineService.getById(dbId);
-        if (pipelineItem?.artwork_id) {
-          try {
-            await artworksService.updateStatus(pipelineItem.artwork_id, targetColumn);
-            console.log('Artwork status updated to:', targetColumn);
-          } catch (artworkError) {
-            console.warn('Could not update artwork status:', artworkError);
-          }
-        }
-        
-        console.log('Saved successfully!');
+        console.log('Updating artwork status:', dbId, 'to', targetColumn);
+        await artworksService.updateStatus(dbId, targetColumn);
+        console.log('Artwork status updated successfully!');
       } catch (error) {
-        console.error('Error saving item position:', error);
+        console.error('Error updating artwork status:', error);
+        toast.error('Gagal memperbarui status karya');
         // Revert on error by refetching
         await fetchPipeline();
       }
@@ -242,25 +249,15 @@ export const usePipeline = () => {
       };
     });
 
-    // Update in database
+    // Update artwork status in database
     try {
       const dbId = (item as any).dbId;
       if (dbId) {
-        await pipelineService.moveToStatus(dbId, targetStatus);
-        
-        // Also update the linked artwork status if there's an artwork_id
-        const pipelineItem = await pipelineService.getById(dbId);
-        if (pipelineItem?.artwork_id) {
-          try {
-            await artworksService.updateStatus(pipelineItem.artwork_id, targetStatus);
-          } catch (artworkError) {
-            console.warn('Could not update artwork status:', artworkError);
-          }
-        }
+        await artworksService.updateStatus(dbId, targetStatus);
       }
     } catch (error) {
-      console.error('Error moving item:', error);
-      toast.error('Gagal memindahkan item');
+      console.error('Error updating artwork status:', error);
+      toast.error('Gagal memperbarui status karya');
       // Revert on error
       await fetchPipeline();
     }
@@ -297,7 +294,7 @@ export const usePipeline = () => {
     return '';
   }, []);
 
-  // Add item
+  // Add item - creates a new artwork
   const handleAddItem = useCallback(async () => {
     if (!validateForm() || !userId) {
       if (!userId) toast.error('Sesi belum siap. Silakan refresh halaman.');
@@ -310,51 +307,49 @@ export const usePipeline = () => {
         ? parseInt(formData.price.replace(/\D/g, '')) 
         : null;
 
-      await pipelineService.create({
+      // Create artwork with the specified status
+      await artworksService.create({
         user_id: userId,
         title: formData.title,
         medium: formData.medium,
-        due_date: formData.dueDate,
-        estimated_price: priceValue,
+        dimensions: '', // Default empty
+        price: priceValue,
         description: formData.description || null,
-        status: formData.status,
+        status: formData.status as ArtworkStatus,
         image_url: formData.image || null,
+        year: new Date().getFullYear(),
       });
 
       await fetchPipeline();
       setIsAddDialogOpen(false);
       resetForm();
-      toast.success('Item berhasil ditambahkan!');
+      toast.success('Karya berhasil ditambahkan!');
     } catch (error) {
-      console.error('Error adding item:', error);
-      toast.error('Gagal menambahkan item');
+      console.error('Error adding artwork:', error);
+      toast.error('Gagal menambahkan karya');
     } finally {
       setIsSubmitting(false);
     }
   }, [formData, userId, validateForm, resetForm, fetchPipeline]);
 
-  // Edit item
+  // Edit item - updates the artwork
   const handleEditItem = useCallback(async () => {
     if (!validateForm() || !selectedItem || !userId) return;
     setIsSubmitting(true);
 
     try {
-      const currentColumn = findColumnByItemId(selectedItem.id);
-      if (!currentColumn) return;
-
       const priceValue = formData.price 
         ? parseInt(formData.price.replace(/\D/g, '')) 
         : null;
 
       const dbId = (selectedItem as any).dbId;
       if (dbId) {
-        await pipelineService.update(dbId, {
+        await artworksService.update(dbId, {
           title: formData.title,
           medium: formData.medium,
-          due_date: formData.dueDate,
-          estimated_price: priceValue,
+          price: priceValue,
           description: formData.description || null,
-          status: formData.status,
+          status: formData.status as ArtworkStatus,
           image_url: formData.image || null,
         });
       }
@@ -362,16 +357,16 @@ export const usePipeline = () => {
       await fetchPipeline();
       setIsEditDialogOpen(false);
       resetForm();
-      toast.success('Item berhasil diperbarui!');
+      toast.success('Karya berhasil diperbarui!');
     } catch (error) {
-      console.error('Error updating item:', error);
-      toast.error('Gagal memperbarui item');
+      console.error('Error updating artwork:', error);
+      toast.error('Gagal memperbarui karya');
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, selectedItem, userId, validateForm, findColumnByItemId, resetForm, fetchPipeline]);
+  }, [formData, selectedItem, userId, validateForm, resetForm, fetchPipeline]);
 
-  // Delete item
+  // Delete item - deletes the artwork
   const handleDeleteItem = useCallback(async (item: PipelineItem) => {
     const column = findColumnByItemId(item.id);
     if (!column) return;
@@ -385,16 +380,16 @@ export const usePipeline = () => {
       },
     }));
 
-    // Delete from database
+    // Delete artwork from database
     try {
       const dbId = (item as any).dbId;
       if (dbId) {
-        await pipelineService.delete(dbId);
+        await artworksService.delete(dbId);
       }
-      toast.success('Item berhasil dihapus!');
+      toast.success('Karya berhasil dihapus!');
     } catch (error) {
-      console.error('Error deleting item:', error);
-      toast.error('Gagal menghapus item');
+      console.error('Error deleting artwork:', error);
+      toast.error('Gagal menghapus karya');
       await fetchPipeline();
     }
   }, [findColumnByItemId, fetchPipeline]);
@@ -501,5 +496,21 @@ function mapDbItemToLocal(dbItem: any): PipelineItem {
     image: dbItem.image_url || undefined,
     description: dbItem.description || undefined,
     dbId: dbItem.id, // Keep for database operations
+  };
+}
+
+// Helper function to map artwork to pipeline item
+function mapArtworkToPipelineItem(artwork: Artwork): PipelineItem {
+  return {
+    id: artwork.id,
+    title: artwork.title,
+    medium: artwork.medium || '',
+    dueDate: '', // Artworks don't have due_date
+    price: artwork.price 
+      ? `Rp ${new Intl.NumberFormat('id-ID').format(artwork.price)}`
+      : undefined,
+    image: artwork.image_url || undefined,
+    description: artwork.description || undefined,
+    dbId: artwork.id, // Keep for database operations (this is the artwork ID)
   };
 }

@@ -13,7 +13,6 @@ import {
   Edit, 
   Trash2, 
   ArrowRight,
-  Calendar,
   Palette,
   DollarSign
 } from "lucide-react";
@@ -129,7 +128,7 @@ export const PipelineCard = ({
             <div className="flex items-center gap-1.5 mt-1">
               <Palette className="w-3 h-3 text-muted-foreground/60" />
               <span className="text-xs text-muted-foreground truncate">
-                {item.medium}
+                {item.medium || 'Tidak ada medium'}
               </span>
             </div>
           </div>
@@ -197,32 +196,16 @@ export const PipelineCard = ({
           </DropdownMenu>
         </div>
 
-        {/* Bottom row: Date & Price */}
-        <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-white/5">
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Calendar className="w-3.5 h-3.5" />
-            <span>{item.dueDate}</span>
-          </div>
-          {item.price && (
+        {/* Bottom row: Price info */}
+        {item.price && (
+          <div className="flex items-center justify-end mt-2.5 pt-2 border-t border-white/5">
             <div className="flex items-center gap-1 text-xs font-semibold text-primary">
               <DollarSign className="w-3 h-3" />
               <span>{item.price}</span>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
-
-      {/* Cover image if available */}
-      {item.image && (
-        <div className="relative h-24 mt-0 overflow-hidden rounded-b-xl">
-          <img 
-            src={item.image} 
-            alt={item.title}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-        </div>
-      )}
     </div>
   );
 };
