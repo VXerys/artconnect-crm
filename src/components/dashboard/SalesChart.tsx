@@ -17,9 +17,9 @@ interface SalesChartProps {
 }
 
 export const SalesChart = ({ data }: SalesChartProps) => {
-  // Calculate total and average
+  // Calculate totals
   const totalSales = data.reduce((sum, d) => sum + d.sales, 0);
-  const avgSales = totalSales / data.length;
+  const totalArtworksSold = data.reduce((sum, d) => sum + (d.artworks || 0), 0);
   
   // Calculate trend (comparing last 2 months)
   const lastMonth = data[data.length - 1]?.sales || 0;
@@ -109,9 +109,9 @@ export const SalesChart = ({ data }: SalesChartProps) => {
             </p>
           </div>
           <div className="text-right">
-            <p className="text-sm text-muted-foreground">Rata-rata</p>
+            <p className="text-sm text-muted-foreground">Karya Terjual</p>
             <p className="text-lg font-semibold">
-              {formatCurrency(avgSales)}
+              {totalArtworksSold} karya
             </p>
           </div>
         </div>

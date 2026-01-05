@@ -3,7 +3,6 @@ import {
   BarChart3, 
   Sparkles, 
   Calendar,
-  Download,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DateRange } from "./types";
@@ -106,10 +105,6 @@ export const AnalyticsHero = ({
             <Button variant="outline" size="sm" className="gap-2">
               <Calendar className="w-4 h-4" />
               Kustom Range
-            </Button>
-            <Button variant="outline" size="sm" className="gap-2">
-              <Download className="w-4 h-4" />
-              Export
             </Button>
           </div>
         </div>

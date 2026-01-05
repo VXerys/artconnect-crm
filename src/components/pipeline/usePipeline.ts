@@ -21,6 +21,7 @@ export const usePipeline = () => {
   const [pipelineData, setPipelineData] = useState<PipelineData>(getEmptyPipelineData());
   const [loading, setLoading] = useState(true);
   const [activeItem, setActiveItem] = useState<PipelineItem | null>(null);
+  const [dragStartColumn, setDragStartColumn] = useState<PipelineStatus | null>(null); // Track original column
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -39,8 +40,8 @@ export const usePipeline = () => {
     try {
       setLoading(true);
       
-      // Fetch all artworks and group by status
-      const result = await artworksService.getAll(userId, {}, { limit: 200 });
+      // Fetch all artworks and group by status (limit 50 for performance)
+      const result = await artworksService.getAll(userId, {}, { limit: 50 });
       const artworks = result.data;
       
       // Group artworks by status
@@ -123,6 +124,7 @@ export const usePipeline = () => {
       const item = pipelineData[columnKey].items.find(i => i.id === active.id);
       if (item) {
         setActiveItem(item);
+        setDragStartColumn(columnKey); // Save the original column
       }
     }
   }, [findColumnByItemId, pipelineData]);
@@ -167,29 +169,22 @@ export const usePipeline = () => {
 
   const handleDragEnd = useCallback(async (event: DragEndEvent) => {
     const { active, over } = event;
+    const originalColumn = dragStartColumn; // Use saved original column
+    const draggedItem = activeItem; // Save reference before clearing
+    
     setActiveItem(null);
+    setDragStartColumn(null); // Clear the saved column
 
     if (!over || !userId) return;
 
     const activeId = active.id as string;
     const overId = over.id as string;
 
-    // Find the dbId from the item (it could be in any column now after dragOver)
-    let dbId: string | null = null;
-    let originalColumn: PipelineStatus | null = null;
-    
-    // Search for the item in all columns to find its dbId
-    for (const [key, column] of Object.entries(pipelineData)) {
-      const item = column.items.find(i => i.id === activeId);
-      if (item && (item as any).dbId) {
-        dbId = (item as any).dbId;
-        originalColumn = key as PipelineStatus;
-        break;
-      }
-    }
+    // Get dbId from the dragged item
+    const dbId = draggedItem ? (draggedItem as any).dbId : null;
 
-    // Determine the target column
-    let targetColumn = findColumnByItemId(overId);
+    // Determine the target column (where the item is dropped)
+    let targetColumn = findColumnByItemId(activeId); // Item is already moved by dragOver
     if (!targetColumn && Object.keys(pipelineData).includes(overId)) {
       targetColumn = overId as PipelineStatus;
     }
@@ -197,18 +192,17 @@ export const usePipeline = () => {
     if (!targetColumn) return;
 
     // Handle reorder within same column
-    const currentColumn = findColumnByItemId(activeId);
-    if (currentColumn && currentColumn === targetColumn && activeId !== overId) {
+    if (originalColumn && originalColumn === targetColumn && activeId !== overId) {
       setPipelineData(prev => {
-        const items = [...prev[currentColumn].items];
+        const items = [...prev[targetColumn!].items];
         const oldIndex = items.findIndex(item => item.id === activeId);
         const newIndex = items.findIndex(item => item.id === overId);
 
         if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
           return {
             ...prev,
-            [currentColumn]: {
-              ...prev[currentColumn],
+            [targetColumn!]: {
+              ...prev[targetColumn!],
               items: arrayMove(items, oldIndex, newIndex),
             },
           };
@@ -220,8 +214,9 @@ export const usePipeline = () => {
     // Save to database if column changed - update artwork status directly
     if (dbId && originalColumn && targetColumn !== originalColumn) {
       try {
-        console.log('Updating artwork status:', dbId, 'to', targetColumn);
+        console.log('Updating artwork status:', dbId, 'from', originalColumn, 'to', targetColumn);
         await artworksService.updateStatus(dbId, targetColumn);
+        toast.success(`Karya dipindahkan ke ${pipelineData[targetColumn].title}`);
         console.log('Artwork status updated successfully!');
       } catch (error) {
         console.error('Error updating artwork status:', error);
@@ -230,7 +225,7 @@ export const usePipeline = () => {
         await fetchPipeline();
       }
     }
-  }, [findColumnByItemId, pipelineData, userId, fetchPipeline]);
+  }, [findColumnByItemId, pipelineData, userId, fetchPipeline, dragStartColumn, activeItem]);
 
   // Move item via menu
   const handleMoveToColumn = useCallback(async (item: PipelineItem, targetStatus: PipelineStatus) => {

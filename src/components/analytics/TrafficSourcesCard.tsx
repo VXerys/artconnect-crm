@@ -19,9 +19,9 @@ export const TrafficSourcesCard = ({ sources }: TrafficSourcesCardProps) => {
             <Globe className="w-5 h-5 text-emerald-400" />
           </div>
           <div>
-            <CardTitle className="font-display text-lg">Sumber Traffic</CardTitle>
+            <CardTitle className="font-display text-lg">Komposisi Karya</CardTitle>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {totalVisitors.toLocaleString()} total pengunjung
+              Distribusi berdasarkan medium
             </p>
           </div>
         </div>
@@ -35,10 +35,10 @@ export const TrafficSourcesCard = ({ sources }: TrafficSourcesCardProps) => {
               <Globe className="w-8 h-8 text-muted-foreground" />
             </div>
             <p className="text-muted-foreground text-sm">
-              Data traffic belum tersedia
+              Data komposisi belum tersedia
             </p>
             <p className="text-muted-foreground/60 text-xs mt-1 max-w-[200px]">
-              Integrasikan dengan website Anda untuk melihat sumber pengunjung
+              Tambahkan medium pada karya Anda untuk melihat grafik
             </p>
           </div>
         ) : (
@@ -52,7 +52,6 @@ export const TrafficSourcesCard = ({ sources }: TrafficSourcesCardProps) => {
                       style={{ backgroundColor: source.color }} 
                     />
                     <span className="text-sm font-medium">{source.source}</span>
-                    <ExternalLink className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" />
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="font-bold">{source.visitors.toLocaleString()}</span>

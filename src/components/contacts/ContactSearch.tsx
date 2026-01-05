@@ -12,12 +12,6 @@ export const ContactSearch = ({
 }: ContactSearchProps) => {
   return (
     <div className="relative group">
-      {/* Decorative glow on focus */}
-      <div className={cn(
-        "absolute inset-0 rounded-xl bg-primary/20 blur-xl opacity-0 transition-opacity duration-300",
-        searchQuery && "opacity-30"
-      )} />
-      
       <div className="relative flex items-center">
         {/* Search icon with animation */}
         <Search className={cn(
@@ -34,12 +28,12 @@ export const ContactSearch = ({
           onChange={(e) => onSearchChange(e.target.value)}
           className={cn(
             "w-full md:w-96 h-12 pl-12 pr-12 rounded-xl",
-            "bg-secondary/50 backdrop-blur-sm",
+            "bg-secondary/80",
             "border-2 border-border",
             "text-sm placeholder:text-muted-foreground",
             "transition-all duration-300",
             "focus:outline-none focus:ring-0",
-            "focus:border-primary/50 focus:bg-secondary/80",
+            "focus:border-primary/50 focus:bg-secondary",
             "hover:border-primary/30"
           )}
         />

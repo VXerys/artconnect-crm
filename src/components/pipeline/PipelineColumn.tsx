@@ -114,7 +114,7 @@ export const PipelineColumnComponent = ({
           // Glass effect
           "backdrop-blur-xl bg-card/80",
           // Shadow and glow
-          "shadow-lg hover:shadow-2xl",
+          "shadow-md hover:shadow-xl",
           theme.glow,
           // Drop target highlight
           isOver && "ring-2 ring-primary ring-offset-2 ring-offset-background scale-[1.02]"
@@ -154,10 +154,10 @@ export const PipelineColumnComponent = ({
         </CardHeader>
 
         {/* Cards Container */}
-        <CardContent className="pt-0 pb-3 px-3 flex-1 overflow-hidden">
+        <CardContent className="pt-0 pb-0 px-0 flex-1 overflow-hidden flex flex-col">
           <div 
             className={cn(
-              "space-y-2 overflow-y-auto pr-1",
+              "flex-1 px-3 pb-4 pt-1 space-y-3 overflow-y-auto",
               "scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent",
               maxHeight,
               minHeight

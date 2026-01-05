@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { artworksService } from '@/lib/services/artworks.service';
 import { contactsService } from '@/lib/services/contacts.service';
 import { salesService } from '@/lib/services/sales.service';
-import type { ReportMetric, SalesSummary } from '@/components/reports/types';
+import { activityService } from '@/lib/services/activity.service';
+import type { ReportMetric, SalesSummary, RecentReport, ScheduledReport } from '@/components/reports/types';
 import { DollarSign, ShoppingBag, Palette, TrendingUp } from 'lucide-react';
 
 interface ReportsData {
@@ -11,8 +12,14 @@ interface ReportsData {
   salesSummary: SalesSummary;
   totalReports: number;
   lastReportDate: string;
+  recentReports: RecentReport[];
+  scheduledReports: ScheduledReport[];
   loading: boolean;
   error: string | null;
+  refreshReports: () => Promise<void>;
+  addScheduledReport: (report: Omit<ScheduledReport, 'id'>) => void;
+  updateScheduledReport: (id: number, updates: Partial<ScheduledReport>) => void;
+  deleteScheduledReport: (id: number) => void;
 }
 
 export const useReportsData = (): ReportsData => {
@@ -29,8 +36,70 @@ export const useReportsData = (): ReportsData => {
     topArtwork: { title: 'N/A', price: 0 },
     monthlyData: [],
   });
-  const [totalReports] = useState(0);
-  const [lastReportDate] = useState('Belum ada');
+  const [totalReports, setTotalReports] = useState(0);
+  const [lastReportDate, setLastReportDate] = useState('Belum ada');
+  const [recentReports, setRecentReports] = useState<RecentReport[]>([]);
+  
+  // Scheduled Reports (LocalStorage)
+  const [scheduledReports, setScheduledReports] = useState<ScheduledReport[]>([]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('scheduledReports');
+    if (saved) {
+      try {
+        setScheduledReports(JSON.parse(saved));
+      } catch (e) {
+        console.error('Error parsing scheduled reports', e);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('scheduledReports', JSON.stringify(scheduledReports));
+  }, [scheduledReports]);
+
+  const addScheduledReport = (report: Omit<ScheduledReport, 'id'>) => {
+    const newReport: ScheduledReport = { ...report, id: Date.now() };
+    setScheduledReports(prev => [...prev, newReport]);
+  };
+
+  const updateScheduledReport = (id: number, updates: Partial<ScheduledReport>) => {
+    setScheduledReports(prev => prev.map(r => r.id === id ? { ...r, ...updates } : r));
+  };
+
+  const deleteScheduledReport = (id: number) => {
+    setScheduledReports(prev => prev.filter(r => r.id !== id));
+  };
+
+
+  const fetchRecentReports = useCallback(async () => {
+    if (!userId) return;
+    try {
+      // Get recent report generation activities
+      const activities = await activityService.getByType(userId, 'report_generated', 10);
+      
+      const mappedReports: RecentReport[] = activities.map(activity => {
+        const metadata = activity.metadata as any || {};
+        return {
+          id: parseInt(activity.id) || Date.now() + Math.random(), 
+          name: metadata.filename || activity.title.replace('Laporan dibuat: ', ''),
+          type: (metadata.reportType || 'inventory') as any, 
+          date: new Date(activity.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+          size: 'PDF', 
+          format: (metadata.format || 'PDF').toLowerCase() as any,
+          status: 'completed',
+        };
+      });
+      
+      setRecentReports(mappedReports);
+      setTotalReports(mappedReports.length);
+      if (mappedReports.length > 0) {
+        setLastReportDate(mappedReports[0].date);
+      }
+    } catch (e) {
+      console.error('Error fetching recent reports:', e);
+    }
+  }, [userId]);
 
   useEffect(() => {
     const fetchReportsData = async () => {
@@ -59,24 +128,16 @@ export const useReportsData = (): ReportsData => {
         const now = new Date();
 
         try {
-          // Get all artworks and calculate sales from sold ones
           const allArtworksResult = await artworksService.getAll(userId, {}, { limit: 500 });
           
           let highestPrice = 0;
           allArtworksResult.data.forEach(artwork => {
             if (artwork.status === 'sold' && artwork.price) {
               totalSalesAmount += artwork.price;
-              
-              // Track top artwork
               if (artwork.price > highestPrice) {
                 highestPrice = artwork.price;
-                topArtworkData = {
-                  title: artwork.title,
-                  price: artwork.price,
-                };
+                topArtworkData = { title: artwork.title, price: artwork.price };
               }
-              
-              // Group by month
               const saleDate = new Date(artwork.updated_at || artwork.created_at);
               const monthKey = `${saleDate.getFullYear()}-${saleDate.getMonth()}`;
               if (!salesByMonth[monthKey]) {
@@ -87,16 +148,11 @@ export const useReportsData = (): ReportsData => {
             }
           });
 
-          // Generate last 6 months for chart
           for (let i = 5; i >= 0; i--) {
             const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
             const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
             const data = salesByMonth[monthKey] || { sales: 0, count: 0 };
-            monthlyData.push({
-              month: monthNames[date.getMonth()],
-              sales: data.sales,
-              count: data.count,
-            });
+            monthlyData.push({ month: monthNames[date.getMonth()], sales: data.sales, count: data.count });
           }
         } catch (e) {
           console.warn('Could not fetch artworks for sales data:', e);
@@ -106,14 +162,9 @@ export const useReportsData = (): ReportsData => {
           }
         }
 
-        // Get contacts count
         const contactsResult = await contactsService.getAll(userId, {}, { limit: 1 });
-        const totalContacts = contactsResult.count;
-
-        // Calculate average price
         const avgPrice = soldCount > 0 ? Math.round(totalSalesAmount / soldCount) : 0;
 
-        // Set sales summary
         setSalesSummary({
           totalSales: totalSalesAmount,
           totalArtworks: soldCount,
@@ -122,49 +173,14 @@ export const useReportsData = (): ReportsData => {
           monthlyData,
         });
 
-        // Set metrics
         setMetrics([
-          {
-            id: "total-sales",
-            label: "Total Penjualan",
-            value: formatCompactCurrency(totalSalesAmount),
-            change: "+0%",
-            trend: "up" as const,
-            icon: DollarSign,
-            color: "text-emerald-400",
-            bgColor: "bg-emerald-500/10",
-          },
-          {
-            id: "artworks-sold",
-            label: "Karya Terjual",
-            value: soldCount.toString(),
-            change: "+0",
-            trend: "up" as const,
-            icon: ShoppingBag,
-            color: "text-purple-400",
-            bgColor: "bg-purple-500/10",
-          },
-          {
-            id: "total-artworks",
-            label: "Total Karya",
-            value: totalArtworks.toString(),
-            change: "+0",
-            trend: "up" as const,
-            icon: Palette,
-            color: "text-blue-400",
-            bgColor: "bg-blue-500/10",
-          },
-          {
-            id: "conversion-rate",
-            label: "Conversion Rate",
-            value: `${conversionRate}%`,
-            change: "+0%",
-            trend: "up" as const,
-            icon: TrendingUp,
-            color: "text-primary",
-            bgColor: "bg-primary/10",
-          },
+          { id: "total-sales", label: "Total Penjualan", value: formatCompactCurrency(totalSalesAmount), change: "+0%", trend: "up" as const, icon: DollarSign, color: "text-emerald-400", bgColor: "bg-emerald-500/10" },
+          { id: "artworks-sold", label: "Karya Terjual", value: soldCount.toString(), change: "+0", trend: "up" as const, icon: ShoppingBag, color: "text-purple-400", bgColor: "bg-purple-500/10" },
+          { id: "total-artworks", label: "Total Karya", value: totalArtworks.toString(), change: "+0", trend: "up" as const, icon: Palette, color: "text-blue-400", bgColor: "bg-blue-500/10" },
+          { id: "conversion-rate", label: "Conversion Rate", value: `${conversionRate}%`, change: "+0%", trend: "up" as const, icon: TrendingUp, color: "text-primary", bgColor: "bg-primary/10" },
         ]);
+
+        await fetchRecentReports();
 
       } catch (err) {
         console.error('Error fetching reports data:', err);
@@ -175,29 +191,28 @@ export const useReportsData = (): ReportsData => {
     };
 
     fetchReportsData();
-  }, [userId]);
+  }, [userId, fetchRecentReports]);
 
   return {
     metrics,
     salesSummary,
     totalReports,
     lastReportDate,
+    recentReports,
+    scheduledReports,
     loading,
     error,
+    refreshReports: fetchRecentReports,
+    addScheduledReport,
+    updateScheduledReport,
+    deleteScheduledReport,
   };
 };
 
-// Helper function
 function formatCompactCurrency(value: number): string {
-  if (value >= 1000000000) {
-    return `Rp ${(value / 1000000000).toFixed(1)}B`;
-  }
-  if (value >= 1000000) {
-    return `Rp ${(value / 1000000).toFixed(1)}M`;
-  }
-  if (value >= 1000) {
-    return `Rp ${(value / 1000).toFixed(0)}K`;
-  }
+  if (value >= 1000000000) return `Rp ${(value / 1000000000).toFixed(1)}B`;
+  if (value >= 1000000) return `Rp ${(value / 1000000).toFixed(1)}M`;
+  if (value >= 1000) return `Rp ${(value / 1000).toFixed(0)}K`;
   return `Rp ${value.toLocaleString('id-ID')}`;
 }
 

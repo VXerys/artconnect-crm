@@ -1,6 +1,6 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, Sparkles } from "lucide-react";
+import { Plus, Users, Sparkles, Loader2 } from "lucide-react";
 
 // Contacts Components
 import {
@@ -29,6 +29,7 @@ const Contacts = () => {
     formData,
     formErrors,
     isSubmitting,
+    loading,
     setFilter,
     setSearchQuery,
     setIsAddDialogOpen,
@@ -45,6 +46,26 @@ const Contacts = () => {
     handleViewDialogClose,
     handleDeleteDialogClose,
   } = useContacts();
+
+  // Loading Screen
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center space-y-4">
+            <div className="relative">
+              <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
+              <div className="absolute inset-0 w-12 h-12 mx-auto rounded-full bg-primary/20 animate-ping" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-muted-foreground font-medium">Memuat jejaring kontak...</p>
+              <p className="text-xs text-muted-foreground/60">Mengambil data kolektor, galeri, dan kurator</p>
+            </div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>

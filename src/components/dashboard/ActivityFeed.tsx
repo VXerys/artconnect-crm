@@ -1,14 +1,33 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Clock, ArrowRight, MoreVertical } from "lucide-react";
+import { Clock, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ActivityItem } from "./types";
 
 interface ActivityFeedProps {
   activities: ActivityItem[];
+  initialDisplayCount?: number;
 }
 
-export const ActivityFeed = ({ activities }: ActivityFeedProps) => {
+export const ActivityFeed = ({ 
+  activities, 
+  initialDisplayCount = 3 
+}: ActivityFeedProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  // Determine which activities to show
+  const displayedActivities = isExpanded 
+    ? activities 
+    : activities.slice(0, initialDisplayCount);
+  
+  const hasMoreActivities = activities.length > initialDisplayCount;
+  const hiddenCount = activities.length - initialDisplayCount;
+
+  const toggleExpand = (): void => {
+    setIsExpanded(prev => !prev);
+  };
+
   return (
     <Card className="bg-card border-border overflow-hidden">
       {/* Header */}
@@ -24,10 +43,26 @@ export const ActivityFeed = ({ activities }: ActivityFeedProps) => {
             </p>
           </div>
         </div>
-        <Button variant="ghost" size="sm" className="gap-2 text-amber-400 hover:text-amber-400">
-          Semua
-          <ArrowRight className="w-4 h-4" />
-        </Button>
+        {hasMoreActivities && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="gap-2 text-amber-400 hover:text-amber-400 hover:bg-amber-500/10"
+            onClick={toggleExpand}
+          >
+            {isExpanded ? (
+              <>
+                Sembunyikan
+                <ChevronUp className="w-4 h-4" />
+              </>
+            ) : (
+              <>
+                Semua ({hiddenCount} lagi)
+                <ChevronDown className="w-4 h-4" />
+              </>
+            )}
+          </Button>
+        )}
       </CardHeader>
 
       {/* Activity Timeline */}
@@ -36,13 +71,13 @@ export const ActivityFeed = ({ activities }: ActivityFeedProps) => {
           {/* Timeline line */}
           <div className="absolute left-[27px] top-0 bottom-0 w-px bg-border" />
 
-          {activities.map((activity, index) => (
+          {displayedActivities.map((activity, index) => (
             <div 
               key={activity.id}
               className={cn(
                 "group relative flex gap-4 px-6 py-4",
                 "hover:bg-secondary/30 transition-all duration-200",
-                index !== activities.length - 1 && "border-b border-border/50"
+                index !== displayedActivities.length - 1 && "border-b border-border/50"
               )}
               style={{ animationDelay: `${index * 50}ms` }}
             >
@@ -77,17 +112,20 @@ export const ActivityFeed = ({ activities }: ActivityFeedProps) => {
                   </span>
                 </div>
               </div>
-
-              {/* Hover action */}
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
-              >
-                <MoreVertical className="w-3.5 h-3.5" />
-              </Button>
             </div>
           ))}
+          
+          {/* Show expand button at bottom if collapsed and has more */}
+          {!isExpanded && hasMoreActivities && (
+            <div 
+              className="px-6 py-3 text-center border-t border-border/50 cursor-pointer hover:bg-secondary/20 transition-colors"
+              onClick={toggleExpand}
+            >
+              <span className="text-xs text-muted-foreground">
+                Klik untuk menampilkan {hiddenCount} aktivitas lainnya
+              </span>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

@@ -110,55 +110,85 @@ export const useDashboardData = (): DashboardData => {
         setLoading(true);
         setError(null);
 
-        // Fetch artworks count by status
-        const statusCounts = await artworksService.getCountByStatus(userId);
+        const now = new Date();
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+        // ==========================================
+        // PARALLEL FETCH - All API calls at once
+        // ==========================================
+        const [
+          statusCountsResult,
+          recentArtworksResult,
+          contactsResult,
+          allArtworksResult,
+          activitiesResult,
+          pipelineResult,
+        ] = await Promise.allSettled([
+          // 1. Artwork counts by status
+          artworksService.getCountByStatus(userId),
+          // 2. Recent artworks (top 4)
+          artworksService.getRecent(userId, 4),
+          // 3. Contacts (top 4)
+          contactsService.getAll(userId, {}, { limit: 4 }),
+          // 4. All artworks for sales calculation (limit to 100 for performance)
+          artworksService.getAll(userId, {}, { limit: 100 }),
+          // 5. Recent activities
+          activityService.getRecent(userId, 5),
+          // 6. Pipeline data
+          pipelineService.getPipelineData(userId),
+        ]);
+
+        // ==========================================
+        // PROCESS RESULTS
+        // ==========================================
+
+        // 1. Status counts
+        let statusCounts = { concept: 0, wip: 0, finished: 0, sold: 0 };
+        if (statusCountsResult.status === 'fulfilled') {
+          statusCounts = statusCountsResult.value;
+        }
         setArtworkStatusCounts(statusCounts);
         const totalArtworksCount = Object.values(statusCounts).reduce((a, b) => a + b, 0);
 
-        // Fetch recent artworks
-        const artworksResult = await artworksService.getRecent(userId, 4);
-        const mappedArtworks: DashboardArtwork[] = artworksResult.map(artwork => ({
-          id: artwork.id as unknown as number,
-          title: artwork.title,
-          status: artwork.status,
-          price: artwork.price ? `Rp ${artwork.price.toLocaleString('id-ID')}` : null,
-          date: formatRelativeDate(artwork.created_at),
-          image: artwork.image_url || 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=100',
-          medium: artwork.medium || 'Unknown',
-        }));
+        // 2. Recent artworks
+        let mappedArtworks: DashboardArtwork[] = [];
+        if (recentArtworksResult.status === 'fulfilled') {
+          mappedArtworks = recentArtworksResult.value.map(artwork => ({
+            id: artwork.id as unknown as number,
+            title: artwork.title,
+            status: artwork.status,
+            price: artwork.price ? `Rp ${artwork.price.toLocaleString('id-ID')}` : null,
+            date: formatRelativeDate(artwork.created_at),
+            image: artwork.image_url || 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=100',
+            medium: artwork.medium || 'Unknown',
+          }));
+        }
         setRecentArtworks(mappedArtworks);
 
-        // Fetch contacts count
-        const contactsResult = await contactsService.getAll(userId, {}, { limit: 4 });
-        const totalContacts = contactsResult.count;
-        const mappedContacts: DashboardContact[] = contactsResult.data.map(contact => ({
-          id: contact.id as unknown as number,
-          name: contact.name,
-          type: contact.type || 'Kontak',
-          lastContact: formatRelativeDate(contact.updated_at || contact.created_at),
-          email: contact.email || '',
-        }));
+        // 3. Contacts
+        let totalContacts = 0;
+        let mappedContacts: DashboardContact[] = [];
+        if (contactsResult.status === 'fulfilled') {
+          totalContacts = contactsResult.value.count;
+          mappedContacts = contactsResult.value.data.map(contact => ({
+            id: contact.id as unknown as number,
+            name: contact.name,
+            type: contact.type || 'Kontak',
+            lastContact: formatRelativeDate(contact.updated_at || contact.created_at),
+            email: contact.email || '',
+          }));
+        }
         setRecentContacts(mappedContacts);
 
-        // Fetch all artworks to calculate sold revenue
+        // 4. All artworks - calculate sales
         let totalSalesAmount = 0;
-        let soldArtworksCount = 0;
-        let monthlySalesData: ChartDataPoint[] = [];
-        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
         const salesByMonth: Record<string, { sales: number; artworks: number }> = {};
-        const now = new Date();
-
-        try {
-          // Get all artworks to find sold ones
-          const allArtworksResult = await artworksService.getAll(userId, {}, { limit: 500 });
-          
-          // Calculate revenue from sold artworks
-          allArtworksResult.data.forEach(artwork => {
+        
+        if (allArtworksResult.status === 'fulfilled') {
+          allArtworksResult.value.data.forEach(artwork => {
             if (artwork.status === 'sold' && artwork.price) {
               totalSalesAmount += artwork.price;
-              soldArtworksCount += 1;
               
-              // Group by month for chart (use updated_at as sale date)
               const saleDate = new Date(artwork.updated_at || artwork.created_at);
               const monthKey = `${saleDate.getFullYear()}-${saleDate.getMonth()}`;
               if (!salesByMonth[monthKey]) {
@@ -168,59 +198,26 @@ export const useDashboardData = (): DashboardData => {
               salesByMonth[monthKey].artworks += 1;
             }
           });
-          
-          // Also try to fetch from sales table (for explicit sales records)
-          try {
-            const salesResult = await salesService.getAll(userId, {}, { limit: 100 });
-            salesResult.data.forEach(sale => {
-              // Avoid double counting - only add if not already counted from artworks
-              // For now, just add to chart data
-              const date = new Date(sale.created_at);
-              const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
-              if (!salesByMonth[monthKey]) {
-                salesByMonth[monthKey] = { sales: 0, artworks: 0 };
-              }
-              // Only add if this sale wasn't from an artwork we already counted
-              if (sale.amount && !sale.artwork_id) {
-                salesByMonth[monthKey].sales += sale.amount;
-                salesByMonth[monthKey].artworks += 1;
-                totalSalesAmount += sale.amount;
-              }
-            });
-          } catch (e) {
-            console.warn('Could not fetch from sales table:', e);
-          }
-
-          // Generate last 6 months chart data
-          for (let i = 5; i >= 0; i--) {
-            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
-            monthlySalesData.push({
-              month: monthNames[date.getMonth()],
-              sales: salesByMonth[monthKey]?.sales || 0,
-              artworks: salesByMonth[monthKey]?.artworks || 0,
-            });
-          }
-        } catch (e) {
-          console.warn('Could not fetch artworks for sales calculation:', e);
-          // Fallback empty chart
-          for (let i = 5; i >= 0; i--) {
-            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            monthlySalesData.push({
-              month: monthNames[date.getMonth()],
-              sales: 0,
-              artworks: 0,
-            });
-          }
         }
 
+        // Generate chart data for last 6 months
+        const monthlySalesData: ChartDataPoint[] = [];
+        for (let i = 5; i >= 0; i--) {
+          const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
+          monthlySalesData.push({
+            month: monthNames[date.getMonth()],
+            sales: salesByMonth[monthKey]?.sales || 0,
+            artworks: salesByMonth[monthKey]?.artworks || 0,
+          });
+        }
         setSalesChartData(monthlySalesData);
         setTotalSales(formatCurrency(totalSalesAmount));
 
-        // Fetch activities
-        try {
-          const activitiesResult = await activityService.getRecent(userId, 5);
-          const mappedActivities: ActivityItem[] = activitiesResult.map((activity, index) => ({
+        // 5. Activities
+        let mappedActivities: ActivityItem[] = [];
+        if (activitiesResult.status === 'fulfilled') {
+          mappedActivities = activitiesResult.value.map((activity, index) => ({
             id: index + 1,
             type: mapActivityType(activity.activity_type),
             title: activity.title || getActivityTitle(activity.activity_type),
@@ -229,23 +226,17 @@ export const useDashboardData = (): DashboardData => {
             icon: getActivityIcon(activity.activity_type),
             color: activity.color || getActivityColor(activity.activity_type),
           }));
-          setRecentActivities(mappedActivities);
-        } catch (e) {
-          console.warn('Could not fetch activities:', e);
-          setRecentActivities([]);
         }
+        setRecentActivities(mappedActivities);
 
-        // Fetch pipeline items count (items that are not sold)
+        // 6. Pipeline count
         let activePipelineCount = 0;
-        try {
-          const pipelineData = await pipelineService.getPipelineData(userId);
-          // Count all items except sold
+        if (pipelineResult.status === 'fulfilled') {
+          const pipelineData = pipelineResult.value;
           activePipelineCount = 
             pipelineData.concept.items.length + 
             pipelineData.wip.items.length + 
             pipelineData.finished.items.length;
-        } catch (e) {
-          console.warn('Could not fetch pipeline data:', e);
         }
 
         // Update stats
@@ -306,6 +297,7 @@ export const useDashboardData = (): DashboardData => {
 
     fetchDashboardData();
   }, [userId]);
+
 
   const totalArtworks = Object.values(artworkStatusCounts).reduce((a, b) => a + b, 0);
 

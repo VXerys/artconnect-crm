@@ -303,6 +303,26 @@ export const activityService = {
     }, client);
   },
 
+  async logReportGenerated(
+    userId: string,
+    reportType: string,
+    format: string,
+    filename: string,
+    client: TypedSupabaseClient = supabase
+  ): Promise<ActivityLog> {
+    return this.log({
+      user_id: userId,
+      activity_type: 'report_generated',
+      title: `Laporan dibuat: ${filename}`,
+      description: `Tipe: ${reportType}, Format: ${format.toUpperCase()}`,
+      metadata: { 
+        filename,
+        reportType,
+        format 
+      },
+    }, client);
+  },
+
   /**
    * Format activity with additional data
    */

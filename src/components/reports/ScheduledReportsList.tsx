@@ -20,7 +20,8 @@ interface ScheduledReportsListProps {
   onToggle: (reportId: number) => void;
   onEdit: (reportId: number) => void;
   onDelete: (reportId: number) => void;
-  maxHeight?: string; // Optional max height for scroll area
+  onAdd: () => void;
+  maxHeight?: string; 
 }
 
 const frequencyLabels = {
@@ -34,10 +35,11 @@ export const ScheduledReportsList = ({
   onToggle, 
   onEdit, 
   onDelete,
+  onAdd,
   maxHeight = "280px",
 }: ScheduledReportsListProps) => {
   return (
-    <Card className="bg-card border-border overflow-hidden h-full flex flex-col w-full">
+    <Card className="bg-card border-border overflow-hidden w-full h-fit">
       {/* Header */}
       <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-3">
@@ -51,21 +53,37 @@ export const ScheduledReportsList = ({
             </p>
           </div>
         </div>
-        <Button variant="ghost" size="sm" className="gap-2 text-blue-400 hover:text-blue-400">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="gap-2 text-blue-400 hover:text-blue-400"
+          onClick={onAdd}
+        >
           Kelola
           <ArrowRight className="w-4 h-4" />
         </Button>
       </CardHeader>
 
       {/* List */}
-      <CardContent className="p-0 flex flex-col flex-1 overflow-hidden">
+      {/* List */}
+      <CardContent className="p-0 flex flex-col flex-1 overflow-hidden relative">
         {reports.length === 0 ? (
-          <div className="p-8 text-center flex-1 flex flex-col items-center justify-center">
-            <CalendarClock className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-muted-foreground text-sm">
-              Belum ada laporan terjadwal
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center relative overflow-hidden">
+            {/* Background decoration */}
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent opacity-50" />
+            
+            <div className="relative z-10 bg-card border border-border/50 p-4 rounded-full mb-4 shadow-xl shadow-primary/10">
+              <CalendarClock className="w-8 h-8 text-primary" />
+            </div>
+            
+            <h3 className="relative z-10 font-display font-medium text-lg mb-2">
+              Otomatisasi Laporan
+            </h3>
+            <p className="relative z-10 text-muted-foreground text-sm max-w-[200px] mb-6 leading-relaxed">
+              Jadwalkan laporan rutin agar terkirim otomatis ke email Anda.
             </p>
-            <Button variant="outline" size="sm" className="mt-3 gap-2">
+            
+            <Button onClick={onAdd} className="relative z-10 shadow-glow gap-2" size="sm">
               <Plus className="w-4 h-4" />
               Buat Jadwal Baru
             </Button>
@@ -74,19 +92,19 @@ export const ScheduledReportsList = ({
           <>
             {/* Scrollable List */}
             <div 
-              className="divide-y divide-border overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent flex-1"
+              className="divide-y divide-border/50 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent flex-1"
               style={{ maxHeight }}
             >
               {reports.map((report, index) => {
-                const freq = frequencyLabels[report.frequency];
+                const freq = frequencyLabels[report.frequency as keyof typeof frequencyLabels] || frequencyLabels.monthly;
 
                 return (
                   <div 
                     key={report.id}
                     className={cn(
                       "group flex items-center gap-4 px-6 py-4",
-                      "hover:bg-secondary/30 transition-all duration-200",
-                      !report.isActive && "opacity-50"
+                      "hover:bg-secondary/40 transition-all duration-300",
+                      !report.isActive && "opacity-60 grayscale-[0.5]"
                     )}
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
@@ -94,59 +112,59 @@ export const ScheduledReportsList = ({
                     <button
                       onClick={() => onToggle(report.id)}
                       className={cn(
-                        "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0",
-                        "transition-all duration-300 hover:scale-110",
+                        "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 border",
+                        "transition-all duration-300 hover:scale-105 hover:shadow-lg",
                         report.isActive 
-                          ? "bg-emerald-500/10 text-emerald-400" 
-                          : "bg-secondary text-muted-foreground"
+                          ? "bg-primary/10 border-primary/20 text-primary shadow-primary/10" 
+                          : "bg-secondary border-border text-muted-foreground"
                       )}
+                      title={report.isActive ? "Nonaktifkan jadwal" : "Aktifkan jadwal"}
                     >
                       {report.isActive ? (
-                        <Pause className="w-5 h-5" />
+                        <Pause className="w-4 h-4 fill-current" />
                       ) : (
-                        <Play className="w-5 h-5" />
+                        <Play className="w-4 h-4 fill-current ml-0.5" />
                       )}
                     </button>
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-medium truncate">{report.name}</h4>
-                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <h4 className="font-medium truncate text-sm sm:text-base group-hover:text-primary transition-colors">
+                        {report.name}
+                      </h4>
+                      <div className="flex items-center gap-3 mt-1.5 flex-wrap">
                         <span className={cn(
-                          "px-2 py-0.5 rounded text-xs font-medium",
+                          "px-2 py-0.5 rounded-md text-[10px] uppercase tracking-wider font-semibold border",
                           freq.bgColor,
-                          freq.color
+                          freq.color,
+                          "border-current/20"
                         )}>
                           {freq.label}
                         </span>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                           <Clock className="w-3 h-3" />
-                          <span>Berikutnya: {report.nextRun}</span>
-                        </div>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Mail className="w-3 h-3" />
-                          <span>{report.recipients.length} penerima</span>
+                          <span className="truncate max-w-[80px]">{report.nextRun}</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-2 group-hover:translate-x-0">
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
+                        className="h-8 w-8 hover:bg-primary/10 hover:text-primary rounded-lg"
                         onClick={() => onEdit(report.id)}
                       >
-                        <Edit2 className="w-4 h-4" />
+                        <Edit2 className="w-3.5 h-3.5" />
                       </Button>
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+                        className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive rounded-lg"
                         onClick={() => onDelete(report.id)}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5" />
                       </Button>
                     </div>
                   </div>
@@ -155,24 +173,19 @@ export const ScheduledReportsList = ({
             </div>
 
             {/* Footer - Add New Schedule Button & Tips */}
-            <div className="p-4 border-t border-border space-y-4 flex-shrink-0">
+            <div className="p-4 border-t border-border/50 space-y-4 flex-shrink-0 bg-secondary/10">
               {/* Add New Button */}
-              <Button variant="outline" className="w-full gap-2">
+              <Button variant="outline" className="w-full gap-2 border-dashed border-primary/30 hover:border-primary hover:bg-primary/5 text-primary/80 hover:text-primary" onClick={onAdd}>
                 <Plus className="w-4 h-4" />
                 Buat Jadwal Baru
               </Button>
 
               {/* Tips Section */}
-              <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
-                <div className="flex items-start gap-2">
-                  <Sparkles className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <h5 className="text-xs font-semibold text-blue-400 mb-1">Tips Otomasi</h5>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      Jadwalkan laporan penjualan mingguan untuk memantau performa bisnis secara konsisten.
-                    </p>
-                  </div>
-                </div>
+              <div className="flex gap-3 px-3 py-2 rounded-lg bg-blue-500/5 border border-blue-500/10">
+                <Sparkles className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  <span className="font-medium text-blue-400">Tips:</span> Jadwalkan laporan mingguan untuk memantau performa bisnis.
+                </p>
               </div>
             </div>
           </>

@@ -1,6 +1,6 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Layers, RotateCcw } from "lucide-react";
+import { Plus, Layers, RotateCcw, Loader2 } from "lucide-react";
 import {
   DndContext,
   DragOverlay,
@@ -87,6 +87,26 @@ const Pipeline = () => {
     0
   );
 
+  // Loading Screen
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center space-y-4">
+            <div className="relative">
+              <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
+              <div className="absolute inset-0 w-12 h-12 mx-auto rounded-full bg-primary/20 animate-ping" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-muted-foreground font-medium">Memuat pipeline...</p>
+              <p className="text-xs text-muted-foreground/60">Mengambil data karya seni</p>
+            </div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="flex flex-col h-full">
@@ -170,7 +190,7 @@ const Pipeline = () => {
           {/* Scrollable Kanban Container */}
           <div className={cn(
             // Base layout
-            "flex gap-5 py-4",
+            "flex gap-5 pt-4 pb-8",
             // Allow horizontal scroll
             "overflow-x-auto overflow-y-visible",
             // Scroll snap for mobile
@@ -182,7 +202,9 @@ const Pipeline = () => {
             // Scrollbar styling
             "scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent hover:scrollbar-thumb-white/20",
             // Add padding at the end for last column
-            "pr-8"
+            "pr-8",
+            // Ensure shadows render above the summary
+            "relative z-10"
           )}>
             {(Object.entries(pipelineData) as [PipelineStatus, PipelineColumn][]).map(([key, column]) => (
               <PipelineColumnComponent
@@ -209,9 +231,8 @@ const Pipeline = () => {
           </DragOverlay>
         </DndContext>
 
-        {/* Summary Section - Hidden on mobile portrait */}
         {!(isMobile && isPortrait) && (
-          <div className="mt-6">
+          <div className="mt-2 relative z-0 px-1">
             <PipelineSummary pipelineData={pipelineData} />
           </div>
         )}

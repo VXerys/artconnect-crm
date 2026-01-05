@@ -1,41 +1,45 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { toast } from "sonner";
-import { useReportsData } from "@/hooks/useReportsData";
 import { useAuth } from "@/context/AuthContext";
-import { Loader2 } from "lucide-react";
 import { reportGeneratorService } from "@/lib/services/report-generator.service";
-
-// Reports Components
+import useReportsData from "@/hooks/useReportsData";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 import {
   ReportsHero,
   ReportMetricsGrid,
   ReportTypesGrid,
   CustomReportBuilder,
   RecentReportsList,
-  SalesOverviewChart,
   ScheduledReportsList,
   reportTypes,
-  recentReports as staticRecentReports,
-  scheduledReports as initialScheduledReports,
   CustomReportFormData,
+  ScheduledReport
 } from "@/components/reports";
+import { ScheduledReportDialog } from "@/components/reports/ScheduledReportDialog";
 
 const Reports = () => {
   const { profile } = useAuth();
   const userId = profile?.id;
   const [isGenerating, setIsGenerating] = useState(false);
-  const [scheduledReports, setScheduledReports] = useState(initialScheduledReports);
-  const [recentReports, setRecentReports] = useState(staticRecentReports);
+  
+  // Dialog state
+  const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
+  const [editingSchedule, setEditingSchedule] = useState<ScheduledReport | undefined>(undefined);
 
-  // Fetch real data from Supabase
+  // Fetch data
   const {
     metrics,
-    salesSummary,
     totalReports,
     lastReportDate,
+    recentReports,
+    scheduledReports,
     loading,
     error,
+    refreshReports,
+    addScheduledReport,
+    updateScheduledReport,
+    deleteScheduledReport
   } = useReportsData();
 
   // Handle quick report generation with AI
@@ -65,18 +69,7 @@ const Reports = () => {
           id: 'report-generating',
           description: `File ${result.filename} siap didownload`,
         });
-
-        // Add to recent reports
-        const newReport = {
-          id: Date.now(),
-          name: result.filename,
-          type: reportId as 'inventory' | 'sales' | 'contacts' | 'activity',
-          date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
-          size: result.blob ? `${Math.round(result.blob.size / 1024)} KB` : '0 KB',
-          format: format as 'csv' | 'pdf' | 'xlsx',
-          status: 'completed' as const,
-        };
-        setRecentReports(prev => [newReport, ...prev].slice(0, 10));
+        await refreshReports();
       } else {
         toast.error("Gagal membuat laporan", {
           id: 'report-generating',
@@ -94,7 +87,7 @@ const Reports = () => {
     }
   };
 
-  // Handle custom report generation with AI
+  // Handle custom report generation
   const handleCustomReportGenerate = async (formData: CustomReportFormData) => {
     if (!userId) {
       toast.error("Silakan login terlebih dahulu");
@@ -102,7 +95,6 @@ const Reports = () => {
     }
 
     setIsGenerating(true);
-    
     toast.loading("🤖 AI sedang menganalisis data...", {
       id: 'custom-report-generating',
       description: `Tipe: ${formData.reportType}, Format: ${formData.format.toUpperCase()}`,
@@ -110,7 +102,7 @@ const Reports = () => {
 
     try {
       const result = await reportGeneratorService.generateReport({
-        type: formData.reportType as 'inventory' | 'sales' | 'contacts' | 'activity' | 'combined',
+        type: formData.reportType as any,
         format: formData.format,
         period: formData.startDate && formData.endDate ? {
           startDate: formData.startDate,
@@ -126,22 +118,11 @@ const Reports = () => {
           id: 'custom-report-generating',
           description: "File siap didownload",
         });
-
-        // Add to recent reports
-        const newReport = {
-          id: Date.now(),
-          name: result.filename,
-          type: formData.reportType as 'inventory' | 'sales' | 'contacts' | 'activity',
-          date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
-          size: result.blob ? `${Math.round(result.blob.size / 1024)} KB` : '0 KB',
-          format: formData.format as 'csv' | 'pdf' | 'xlsx',
-          status: 'completed' as const,
-        };
-        setRecentReports(prev => [newReport, ...prev].slice(0, 10));
+        await refreshReports();
       } else {
         toast.error("Gagal membuat laporan kustom", {
           id: 'custom-report-generating',
-          description: result.error || "Terjadi kesalahan saat membuat laporan",
+          description: result.error || "Terjadi kesalahan",
         });
       }
     } catch (error) {
@@ -155,14 +136,8 @@ const Reports = () => {
     }
   };
 
-  // Handle schedule report
-  const handleScheduleReport = () => {
-    toast.info("Fitur jadwal laporan", {
-      description: "Akan segera tersedia",
-    });
-  };
+  // --- Actions ---
 
-  // Handle download recent report
   const handleDownloadReport = (reportId: number) => {
     const report = recentReports.find(r => r.id === reportId);
     if (report) {
@@ -170,64 +145,73 @@ const Reports = () => {
     }
   };
 
-  // Handle delete recent report
   const handleDeleteReport = (reportId: number) => {
-    setRecentReports(prev => prev.filter(r => r.id !== reportId));
-    toast.success("Laporan dihapus");
+    toast.info("Penghapusan log laporan belum tersedia");
   };
 
-  // Handle toggle scheduled report
-  const handleToggleScheduledReport = (reportId: number) => {
-    setScheduledReports(prev => 
-      prev.map(r => 
-        r.id === reportId ? { ...r, isActive: !r.isActive } : r
-      )
-    );
-    const report = scheduledReports.find(r => r.id === reportId);
-    toast.success(report?.isActive ? "Jadwal dinonaktifkan" : "Jadwal diaktifkan");
+  // --- Scheduled Reports Handlers ---
+
+  const handleAddScheduleClick = () => {
+    setEditingSchedule(undefined);
+    setScheduleDialogOpen(true);
   };
 
-  // Handle edit scheduled report
   const handleEditScheduledReport = (reportId: number) => {
-    toast.info("Edit jadwal", {
-      description: "Akan segera tersedia",
-    });
+    const report = scheduledReports.find(r => r.id === reportId);
+    if (report) {
+      setEditingSchedule(report);
+      setScheduleDialogOpen(true);
+    }
   };
 
-  // Handle delete scheduled report
   const handleDeleteScheduledReport = (reportId: number) => {
-    setScheduledReports(prev => prev.filter(r => r.id !== reportId));
+    deleteScheduledReport(reportId);
     toast.success("Jadwal dihapus");
   };
 
-  // Loading state
+  const handleToggleScheduledReport = (reportId: number) => {
+    const report = scheduledReports.find(r => r.id === reportId);
+    if (report) {
+      updateScheduledReport(reportId, { isActive: !report.isActive });
+      toast.success(report.isActive ? "Jadwal dinonaktifkan" : "Jadwal diaktifkan");
+    }
+  };
+
+  const handleSaveSchedule = (reportData: Omit<ScheduledReport, 'id'>) => {
+    if (editingSchedule) {
+      updateScheduledReport(editingSchedule.id, reportData);
+      toast.success("Jadwal berhasil diperbarui");
+    } else {
+      addScheduledReport(reportData);
+      toast.success("Jadwal baru berhasil dibuat");
+    }
+    setScheduleDialogOpen(false);
+  };
+
+  // Handler for custom builder 'schedule' button
+  const handleScheduleCustomReport = () => {
+    handleAddScheduleClick();
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center space-y-4">
-            <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto" />
-            <p className="text-muted-foreground">Memuat data laporan...</p>
-          </div>
+          <Loader2 className="w-8 h-8 animate-spin text-primary mr-2" />
+          <p className="text-muted-foreground">Memuat data laporan...</p>
         </div>
       </DashboardLayout>
     );
   }
 
-  // Error state
   if (error) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center space-y-4">
-            <p className="text-destructive">{error}</p>
-            <button 
-              onClick={() => window.location.reload()} 
-              className="text-primary hover:underline"
-            >
-              Coba lagi
-            </button>
-          </div>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+          <p className="text-destructive">Error: {error}</p>
+          <button onClick={() => window.location.reload()} className="text-primary hover:underline">
+            Coba lagi
+          </button>
         </div>
       </DashboardLayout>
     );
@@ -235,41 +219,62 @@ const Reports = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        {/* Hero Section */}
+      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        
+        {/* Hero */}
         <ReportsHero 
           totalReports={recentReports.length || totalReports}
           lastReportDate={recentReports[0]?.date || lastReportDate}
         />
 
-        {/* Metrics Grid */}
-        <section>
-          <div className="flex items-center gap-2 mb-4">
+        {/* Metrics */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
             <div className="w-1 h-4 bg-emerald-400 rounded-full" />
             <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
               Ringkasan Performa
             </h2>
           </div>
           <ReportMetricsGrid metrics={metrics} />
-        </section>
+        </div>
 
-        {/* Report Types Grid */}
-        <section>
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-1 h-4 bg-primary rounded-full" />
-            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-              Tipe Laporan
-            </h2>
+        {/* Top Section: Quick Actions & Scheduled Reports */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+          {/* Quick Actions (Types) */}
+          <div className="lg:col-span-2 space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-4 bg-primary rounded-full" />
+              <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Buat Laporan Cepat
+              </h2>
+            </div>
+            <ReportTypesGrid 
+              reportTypes={reportTypes}
+              onGenerateReport={handleGenerateReport}
+            />
           </div>
-          <ReportTypesGrid 
-            reportTypes={reportTypes}
-            onGenerateReport={handleGenerateReport}
-          />
-        </section>
 
-        {/* Custom Report Builder */}
-        <section>
-          <div className="flex items-center gap-2 mb-4">
+          {/* Scheduled Reports */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-4 bg-blue-400 rounded-full" />
+              <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Monitor Jadwal
+              </h2>
+            </div>
+            <ScheduledReportsList 
+              reports={scheduledReports}
+              onToggle={handleToggleScheduledReport}
+              onEdit={handleEditScheduledReport}
+              onDelete={handleDeleteScheduledReport}
+              onAdd={handleAddScheduleClick}
+            />
+          </div>
+        </div>
+
+        {/* Custom Report Builder - Full Width */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
             <div className="w-1 h-4 bg-purple-400 rounded-full" />
             <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
               Laporan Kustom
@@ -277,44 +282,34 @@ const Reports = () => {
           </div>
           <CustomReportBuilder 
             onGenerate={handleCustomReportGenerate}
-            onSchedule={handleScheduleReport}
+            onSchedule={handleScheduleCustomReport}
             isGenerating={isGenerating}
           />
-        </section>
+        </div>
 
-        {/* Sales Overview - Full Width */}
-        <section>
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-1 h-4 bg-emerald-400 rounded-full" />
-            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-              Analitik Penjualan
-            </h2>
-          </div>
-          <SalesOverviewChart data={salesSummary} />
-        </section>
-
-        {/* Recent Reports & Scheduled Reports - Side by Side */}
-        <div className="grid lg:grid-cols-5 gap-6 items-stretch">
-          {/* Recent Reports - Takes more space (3 columns) */}
-          <div className="lg:col-span-3 flex">
+        {/* Recent Reports - Full Width */}
+        <div className="space-y-4">
+            <div className="flex items-center gap-2">
+                <div className="w-1 h-4 bg-amber-400 rounded-full" />
+                <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Riwayat Laporan
+                </h2>
+            </div>
             <RecentReportsList 
               reports={recentReports}
               onDownload={handleDownloadReport}
               onDelete={handleDeleteReport}
             />
-          </div>
-
-          {/* Scheduled Reports - Takes less space (2 columns) */}
-          <div className="lg:col-span-2 flex">
-            <ScheduledReportsList 
-              reports={scheduledReports}
-              onToggle={handleToggleScheduledReport}
-              onEdit={handleEditScheduledReport}
-              onDelete={handleDeleteScheduledReport}
-            />
-          </div>
         </div>
+
       </div>
+
+      <ScheduledReportDialog 
+        open={scheduleDialogOpen}
+        onOpenChange={setScheduleDialogOpen}
+        onSubmit={handleSaveSchedule}
+        initialData={editingSchedule}
+      />
     </DashboardLayout>
   );
 };

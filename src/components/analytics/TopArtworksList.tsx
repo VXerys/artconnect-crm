@@ -20,9 +20,9 @@ export const TopArtworksList = ({ artworks, maxHeight = "320px" }: TopArtworksLi
             <Award className="w-5 h-5 text-amber-400" />
           </div>
           <div>
-            <CardTitle className="font-display text-lg">Karya Terpopuler</CardTitle>
+            <CardTitle className="font-display text-lg">Karya Bernilai Tinggi</CardTitle>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Berdasarkan views & interaksi
+              Berdasarkan estimasi harga jual
             </p>
           </div>
         </div>
@@ -40,10 +40,10 @@ export const TopArtworksList = ({ artworks, maxHeight = "320px" }: TopArtworksLi
               <Award className="w-8 h-8 text-muted-foreground" />
             </div>
             <p className="text-muted-foreground text-sm">
-              Belum ada karya seni
+              Belum ada data karya
             </p>
             <p className="text-muted-foreground/60 text-xs mt-1">
-              Tambahkan karya untuk melihat performa
+              Tambahkan harga pada karya Anda
             </p>
           </div>
         ) : (
@@ -93,22 +93,13 @@ export const TopArtworksList = ({ artworks, maxHeight = "320px" }: TopArtworksLi
                   <p className="text-xs text-muted-foreground">{artwork.medium}</p>
                 </div>
 
-                {/* Stats */}
-                <div className="flex items-center gap-4 text-xs">
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <Eye className="w-3.5 h-3.5" />
-                    <span>{artwork.views}</span>
+                {/* Value */}
+                <div className="text-right">
+                  <div className="flex items-center justify-end gap-1.5 text-emerald-400 font-medium">
+                    <ShoppingBag className="w-3.5 h-3.5" />
+                    <span>{formatCompactCurrency(artwork.revenue)}</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <MessageCircle className="w-3.5 h-3.5" />
-                    <span>{artwork.inquiries}</span>
-                  </div>
-                  {artwork.sales > 0 && (
-                    <div className="flex items-center gap-1.5 text-emerald-400">
-                      <ShoppingBag className="w-3.5 h-3.5" />
-                      <span>{formatCompactCurrency(artwork.revenue)}</span>
-                    </div>
-                  )}
+                  <p className="text-[10px] text-muted-foreground mt-0.5">Estimated Value</p>
                 </div>
               </div>
             ))}

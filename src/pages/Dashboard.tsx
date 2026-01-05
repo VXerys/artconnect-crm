@@ -1,3 +1,5 @@
+import { useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { Loader2 } from "lucide-react";
@@ -15,7 +17,18 @@ import {
   quickActions,
 } from "@/components/dashboard";
 
+// Dialog Components
+import { AddArtworkDialog } from "@/components/artworks/AddArtworkDialog";
+import { AddContactDialog } from "@/components/contacts/AddContactDialog";
+
+// Hooks for dialog state management
+import { useArtworks } from "@/components/artworks/useArtworks";
+import { useContacts } from "@/components/contacts/useContacts";
+
+
 const Dashboard = () => {
+  const navigate = useNavigate();
+  
   const {
     userName,
     stats,
@@ -29,6 +42,56 @@ const Dashboard = () => {
     loading,
     error,
   } = useDashboardData();
+
+  // Artwork dialog state from hook
+  const {
+    isAddDialogOpen: isAddArtworkDialogOpen,
+    handleAddDialogClose: handleAddArtworkDialogClose,
+    formData: artworkFormData,
+    formErrors: artworkFormErrors,
+    isSubmitting: isArtworkSubmitting,
+    imagePreview: artworkImagePreview,
+    fileInputRef: artworkFileInputRef,
+    handleInputChange: handleArtworkInputChange,
+    handleImageUpload: handleArtworkImageUpload,
+    handleImageUrlChange: handleArtworkImageUrlChange,
+    removeImagePreview: removeArtworkImagePreview,
+    handleAddSubmit: handleArtworkSubmit,
+    setIsAddDialogOpen: setIsAddArtworkDialogOpen,
+  } = useArtworks();
+
+  // Contact dialog state from hook
+  const {
+    isAddDialogOpen: isAddContactDialogOpen,
+    handleAddDialogClose: handleAddContactDialogClose,
+    formData: contactFormData,
+    formErrors: contactFormErrors,
+    isSubmitting: isContactSubmitting,
+    handleInputChange: handleContactInputChange,
+    handleAddContact: handleContactSubmit,
+    setIsAddDialogOpen: setIsAddContactDialogOpen,
+  } = useContacts();
+
+  // Quick action handlers - memoized for performance
+  const handleOpenAddArtworkDialog = useCallback((): void => {
+    setIsAddArtworkDialogOpen(true);
+  }, [setIsAddArtworkDialogOpen]);
+
+  const handleOpenAddContactDialog = useCallback((): void => {
+    setIsAddContactDialogOpen(true);
+  }, [setIsAddContactDialogOpen]);
+
+  // Handler to view artwork details - navigates to artworks page
+  const handleViewArtwork = useCallback((artworkId: number): void => {
+    // Navigate to artworks page - could optionally open a dialog or specific artwork
+    navigate('/artworks');
+  }, [navigate]);
+
+  // Handler to view contact details - navigates to contacts page
+  const handleViewContact = useCallback((contactId: number): void => {
+    // Navigate to contacts page - could optionally open a dialog or specific contact
+    navigate('/contacts');
+  }, [navigate]);
 
   if (loading) {
     return (
@@ -84,7 +147,10 @@ const Dashboard = () => {
 
         {/* Recent Artworks - Full width */}
         <section>
-          <RecentArtworks artworks={recentArtworks} />
+          <RecentArtworks 
+            artworks={recentArtworks} 
+            onViewArtwork={handleViewArtwork}
+          />
         </section>
 
         {/* Artwork Status Summary - Full width */}
@@ -104,7 +170,10 @@ const Dashboard = () => {
 
           {/* Recent Contacts - Takes 2 columns */}
           <div className="lg:col-span-2 flex">
-            <RecentContacts contacts={recentContacts} />
+            <RecentContacts 
+              contacts={recentContacts} 
+              onViewContact={handleViewContact}
+            />
           </div>
         </div>
 
@@ -127,11 +196,43 @@ const Dashboard = () => {
               Aksi Cepat
             </h2>
           </div>
-          <QuickActions actions={quickActions} />
+          <QuickActions 
+            actions={quickActions}
+            onAddArtwork={handleOpenAddArtworkDialog}
+            onAddContact={handleOpenAddContactDialog}
+          />
         </section>
       </div>
+
+      {/* Add Artwork Dialog */}
+      <AddArtworkDialog
+        isOpen={isAddArtworkDialogOpen}
+        onOpenChange={handleAddArtworkDialogClose}
+        formData={artworkFormData}
+        formErrors={artworkFormErrors}
+        isSubmitting={isArtworkSubmitting}
+        imagePreview={artworkImagePreview}
+        fileInputRef={artworkFileInputRef}
+        onInputChange={handleArtworkInputChange}
+        onImageUpload={handleArtworkImageUpload}
+        onImageUrlChange={handleArtworkImageUrlChange}
+        onRemoveImagePreview={removeArtworkImagePreview}
+        onSubmit={handleArtworkSubmit}
+      />
+
+      {/* Add Contact Dialog */}
+      <AddContactDialog
+        isOpen={isAddContactDialogOpen}
+        onOpenChange={handleAddContactDialogClose}
+        formData={contactFormData}
+        formErrors={contactFormErrors}
+        isSubmitting={isContactSubmitting}
+        onInputChange={handleContactInputChange}
+        onSubmit={handleContactSubmit}
+      />
     </DashboardLayout>
   );
 };
 
 export default Dashboard;
+

@@ -71,6 +71,18 @@ class ReportGeneratorService {
       // 4. Trigger download
       this.downloadBlob(blob, filename);
 
+      // 5. Log activity
+      try {
+        await activityService.logReportGenerated(
+          options.userId,
+          options.type,
+          options.format,
+          filename
+        );
+      } catch (e) {
+        console.warn('Failed to log report generation:', e);
+      }
+
       return {
         success: true,
         filename,

@@ -1,16 +1,60 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Eye, Palette } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowRight, Eye, EyeOff, Palette } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { DashboardArtwork } from "./types";
 import { statusConfig } from "./constants";
+import { toast } from "sonner";
 
 interface RecentArtworksProps {
   artworks: DashboardArtwork[];
+  onViewArtwork?: (artworkId: number) => void;
 }
 
-export const RecentArtworks = ({ artworks }: RecentArtworksProps) => {
+export const RecentArtworks = ({ artworks, onViewArtwork }: RecentArtworksProps) => {
+  const navigate = useNavigate();
+  
+  // State to track which artwork prices are hidden
+  const [hiddenPrices, setHiddenPrices] = useState<Set<number>>(new Set());
+
+  // Handle artwork row click
+  const handleArtworkClick = (artwork: DashboardArtwork): void => {
+    if (onViewArtwork) {
+      onViewArtwork(artwork.id);
+    } else {
+      // Fallback: navigate to artworks page
+      navigate('/artworks');
+      toast.info(`Membuka ${artwork.title}...`, { duration: 1500 });
+    }
+  };
+
+  // Toggle price visibility
+  const handleTogglePriceVisibility = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    artworkId: number
+  ): void => {
+    event.stopPropagation(); // Prevent row click
+    
+    setHiddenPrices(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(artworkId)) {
+        newSet.delete(artworkId);
+        toast.success("Harga ditampilkan", { duration: 1500 });
+      } else {
+        newSet.add(artworkId);
+        toast.success("Harga disembunyikan", { duration: 1500 });
+      }
+      return newSet;
+    });
+  };
+
+  // Check if price is hidden for an artwork
+  const isPriceHidden = (artworkId: number): boolean => {
+    return hiddenPrices.has(artworkId);
+  };
+
   return (
     <Card className="bg-card border-border overflow-hidden">
       {/* Header */}
@@ -50,6 +94,11 @@ export const RecentArtworks = ({ artworks }: RecentArtworksProps) => {
                   "cursor-pointer"
                 )}
                 style={{ animationDelay: `${index * 50}ms` }}
+                onClick={() => handleArtworkClick(artwork)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && handleArtworkClick(artwork)}
+                aria-label={`Lihat detail ${artwork.title}`}
               >
                 {/* Thumbnail */}
                 <div className="relative w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-secondary">
@@ -92,20 +141,36 @@ export const RecentArtworks = ({ artworks }: RecentArtworksProps) => {
                     {config.label}
                   </span>
                   {artwork.price && (
-                    <span className="text-sm font-semibold text-primary hidden sm:block">
-                      {artwork.price}
+                    <span className={cn(
+                      "text-sm font-semibold hidden sm:block",
+                      isPriceHidden(artwork.id) ? "text-muted-foreground" : "text-primary"
+                    )}>
+                      {isPriceHidden(artwork.id) ? "••••••••" : artwork.price}
                     </span>
                   )}
                 </div>
 
-                {/* Hover Action */}
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Eye className="w-4 h-4" />
-                </Button>
+                {/* Toggle Price Visibility Button */}
+                {artwork.price && (
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className={cn(
+                      "h-8 w-8 transition-all",
+                      isPriceHidden(artwork.id) 
+                        ? "opacity-100 text-muted-foreground hover:text-primary" 
+                        : "opacity-0 group-hover:opacity-100 hover:bg-primary/10 hover:text-primary"
+                    )}
+                    onClick={(e) => handleTogglePriceVisibility(e, artwork.id)}
+                    aria-label={isPriceHidden(artwork.id) ? `Tampilkan harga ${artwork.title}` : `Sembunyikan harga ${artwork.title}`}
+                  >
+                    {isPriceHidden(artwork.id) ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </Button>
+                )}
               </div>
             );
           })}

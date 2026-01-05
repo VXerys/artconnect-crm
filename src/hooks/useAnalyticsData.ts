@@ -39,16 +39,9 @@ export const useAnalyticsData = (): AnalyticsData => {
   const [artworkStatusData, setArtworkStatusData] = useState<ArtworkStatusData[]>([]);
   const [contactActivityData, setContactActivityData] = useState<ContactActivityData[]>([]);
   const [topArtworks, setTopArtworks] = useState<TopArtwork[]>([]);
+  const [trafficSources, setTrafficSources] = useState<TrafficSource[]>([]); // Changed to state
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [revenueGrowth, setRevenueGrowth] = useState('+0%');
-
-  // Traffic sources are typically from external analytics, using placeholder for now
-  const trafficSources: TrafficSource[] = useMemo(() => [
-    { source: "Instagram", visitors: 0, percentage: 0, color: "#E1306C" },
-    { source: "Direct", visitors: 0, percentage: 0, color: "#3b82f6" },
-    { source: "Google", visitors: 0, percentage: 0, color: "#22c55e" },
-    { source: "Referral", visitors: 0, percentage: 0, color: "#a855f7" },
-  ], []);
 
   useEffect(() => {
     const fetchAnalyticsData = async () => {
@@ -69,11 +62,12 @@ export const useAnalyticsData = (): AnalyticsData => {
         const contactsResult = await contactsService.getAll(userId, {}, { limit: 1 });
         const totalContacts = contactsResult.count;
 
-        // Get sales data from sold artworks
+        // Get sales data and artworks for medium analysis
         let totalSalesAmount = 0;
         let monthlySalesData: SalesDataPoint[] = [];
         let currentMonthSales = 0;
         let lastMonthSales = 0;
+        let allArtworks: any[] = []; // Store fetched artworks here
         
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
         const salesByMonth: Record<string, number> = {};
@@ -82,10 +76,11 @@ export const useAnalyticsData = (): AnalyticsData => {
         const currentYear = now.getFullYear();
 
         try {
-          // Get all artworks and calculate sales from sold ones
+          // Get all artworks (limit 500)
           const allArtworksResult = await artworksService.getAll(userId, {}, { limit: 500 });
+          allArtworks = allArtworksResult.data;
           
-          allArtworksResult.data.forEach(artwork => {
+          allArtworks.forEach(artwork => {
             if (artwork.status === 'sold' && artwork.price) {
               totalSalesAmount += artwork.price;
               
@@ -136,6 +131,33 @@ export const useAnalyticsData = (): AnalyticsData => {
           setRevenueGrowth('+0%');
         }
 
+        // Calculate Medium Distribution (replacing Traffic Sources)
+        const mediumCounts: Record<string, number> = {};
+        allArtworks.forEach(artwork => {
+          const medium = artwork.medium || 'Lainnya';
+          mediumCounts[medium] = (mediumCounts[medium] || 0) + 1;
+        });
+
+        const sortedMediums = Object.entries(mediumCounts)
+          .sort(([, a], [, b]) => b - a)
+          .slice(0, 4); // Top 4 mediums
+
+        const totalMediumsCount = Object.values(mediumCounts).reduce((a, b) => a + b, 0);
+
+        const mediumDistribution: TrafficSource[] = sortedMediums.map(([source, count], index) => ({
+          source,
+          visitors: count,
+          percentage: totalMediumsCount > 0 ? Math.round((count / totalMediumsCount) * 100) : 0,
+          color: [
+            "#a855f7", // Purple
+            "#3b82f6", // Blue
+            "#f59e0b", // Amber
+            "#22c55e"  // Green
+          ][index] || "#64748b" // Slate default
+        }));
+        
+        setTrafficSources(mediumDistribution);
+        
         // Artwork status data for pie chart
         const total = totalArtworks || 1; // Avoid division by zero
         setArtworkStatusData([

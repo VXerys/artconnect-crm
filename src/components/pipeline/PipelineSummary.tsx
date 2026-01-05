@@ -31,9 +31,9 @@ export const PipelineSummary = ({ pipelineData }: PipelineSummaryProps) => {
   };
 
   return (
-    <Card className="bg-card border-border overflow-hidden">
-      {/* Header with gradient */}
-      <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-6">
+    <Card className="bg-card/40 backdrop-blur-xl border-white/10 shadow-2xl">
+      {/* Header */}
+      <div className="p-6 border-b border-white/5">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <CardTitle className="font-display text-xl flex items-center gap-2">

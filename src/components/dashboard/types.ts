@@ -51,7 +51,8 @@ export interface QuickAction {
   label: string;
   description: string;
   icon: LucideIcon;
-  href: string;
+  href?: string;
+  onClick?: () => void;
   color: string;
   bgColor: string;
 }

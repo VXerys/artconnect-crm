@@ -36,7 +36,7 @@ export const useArtworks = () => {
 
     try {
       setLoading(true);
-      const result = await artworksService.getAll(userId, {}, { limit: 100 });
+      const result = await artworksService.getAll(userId, {}, { limit: 50 });
       
       // Map database artworks to local Artwork type
       const mappedArtworks: Artwork[] = result.data.map(dbArtwork => ({
