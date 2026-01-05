@@ -74,7 +74,7 @@ export const pipelineService = {
       sold: { status: 'sold', ...COLUMN_CONFIG.sold, items: [] },
     };
 
-    data?.forEach((item) => {
+    data?.forEach((item: any) => {
       pipelineData[item.status].items.push(item);
     });
 
@@ -148,7 +148,7 @@ export const pipelineService = {
       .limit(1);
 
     const newPosition = existingItems && existingItems.length > 0 
-      ? existingItems[0].position + 1 
+      ? (existingItems[0] as any).position + 1 
       : 0;
 
     const { data, error } = await client
@@ -156,7 +156,7 @@ export const pipelineService = {
       .insert({
         ...item,
         position: newPosition,
-      })
+      } as never)
       .select()
       .single();
 
@@ -178,7 +178,7 @@ export const pipelineService = {
   ): Promise<PipelineItem> {
     const { data, error } = await client
       .from('pipeline_items')
-      .update(updates)
+      .update(updates as never)
       .eq('id', id)
       .select()
       .single();
@@ -233,7 +233,7 @@ export const pipelineService = {
         .limit(1);
 
       position = existingItems && existingItems.length > 0 
-        ? existingItems[0].position + 1 
+        ? (existingItems[0] as any).position + 1 
         : 0;
     }
 
@@ -258,7 +258,7 @@ export const pipelineService = {
     for (const update of updates) {
       await client
         .from('pipeline_items')
-        .update({ position: update.position })
+        .update({ position: update.position } as never)
         .eq('id', update.id)
         .eq('user_id', userId)
         .eq('status', status);
@@ -293,11 +293,11 @@ export const pipelineService = {
       },
     };
 
-    data?.forEach((item) => {
+    (data as any[])?.forEach((item: any) => {
       const price = Number(item.estimated_price) || 0;
       summary.totalValue += price;
-      summary.byStatus[item.status].count++;
-      summary.byStatus[item.status].value += price;
+      summary.byStatus[item.status as ArtworkStatus].count++;
+      summary.byStatus[item.status as ArtworkStatus].value += price;
     });
 
     return summary;
@@ -356,6 +356,155 @@ export const pipelineService = {
     }
 
     return data || [];
+  },
+
+  // ============================================================================
+  // ARTWORK SYNC METHODS
+  // ============================================================================
+
+  /**
+   * Find pipeline item by artwork ID
+   */
+  async findByArtworkId(
+    artworkId: string,
+    client: TypedSupabaseClient = supabase
+  ): Promise<PipelineItem | null> {
+    const { data, error } = await client
+      .from('pipeline_items')
+      .select('*')
+      .eq('artwork_id', artworkId)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') return null; // No rows found
+      console.error('Error finding pipeline item by artwork ID:', error);
+      throw error;
+    }
+
+    return data;
+  },
+
+  /**
+   * Create a pipeline item from an artwork
+   */
+  async createFromArtwork(
+    artwork: {
+      id: string;
+      user_id: string;
+      title: string;
+      medium?: string | null;
+      status: ArtworkStatus;
+      price?: number | null;
+      image_url?: string | null;
+      description?: string | null;
+      currency?: string;
+    },
+    client: TypedSupabaseClient = supabase
+  ): Promise<PipelineItem> {
+    // Get the highest position for the status
+    const { data: existingItems } = await client
+      .from('pipeline_items')
+      .select('position')
+      .eq('user_id', artwork.user_id)
+      .eq('status', artwork.status)
+      .order('position', { ascending: false })
+      .limit(1);
+
+    const newPosition = existingItems && existingItems.length > 0 
+      ? (existingItems[0] as any).position + 1 
+      : 0;
+
+    const { data, error } = await client
+      .from('pipeline_items')
+      .insert({
+        user_id: artwork.user_id,
+        artwork_id: artwork.id,
+        title: artwork.title,
+        medium: artwork.medium || null,
+        status: artwork.status,
+        estimated_price: artwork.price || null,
+        currency: artwork.currency || 'IDR',
+        image_url: artwork.image_url || null,
+        description: artwork.description || null,
+        position: newPosition,
+        priority: 1,
+      } as never)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating pipeline item from artwork:', error);
+      throw error;
+    }
+
+    return data;
+  },
+
+  /**
+   * Sync pipeline item with artwork data
+   * Creates a new pipeline item if not exists, updates if exists
+   */
+  async syncWithArtwork(
+    artwork: {
+      id: string;
+      user_id: string;
+      title: string;
+      medium?: string | null;
+      status: ArtworkStatus;
+      price?: number | null;
+      image_url?: string | null;
+      description?: string | null;
+      currency?: string;
+    },
+    client: TypedSupabaseClient = supabase
+  ): Promise<PipelineItem> {
+    // Check if pipeline item already exists for this artwork
+    const existingItem = await this.findByArtworkId(artwork.id, client);
+
+    if (existingItem) {
+      // Update existing pipeline item
+      const { data, error } = await client
+        .from('pipeline_items')
+        .update({
+          title: artwork.title,
+          medium: artwork.medium || null,
+          status: artwork.status,
+          estimated_price: artwork.price || null,
+          image_url: artwork.image_url || null,
+          description: artwork.description || null,
+        } as never)
+        .eq('id', existingItem.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating pipeline item from artwork:', error);
+        throw error;
+      }
+
+      return data;
+    } else {
+      // Create new pipeline item
+      return this.createFromArtwork(artwork, client);
+    }
+  },
+
+  /**
+   * Delete pipeline item by artwork ID
+   */
+  async deleteByArtworkId(
+    artworkId: string,
+    client: TypedSupabaseClient = supabase
+  ): Promise<void> {
+    const { error } = await client
+      .from('pipeline_items')
+      .delete()
+      .eq('artwork_id', artworkId);
+
+    if (error) {
+      console.error('Error deleting pipeline item by artwork ID:', error);
+      throw error;
+    }
   },
 };
 

@@ -3,6 +3,7 @@ import { arrayMove } from "@dnd-kit/sortable";
 import { DragStartEvent, DragEndEvent, DragOverEvent } from "@dnd-kit/core";
 import { useAuth } from "@/context/AuthContext";
 import { pipelineService } from "@/lib/services/pipeline.service";
+import { artworksService } from "@/lib/services/artworks.service";
 import { 
   PipelineData, 
   PipelineItem, 
@@ -203,6 +204,18 @@ export const usePipeline = () => {
       try {
         console.log('Saving to database:', dbId, 'to', targetColumn);
         await pipelineService.moveToStatus(dbId, targetColumn);
+        
+        // Also update the linked artwork status if there's an artwork_id
+        const pipelineItem = await pipelineService.getById(dbId);
+        if (pipelineItem?.artwork_id) {
+          try {
+            await artworksService.updateStatus(pipelineItem.artwork_id, targetColumn);
+            console.log('Artwork status updated to:', targetColumn);
+          } catch (artworkError) {
+            console.warn('Could not update artwork status:', artworkError);
+          }
+        }
+        
         console.log('Saved successfully!');
       } catch (error) {
         console.error('Error saving item position:', error);
@@ -234,6 +247,16 @@ export const usePipeline = () => {
       const dbId = (item as any).dbId;
       if (dbId) {
         await pipelineService.moveToStatus(dbId, targetStatus);
+        
+        // Also update the linked artwork status if there's an artwork_id
+        const pipelineItem = await pipelineService.getById(dbId);
+        if (pipelineItem?.artwork_id) {
+          try {
+            await artworksService.updateStatus(pipelineItem.artwork_id, targetStatus);
+          } catch (artworkError) {
+            console.warn('Could not update artwork status:', artworkError);
+          }
+        }
       }
     } catch (error) {
       console.error('Error moving item:', error);
