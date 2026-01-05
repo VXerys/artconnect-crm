@@ -99,9 +99,7 @@ export const useDashboardData = (): DashboardData => {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
-      console.log('Dashboard fetching data, userId:', userId);
       if (!userId) {
-        console.log('No userId, skipping dashboard fetch');
         setLoading(false);
         return;
       }

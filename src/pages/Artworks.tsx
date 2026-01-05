@@ -1,6 +1,7 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Palette, Sparkles, Image, TrendingUp, Loader2 } from "lucide-react";
+import { Plus, Palette, Sparkles, Image, TrendingUp } from "lucide-react";
+import PageLoading from "@/components/ui/PageLoading";
 
 // Artworks Components
 import {
@@ -57,12 +58,7 @@ const Artworks = () => {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center space-y-4">
-            <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto" />
-            <p className="text-muted-foreground">Memuat koleksi karya...</p>
-          </div>
-        </div>
+        <PageLoading title="Memuat koleksi karya..." subtitle="Mengambil data inventaris" />
       </DashboardLayout>
     );
   }

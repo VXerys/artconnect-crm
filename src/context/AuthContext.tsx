@@ -43,42 +43,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<DBUser | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
 
-  // Fetch profile - non-blocking, runs in background
+  // Fetch profile - optimized for speed
   const fetchProfile = useCallback(async (authUser: User | null) => {
     if (!authUser) {
       setProfile(null);
       return;
     }
 
-    console.log('=== FETCHING PROFILE ===');
-    console.log('Auth user ID:', authUser.id);
-    console.log('Auth user email:', authUser.email);
     setProfileLoading(true);
     
     try {
-      // Try to get existing profile
-      console.log('Querying users table for auth_id:', authUser.id);
+      // Try to get existing profile - single optimized query
       const { data, error } = await supabase
         .from('users')
-        .select('*')
+        .select('id, auth_id, email, full_name, avatar_url, role, created_at, updated_at')
         .eq('auth_id', authUser.id)
         .maybeSingle();
       
-      console.log('Query result - data:', data);
-      console.log('Query result - error:', error);
-      
       if (error) {
-        console.error('Profile fetch error:', error.message, error.code);
+        console.error('Profile fetch error:', error.message);
         setProfile(null);
         return;
       }
       
       if (data) {
-        console.log('✅ Profile found! ID:', (data as DBUser).id);
         setProfile(data as DBUser);
       } else {
-        // No profile found - try to create one
-        console.log('❌ No profile found, attempting to create...');
+        // No profile found - create one
         const insertData = {
           auth_id: authUser.id,
           email: authUser.email || '',
@@ -86,39 +77,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           avatar_url: authUser.user_metadata?.avatar_url || authUser.user_metadata?.picture,
           role: 'artist',
         };
-        console.log('Insert data:', insertData);
         
         const { data: newProfile, error: createError } = await supabase
           .from('users')
           .insert(insertData as never)
-          .select()
+          .select('id, auth_id, email, full_name, avatar_url, role, created_at, updated_at')
           .single();
         
-        console.log('Insert result - data:', newProfile);
-        console.log('Insert result - error:', createError);
-        
         if (createError) {
-          console.error('Profile create error:', createError.message, createError.code);
           // Try fetching again in case of race condition
           const { data: retryData } = await supabase
             .from('users')
-            .select('*')
+            .select('id, auth_id, email, full_name, avatar_url, role, created_at, updated_at')
             .eq('auth_id', authUser.id)
             .maybeSingle();
-          console.log('Retry fetch result:', retryData);
           if (retryData) {
             setProfile(retryData as DBUser);
           }
         } else if (newProfile) {
-          console.log('✅ Profile created! ID:', (newProfile as DBUser).id);
           setProfile(newProfile as DBUser);
         }
       }
     } catch (err) {
-      console.error('Unexpected profile error:', err);
+      console.error('Profile error:', err);
     } finally {
       setProfileLoading(false);
-      console.log('=== FETCH PROFILE COMPLETE ===');
     }
   }, []);
 
@@ -134,13 +117,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
+    // Get initial session - optimized for faster profile loading
+    const initAuth = async () => {
+      const { data: { session: s } } = await supabase.auth.getSession();
+      
       setSession(s);
       setUser(s?.user ?? null);
+      
+      if (s?.user) {
+        // Start profile fetch immediately, don't wait
+        setProfileLoading(true);
+        fetchProfile(s.user);
+      }
+      
+      // End loading immediately after session check
       setLoading(false);
-      if (s?.user) fetchProfile(s.user);
-    });
+    };
+
+    initAuth();
 
     // Listen for changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, s) => {

@@ -99,10 +99,12 @@ export const usePipeline = () => {
     }
   }, [userId]);
 
-  // Initial fetch - wait for profile to load
+  // Initial fetch - optimized
   useEffect(() => {
     if (userId) {
       fetchPipeline();
+    } else {
+      setLoading(false);
     }
   }, [fetchPipeline, userId]);
 

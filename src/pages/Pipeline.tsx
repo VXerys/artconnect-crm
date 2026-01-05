@@ -1,6 +1,7 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Layers, RotateCcw, Loader2 } from "lucide-react";
+import { Plus, Layers, RotateCcw } from "lucide-react";
+import PageLoading from "@/components/ui/PageLoading";
 import {
   DndContext,
   DragOverlay,
@@ -91,18 +92,7 @@ const Pipeline = () => {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center space-y-4">
-            <div className="relative">
-              <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
-              <div className="absolute inset-0 w-12 h-12 mx-auto rounded-full bg-primary/20 animate-ping" />
-            </div>
-            <div className="space-y-1">
-              <p className="text-muted-foreground font-medium">Memuat pipeline...</p>
-              <p className="text-xs text-muted-foreground/60">Mengambil data karya seni</p>
-            </div>
-          </div>
-        </div>
+        <PageLoading title="Memuat pipeline..." subtitle="Mengambil data karya seni" />
       </DashboardLayout>
     );
   }

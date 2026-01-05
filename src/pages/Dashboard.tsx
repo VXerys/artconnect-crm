@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useDashboardData } from "@/hooks/useDashboardData";
-import { Loader2 } from "lucide-react";
+import PageLoading from "@/components/ui/PageLoading";
 
 // Dashboard Components
 import {
@@ -96,12 +96,7 @@ const Dashboard = () => {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center space-y-4">
-            <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
-            <p className="text-muted-foreground">Memuat dashboard...</p>
-          </div>
-        </div>
+        <PageLoading title="Memuat dashboard..." subtitle="Mengambil data terbaru" />
       </DashboardLayout>
     );
   }

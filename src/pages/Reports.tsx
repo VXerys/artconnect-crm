@@ -4,7 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { reportGeneratorService } from "@/lib/services/report-generator.service";
 import useReportsData from "@/hooks/useReportsData";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import PageLoading from "@/components/ui/PageLoading";
 import {
   ReportsHero,
   ReportMetricsGrid,
@@ -241,10 +241,7 @@ const Reports = () => {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-primary mr-2" />
-          <p className="text-muted-foreground">Memuat data laporan...</p>
-        </div>
+        <PageLoading title="Memuat laporan..." subtitle="Mengambil data laporan" />
       </DashboardLayout>
     );
   }

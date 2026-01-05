@@ -61,10 +61,13 @@ export const useArtworks = () => {
     }
   }, [userId]);
 
-  // Initial fetch - wait for profile to load
+  // Initial fetch - optimized to not block on profile loading
   useEffect(() => {
     if (userId) {
       fetchArtworks();
+    } else {
+      // Don't keep loading if no userId after profile loaded
+      setLoading(false);
     }
   }, [fetchArtworks, userId]);
 

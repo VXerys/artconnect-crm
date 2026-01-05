@@ -1,7 +1,7 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useAnalyticsData } from "@/hooks/useAnalyticsData";
-import { Loader2 } from "lucide-react";
+import PageLoading from "@/components/ui/PageLoading";
 
 // Analytics Components
 import {
@@ -42,12 +42,7 @@ const Analytics = () => {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center space-y-4">
-            <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto" />
-            <p className="text-muted-foreground">Memuat data analitik...</p>
-          </div>
-        </div>
+        <PageLoading title="Memuat analitik..." subtitle="Menghitung statistik" />
       </DashboardLayout>
     );
   }
