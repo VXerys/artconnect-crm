@@ -4,16 +4,23 @@ import {
   Sparkles, 
   Calendar,
   Download,
+  Loader2,
 } from "lucide-react";
 
 interface ReportsHeroProps {
   totalReports: number;
   lastReportDate: string;
+  onQuickGenerate?: () => void;
+  onSchedule?: () => void;
+  isGenerating?: boolean;
 }
 
 export const ReportsHero = ({ 
   totalReports,
   lastReportDate,
+  onQuickGenerate,
+  onSchedule,
+  isGenerating = false,
 }: ReportsHeroProps) => {
   return (
     <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 via-background to-emerald-500/5 border border-border p-6 lg:p-8">
@@ -76,11 +83,31 @@ export const ReportsHero = ({
 
         {/* Right side - CTA */}
         <div className="flex flex-col sm:flex-row lg:flex-col gap-3">
-          <Button size="lg" className="gap-2 shadow-glow group">
-            <Download className="w-5 h-5" />
-            Generate Laporan Cepat
+          <Button 
+            size="lg" 
+            className="gap-2 shadow-glow group" 
+            onClick={onQuickGenerate}
+            disabled={isGenerating}
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Memproses...
+              </>
+            ) : (
+              <>
+                <Download className="w-5 h-5" />
+                Generate Laporan Cepat
+              </>
+            )}
           </Button>
-          <Button variant="outline" size="lg" className="gap-2">
+          <Button 
+            variant="outline" 
+            size="lg" 
+            className="gap-2"
+            onClick={onSchedule}
+            disabled={isGenerating}
+          >
             <Calendar className="w-5 h-5" />
             Jadwalkan Laporan
           </Button>

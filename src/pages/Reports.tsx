@@ -87,6 +87,51 @@ const Reports = () => {
     }
   };
 
+  // Handle quick report generation from hero (combined report in PDF)
+  const handleQuickGenerate = async () => {
+    if (!userId) {
+      toast.error("Silakan login terlebih dahulu");
+      return;
+    }
+
+    setIsGenerating(true);
+    toast.loading("🚀 Membuat laporan lengkap...", {
+      id: 'quick-report-generating',
+      description: 'AI sedang menganalisis semua data bisnis Anda',
+    });
+
+    try {
+      const result = await reportGeneratorService.generateReport({
+        type: 'combined',
+        format: 'pdf',
+        userId: userId,
+        includeCharts: true,
+        includeImages: false,
+      });
+
+      if (result.success) {
+        toast.success("✨ Laporan lengkap berhasil dibuat!", {
+          id: 'quick-report-generating',
+          description: `File ${result.filename} siap didownload`,
+        });
+        await refreshReports();
+      } else {
+        toast.error("Gagal membuat laporan", {
+          id: 'quick-report-generating',
+          description: result.error || "Terjadi kesalahan",
+        });
+      }
+    } catch (error) {
+      console.error('Error generating quick report:', error);
+      toast.error("Gagal membuat laporan", {
+        id: 'quick-report-generating',
+        description: error instanceof Error ? error.message : "Terjadi kesalahan",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   // Handle custom report generation
   const handleCustomReportGenerate = async (formData: CustomReportFormData) => {
     if (!userId) {
@@ -225,6 +270,9 @@ const Reports = () => {
         <ReportsHero 
           totalReports={recentReports.length || totalReports}
           lastReportDate={recentReports[0]?.date || lastReportDate}
+          onQuickGenerate={handleQuickGenerate}
+          onSchedule={handleAddScheduleClick}
+          isGenerating={isGenerating}
         />
 
         {/* Metrics */}

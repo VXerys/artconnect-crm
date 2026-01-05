@@ -152,6 +152,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         fetchProfile(s.user);
       } else if (event === 'SIGNED_OUT') {
         setProfile(null);
+      } else if (event === 'PASSWORD_RECOVERY') {
+        // User clicked password reset link - redirect to reset page
+        console.log('PASSWORD_RECOVERY event - redirecting to reset password page');
+        // Only redirect if not already on reset password page
+        if (!window.location.pathname.includes('/auth/reset-password')) {
+          window.location.href = '/auth/reset-password';
+        }
       }
     });
 

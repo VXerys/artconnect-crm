@@ -58,28 +58,28 @@ const ForgotPasswordPage: React.FC = () => {
   // Success screen
   if (isEmailSent) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-8 bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md text-center">
           <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
             <CheckCircle className="w-10 h-10 text-white" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
             Cek Email Anda
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
+          <p className="text-gray-600 mb-6">
             Kami telah mengirim link reset password ke <strong>{email}</strong>. 
             Silakan cek inbox Anda.
           </p>
           <div className="space-y-3">
             <Button
               variant="outline"
-              className="w-full bg-white border-gray-200 text-gray-900 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 dark:hover:bg-gray-700"
+              className="w-full bg-white border-gray-200 text-gray-900 hover:bg-gray-50"
               onClick={() => setIsEmailSent(false)}
             >
               Kirim Ulang
             </Button>
             <Link to="/auth/login">
-              <Button variant="ghost" className="w-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
+              <Button variant="ghost" className="w-full text-gray-600 hover:text-gray-900 hover:bg-gray-100">
                 Kembali ke Login
               </Button>
             </Link>
@@ -90,22 +90,22 @@ const ForgotPasswordPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-8 bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen flex items-center justify-center p-8 bg-white">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-8">
           <div className="p-2 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl">
             <Palette className="w-6 h-6 text-white" />
           </div>
-          <span className="text-2xl font-bold text-gray-900 dark:text-white">ArtConnect</span>
+          <span className="text-2xl font-bold text-gray-900">ArtConnect</span>
         </div>
 
         {/* Header */}
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">
             Lupa Password?
           </h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-600">
             Masukkan email Anda dan kami akan mengirim link untuk reset password
           </p>
         </div>
@@ -113,7 +113,7 @@ const ForgotPasswordPage: React.FC = () => {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-gray-700 dark:text-gray-300">
+            <Label htmlFor="email" className="text-gray-700">
               Email
             </Label>
             <div className="relative">
@@ -124,7 +124,7 @@ const ForgotPasswordPage: React.FC = () => {
                 placeholder="nama@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-11 h-12 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
+                className="pl-11 h-12 bg-white border-gray-300 text-gray-900"
                 disabled={isLoading}
               />
             </div>
@@ -150,7 +150,7 @@ const ForgotPasswordPage: React.FC = () => {
         <div className="mt-6 text-center">
           <Link 
             to="/auth/login" 
-            className="inline-flex items-center text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+            className="inline-flex items-center text-gray-600 hover:text-gray-800"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Kembali ke Login

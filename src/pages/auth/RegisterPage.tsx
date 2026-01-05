@@ -71,7 +71,7 @@ const PasswordStrength: React.FC<{ password: string }> = ({ password }) => {
           <div
             key={index}
             className={`h-1 flex-1 rounded-full transition-all ${
-              index < strength ? strengthColors[strength] : 'bg-gray-200 dark:bg-gray-700'
+              index < strength ? strengthColors[strength] : 'bg-gray-200'
             }`}
           />
         ))}
@@ -220,28 +220,28 @@ const RegisterPage: React.FC = () => {
   // Email confirmation screen
   if (showConfirmation) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-8 bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md text-center">
           <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
             <Check className="w-10 h-10 text-white" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
             Cek Email Anda
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
+          <p className="text-gray-600 mb-6">
             Kami telah mengirim link konfirmasi ke <strong>{email}</strong>. 
             Silakan cek inbox Anda dan klik link untuk mengaktifkan akun.
           </p>
           <div className="space-y-3">
             <Button
               variant="outline"
-              className="w-full bg-white border-gray-200 text-gray-900 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 dark:hover:bg-gray-700"
+              className="w-full bg-white border-gray-200 text-gray-900 hover:bg-gray-50"
               onClick={() => setShowConfirmation(false)}
             >
               Kembali ke Registrasi
             </Button>
             <Link to="/auth/login">
-              <Button variant="ghost" className="w-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800">
+              <Button variant="ghost" className="w-full text-gray-600 hover:text-gray-900 hover:bg-gray-100">
                 Sudah konfirmasi? Login
               </Button>
             </Link>
@@ -254,22 +254,22 @@ const RegisterPage: React.FC = () => {
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-gray-50 dark:bg-gray-900">
+      <div className="flex-1 flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center justify-center gap-2 mb-8">
             <div className="p-2 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl">
               <Palette className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-bold text-gray-900 dark:text-white">ArtConnect</span>
+            <span className="text-2xl font-bold text-gray-900">ArtConnect</span>
           </div>
 
           {/* Header */}
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
               Buat Akun Baru
             </h2>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600">
               Mulai kelola karya seni Anda dengan ArtConnect
             </p>
           </div>
@@ -278,7 +278,7 @@ const RegisterPage: React.FC = () => {
           <Button
             type="button"
             variant="outline"
-            className="w-full h-12 mb-6 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-medium transition-all duration-200 hover:shadow-md"
+            className="w-full h-12 mb-6 bg-white hover:bg-gray-50 border-gray-300 text-gray-700 font-medium transition-all duration-200 hover:shadow-md"
             onClick={handleGoogleSignup}
             disabled={isGoogleLoading || isLoading}
           >
@@ -293,10 +293,10 @@ const RegisterPage: React.FC = () => {
           {/* Divider */}
           <div className="relative mb-6">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-gray-300 dark:border-gray-600" />
+              <span className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400">
+              <span className="px-4 bg-white text-gray-500">
                 atau daftar dengan email
               </span>
             </div>
@@ -306,7 +306,7 @@ const RegisterPage: React.FC = () => {
           <form onSubmit={handleRegister} className="space-y-4">
             {/* Full Name Field */}
             <div className="space-y-2">
-              <Label htmlFor="fullName" className="text-gray-700 dark:text-gray-300">
+              <Label htmlFor="fullName" className="text-gray-700">
                 Nama Lengkap
               </Label>
               <div className="relative">
@@ -317,7 +317,7 @@ const RegisterPage: React.FC = () => {
                   placeholder="John Doe"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="pl-11 h-12 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
+                  className="pl-11 h-12 bg-white border-gray-300 text-gray-900"
                   disabled={isLoading || isGoogleLoading}
                 />
               </div>
@@ -325,7 +325,7 @@ const RegisterPage: React.FC = () => {
 
             {/* Email Field */}
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-700 dark:text-gray-300">
+              <Label htmlFor="email" className="text-gray-700">
                 Email
               </Label>
               <div className="relative">
@@ -336,7 +336,7 @@ const RegisterPage: React.FC = () => {
                   placeholder="nama@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-11 h-12 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
+                  className="pl-11 h-12 bg-white border-gray-300 text-gray-900"
                   disabled={isLoading || isGoogleLoading}
                 />
               </div>
@@ -344,7 +344,7 @@ const RegisterPage: React.FC = () => {
 
             {/* Password Field */}
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-gray-700 dark:text-gray-300">
+              <Label htmlFor="password" className="text-gray-700">
                 Password
               </Label>
               <div className="relative">
@@ -355,7 +355,7 @@ const RegisterPage: React.FC = () => {
                   placeholder="Minimal 8 karakter"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-11 pr-11 h-12 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
+                  className="pl-11 pr-11 h-12 bg-white border-gray-300 text-gray-900"
                   disabled={isLoading || isGoogleLoading}
                 />
                 <button
@@ -371,7 +371,7 @@ const RegisterPage: React.FC = () => {
 
             {/* Confirm Password Field */}
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-gray-700 dark:text-gray-300">
+              <Label htmlFor="confirmPassword" className="text-gray-700">
                 Konfirmasi Password
               </Label>
               <div className="relative">
@@ -382,7 +382,7 @@ const RegisterPage: React.FC = () => {
                   placeholder="Ulangi password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="pl-11 pr-11 h-12 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
+                  className="pl-11 pr-11 h-12 bg-white border-gray-300 text-gray-900"
                   disabled={isLoading || isGoogleLoading}
                 />
                 <button
@@ -406,7 +406,7 @@ const RegisterPage: React.FC = () => {
                 onCheckedChange={(checked) => setAgreeTerms(checked as boolean)}
                 className="mt-0.5"
               />
-              <label htmlFor="terms" className="text-sm text-gray-600 dark:text-gray-400">
+              <label htmlFor="terms" className="text-sm text-gray-600">
                 Saya setuju dengan{' '}
                 <Link to="/privacy" className="text-amber-600 hover:text-amber-700">
                   Kebijakan Privasi
@@ -439,11 +439,11 @@ const RegisterPage: React.FC = () => {
           </form>
 
           {/* Login Link */}
-          <p className="mt-6 text-center text-gray-600 dark:text-gray-400">
+          <p className="mt-6 text-center text-gray-600">
             Sudah punya akun?{' '}
             <Link 
               to="/auth/login" 
-              className="text-amber-600 hover:text-amber-700 dark:text-amber-400 font-semibold"
+              className="text-amber-600 hover:text-amber-700 font-semibold"
             >
               Masuk
             </Link>
@@ -453,7 +453,7 @@ const RegisterPage: React.FC = () => {
           <div className="mt-4 text-center">
             <Link 
               to="/" 
-              className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400"
+              className="text-sm text-gray-500 hover:text-gray-700"
             >
               ← Kembali ke beranda
             </Link>
