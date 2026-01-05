@@ -239,7 +239,7 @@ const Reports = () => {
         </div>
 
         {/* Top Section: Quick Actions & Scheduled Reports */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
           {/* Quick Actions (Types) */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-2">
@@ -255,20 +255,22 @@ const Reports = () => {
           </div>
 
           {/* Scheduled Reports */}
-          <div className="space-y-4">
+          <div className="flex flex-col h-full gap-4">
             <div className="flex items-center gap-2">
               <div className="w-1 h-4 bg-blue-400 rounded-full" />
               <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
                 Monitor Jadwal
               </h2>
             </div>
-            <ScheduledReportsList 
-              reports={scheduledReports}
-              onToggle={handleToggleScheduledReport}
-              onEdit={handleEditScheduledReport}
-              onDelete={handleDeleteScheduledReport}
-              onAdd={handleAddScheduleClick}
-            />
+            <div className="flex-1 min-h-0">
+              <ScheduledReportsList 
+                reports={scheduledReports}
+                onToggle={handleToggleScheduledReport}
+                onEdit={handleEditScheduledReport}
+                onDelete={handleDeleteScheduledReport}
+                onAdd={handleAddScheduleClick}
+              />
+            </div>
           </div>
         </div>
 

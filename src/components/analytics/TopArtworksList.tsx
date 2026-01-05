@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Award, Eye, MessageCircle, ShoppingBag, ArrowRight } from "lucide-react";
@@ -11,6 +12,8 @@ interface TopArtworksListProps {
 }
 
 export const TopArtworksList = ({ artworks, maxHeight = "320px" }: TopArtworksListProps) => {
+  const navigate = useNavigate();
+
   return (
     <Card className="bg-card border-border overflow-hidden h-full w-full flex flex-col">
       {/* Header */}
@@ -26,7 +29,12 @@ export const TopArtworksList = ({ artworks, maxHeight = "320px" }: TopArtworksLi
             </p>
           </div>
         </div>
-        <Button variant="ghost" size="sm" className="gap-2 text-amber-400 hover:text-amber-400">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="gap-2 text-amber-400 hover:text-amber-400"
+          onClick={() => navigate('/artworks')}
+        >
           Lihat Semua
           <ArrowRight className="w-4 h-4" />
         </Button>

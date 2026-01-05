@@ -209,7 +209,7 @@ export const useAnalyticsData = (): AnalyticsData => {
               views: 0, // Would need view tracking
               inquiries: 0,
               sales: artwork.status === 'sold' ? 1 : 0,
-              revenue: artwork.status === 'sold' ? (artwork.price || 0) : 0,
+              revenue: artwork.price || 0, // Estimated value based on price
               image: artwork.image_url || 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=100',
             }));
           setTopArtworks(topArtworksList);

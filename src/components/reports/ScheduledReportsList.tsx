@@ -36,10 +36,11 @@ export const ScheduledReportsList = ({
   onEdit, 
   onDelete,
   onAdd,
-  maxHeight = "280px",
+  maxHeight = "380px",
 }: ScheduledReportsListProps) => {
+
   return (
-    <Card className="bg-card border-border overflow-hidden w-full h-fit">
+    <Card className="bg-card border-border overflow-hidden w-full h-full flex flex-col">
       {/* Header */}
       <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-3">
@@ -64,7 +65,6 @@ export const ScheduledReportsList = ({
         </Button>
       </CardHeader>
 
-      {/* List */}
       {/* List */}
       <CardContent className="p-0 flex flex-col flex-1 overflow-hidden relative">
         {reports.length === 0 ? (

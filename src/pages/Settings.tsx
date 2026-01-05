@@ -20,14 +20,15 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { useTheme } from "@/components/theme-provider";
 
 const Settings = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
   const [loading, setLoading] = useState(false);
   
   // Mock states for UI demonstration
-  const [darkMode, setDarkMode] = useState(true);
   const [emailNotifs, setEmailNotifs] = useState(true);
   const [pushNotifs, setPushNotifs] = useState(false);
   const [twoFactor, setTwoFactor] = useState(false);
@@ -130,7 +131,10 @@ const Settings = () => {
             label="Tema Gelap" 
             description="Aktifkan tampilan gelap untuk kenyamanan mata"
             action={
-              <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+              <Switch 
+                checked={theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)}
+                onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')} 
+              />
             }
           />
           <Row 

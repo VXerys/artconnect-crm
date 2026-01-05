@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // Context Providers
 import { AuthProvider } from "./context/AuthContext";
+import { ThemeProvider } from "./components/theme-provider";
 
 // Components
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -47,90 +48,92 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            {/* ============================================ */}
-            {/* PUBLIC ROUTES */}
-            {/* ============================================ */}
-            <Route path="/" element={<Index />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/guide" element={<GuidePage />} />
-            <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+          <AuthProvider>
+            <Routes>
+              {/* ============================================ */}
+              {/* PUBLIC ROUTES */}
+              {/* ============================================ */}
+              <Route path="/" element={<Index />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/guide" element={<GuidePage />} />
+              <Route path="/privacy" element={<PrivacyPolicyPage />} />
 
-            {/* ============================================ */}
-            {/* AUTH ROUTES */}
-            {/* ============================================ */}
-            <Route path="/auth/login" element={<LoginPage />} />
-            <Route path="/auth/register" element={<RegisterPage />} />
-            <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
+              {/* ============================================ */}
+              {/* AUTH ROUTES */}
+              {/* ============================================ */}
+              <Route path="/auth/login" element={<LoginPage />} />
+              <Route path="/auth/register" element={<RegisterPage />} />
+              <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
 
-            {/* ============================================ */}
-            {/* PROTECTED ROUTES (Require Authentication) */}
-            {/* ============================================ */}
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/artworks"
-              element={
-                <ProtectedRoute>
-                  <Artworks />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/contacts"
-              element={
-                <ProtectedRoute>
-                  <Contacts />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/pipeline"
-              element={
-                <ProtectedRoute>
-                  <Pipeline />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/analytics"
-              element={
-                <ProtectedRoute>
-                  <Analytics />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/reports"
-              element={
-                <ProtectedRoute>
-                  <Reports />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
+              {/* ============================================ */}
+              {/* PROTECTED ROUTES (Require Authentication) */}
+              {/* ============================================ */}
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/artworks"
+                element={
+                  <ProtectedRoute>
+                    <Artworks />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/contacts"
+                element={
+                  <ProtectedRoute>
+                    <Contacts />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/pipeline"
+                element={
+                  <ProtectedRoute>
+                    <Pipeline />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/analytics"
+                element={
+                  <ProtectedRoute>
+                    <Analytics />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/reports"
+                element={
+                  <ProtectedRoute>
+                    <Reports />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute>
+                    <Settings />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* ============================================ */}
-            {/* CATCH-ALL ROUTE */}
-            {/* ============================================ */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
+              {/* ============================================ */}
+              {/* CATCH-ALL ROUTE */}
+              {/* ============================================ */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
+        </ThemeProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

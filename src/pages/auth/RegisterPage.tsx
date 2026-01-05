@@ -462,42 +462,50 @@ const RegisterPage: React.FC = () => {
       </div>
 
       {/* Right Side - Decorative */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500">
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-black">
+        {/* Background Image */}
+        <img 
+          src="/register-bg.png" 
+          alt="Art Studio Background" 
+          className="absolute inset-0 w-full h-full object-cover opacity-90"
+        />
+        
+        {/* Dark Overlay for Readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+
         {/* Animated Background */}
         <div className="absolute inset-0">
-          <div className="absolute top-20 right-20 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-20 left-20 w-96 h-96 bg-white/10 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute top-20 right-20 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl animate-pulse" />
         </div>
 
-        {/* Content */}
-        <div className="relative z-10 flex flex-col justify-center items-center text-white p-12">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-sm">
-              <Palette className="w-10 h-10" />
-            </div>
-            <span className="text-3xl font-bold">ArtConnect</span>
+        {/* Logo - Top Left */}
+        <div className="absolute top-12 left-12 z-20 flex items-center gap-3">
+          <div className="p-2.5 bg-white/10 rounded-xl backdrop-blur-md border border-white/10">
+            <Palette className="w-6 h-6 text-white" />
           </div>
-          
-          <h1 className="text-4xl font-bold text-center mb-4">
-            Bergabung Sekarang
+          <span className="text-2xl font-bold text-white tracking-tight">ArtConnect</span>
+        </div>
+
+        {/* Content - Bottom Left */}
+        <div className="absolute bottom-0 left-0 right-0 p-12 z-20 flex flex-col items-start justify-end h-full">
+          <h1 className="text-5xl font-bold text-white mb-6 leading-tight max-w-lg">
+            Mulai Perjalanan <br/>
+            <span className="text-amber-400">Seni Anda</span>
           </h1>
-          <p className="text-xl text-white/80 text-center max-w-md mb-8">
-            Ribuan seniman Indonesia sudah menggunakan ArtConnect untuk mengembangkan karir seni mereka.
+          <p className="text-lg text-white/80 max-w-md mb-8 leading-relaxed">
+            Bergabung dengan ribuan seniman yang telah sukses mengembangkan karir mereka bersama ArtConnect.
           </p>
 
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-6 text-center">
+          {/* Stats Badges - Horizontal */}
+          <div className="flex items-center gap-6">
             <div>
-              <div className="text-3xl font-bold">1000+</div>
-              <div className="text-sm text-white/70">Seniman Aktif</div>
+              <div className="text-2xl font-bold text-white">1000+</div>
+              <div className="text-sm text-white/60 font-medium">Seniman Aktif</div>
             </div>
+            <div className="w-px h-8 bg-white/20" />
             <div>
-              <div className="text-3xl font-bold">5000+</div>
-              <div className="text-sm text-white/70">Karya Terdaftar</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold">500+</div>
-              <div className="text-sm text-white/70">Penjualan/Bulan</div>
+              <div className="text-2xl font-bold text-white">5000+</div>
+              <div className="text-sm text-white/60 font-medium">Karya Terdaftar</div>
             </div>
           </div>
         </div>

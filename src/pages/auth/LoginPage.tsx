@@ -133,49 +133,52 @@ const LoginPage: React.FC = () => {
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Decorative */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-amber-500 via-orange-500 to-rose-500">
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-black">
+        {/* Background Image */}
+        <img 
+          src="/login-bg.png" 
+          alt="Art Gallery Background" 
+          className="absolute inset-0 w-full h-full object-cover opacity-90"
+        />
+        
+        {/* Dark Overlay for Readability - Bottom Heavy */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+
         {/* Animated Background Elements */}
         <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-white/10 rounded-full blur-3xl animate-pulse delay-1000" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white/5 rounded-full blur-2xl" />
+          <div className="absolute top-20 left-20 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl animate-pulse" />
         </div>
 
-        {/* Content */}
-        <div className="relative z-10 flex flex-col justify-center items-center text-white p-12">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-sm">
-              <Palette className="w-10 h-10" />
-            </div>
-            <span className="text-3xl font-bold">ArtConnect</span>
+        {/* Logo - Top Left */}
+        <div className="absolute top-12 left-12 z-20 flex items-center gap-3">
+          <div className="p-2.5 bg-white/10 rounded-xl backdrop-blur-md border border-white/10">
+            <Palette className="w-6 h-6 text-white" />
           </div>
-          
-          <h1 className="text-4xl font-bold text-center mb-4">
-            Kelola Karya Seni Anda
+          <span className="text-2xl font-bold text-white tracking-tight">ArtConnect</span>
+        </div>
+
+        {/* Content - Bottom Left */}
+        <div className="absolute bottom-0 left-0 right-0 p-12 z-20 flex flex-col items-start justify-end h-full">
+          <h1 className="text-5xl font-bold text-white mb-6 leading-tight max-w-lg">
+            Kelola Karya Seni <br/>
+            <span className="text-amber-400">Dengan Profesional</span>
           </h1>
-          <p className="text-xl text-white/80 text-center max-w-md mb-8">
-            Platform CRM terlengkap untuk seniman Indonesia. Lacak karya, kelola kontak, dan tingkatkan penjualan.
+          <p className="text-lg text-white/80 max-w-md mb-8 leading-relaxed">
+            Platform CRM terlengkap untuk seniman Indonesia. Lacak karya, kelola kontak, dan tingkatkan penjualan dalam satu tempat.
           </p>
 
           {/* Feature Badges */}
-          <div className="flex flex-wrap gap-3 justify-center">
-            <div className="flex items-center gap-2 px-4 py-2 bg-white/20 rounded-full backdrop-blur-sm">
-              <Sparkles className="w-4 h-4" />
-              <span className="text-sm">Manajemen Karya</span>
+          <div className="flex flex-wrap gap-3">
+            <div className="flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/10 rounded-full backdrop-blur-md">
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              <span className="text-sm font-medium">Manajemen Karya</span>
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 bg-white/20 rounded-full backdrop-blur-sm">
-              <Sparkles className="w-4 h-4" />
-              <span className="text-sm">Pipeline Penjualan</span>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 bg-white/20 rounded-full backdrop-blur-sm">
-              <Sparkles className="w-4 h-4" />
-              <span className="text-sm">Analitik Lengkap</span>
+            <div className="flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/10 rounded-full backdrop-blur-md">
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              <span className="text-sm font-medium">Pipeline Penjualan</span>
             </div>
           </div>
         </div>
-
-        {/* Decorative Art Elements */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/20 to-transparent" />
       </div>
 
       {/* Right Side - Login Form */}
