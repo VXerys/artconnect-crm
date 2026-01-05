@@ -7,7 +7,7 @@ import { initialFormData } from "./constants";
 import { toast } from "sonner";
 
 export const useArtworks = () => {
-  const { user, getUserId, profile } = useAuth();
+  const { user, getUserId, profile, profileLoading, refreshProfile } = useAuth();
   const userId = profile?.id || null;
   const [view, setView] = useState<ViewMode>('grid');
   const [filter, setFilter] = useState<string>('all');
@@ -61,15 +61,20 @@ export const useArtworks = () => {
     }
   }, [userId]);
 
-  // Initial fetch - optimized to not block on profile loading
+  // Initial fetch - wait for profile to be loaded
   useEffect(() => {
+    // Still loading profile, wait
+    if (profileLoading) {
+      return;
+    }
+    
     if (userId) {
       fetchArtworks();
     } else {
-      // Don't keep loading if no userId after profile loaded
+      // Profile loaded but no userId - user might not have profile yet
       setLoading(false);
     }
-  }, [fetchArtworks, userId]);
+  }, [fetchArtworks, userId, profileLoading]);
 
   // Filtered artworks
   const filteredArtworks = useMemo(() => {
@@ -172,8 +177,27 @@ export const useArtworks = () => {
 
   // Handle Add artwork submit
   const handleAddSubmit = useCallback(async () => {
-    if (!validateForm() || !userId) {
-      if (!userId) toast.error('Sesi belum siap. Silakan refresh halaman.');
+    // Wait for profile if still loading
+    if (profileLoading) {
+      toast.info('Menunggu sesi siap...');
+      return;
+    }
+    
+    if (!validateForm()) return;
+    
+    // Check if user exists but profile is missing - try to refresh
+    if (!userId && user) {
+      toast.info('Memperbarui profil...');
+      // Profile might not be ready, try refreshing
+      await refreshProfile();
+      // Give a moment for state to update
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    
+    // Re-check userId after potential refresh
+    const currentUserId = profile?.id;
+    if (!currentUserId) {
+      toast.error('Profil tidak ditemukan. Silakan logout dan login kembali.');
       return;
     }
 
@@ -188,7 +212,7 @@ export const useArtworks = () => {
         : formData.year;
 
       const newArtwork = await artworksService.create({
-        user_id: userId,
+        user_id: currentUserId,
         title: formData.title,
         medium: formData.medium,
         dimensions: formData.dimensions,
@@ -201,7 +225,7 @@ export const useArtworks = () => {
 
       // Log activity
       try {
-        await activityService.logArtworkCreated(userId, newArtwork.id, newArtwork.title);
+        await activityService.logArtworkCreated(currentUserId, newArtwork.id, newArtwork.title);
       } catch (e) {
         console.warn('Could not log activity:', e);
       }
@@ -218,7 +242,7 @@ export const useArtworks = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, userId, validateForm, resetForm, fetchArtworks]);
+  }, [formData, userId, validateForm, resetForm, fetchArtworks, profileLoading, user, profile, refreshProfile]);
 
   // Handle Edit artwork submit
   const handleEditSubmit = useCallback(async () => {

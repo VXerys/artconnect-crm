@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import type { ArtworkStatus, Artwork } from "@/lib/database.types";
 
 export const usePipeline = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, profileLoading, refreshProfile } = useAuth();
   const userId = profile?.id || null;
   const [pipelineData, setPipelineData] = useState<PipelineData>(getEmptyPipelineData());
   const [loading, setLoading] = useState(true);
@@ -99,14 +99,19 @@ export const usePipeline = () => {
     }
   }, [userId]);
 
-  // Initial fetch - optimized
+  // Initial fetch - wait for profile to be loaded
   useEffect(() => {
+    // Still loading profile, wait
+    if (profileLoading) {
+      return;
+    }
+    
     if (userId) {
       fetchPipeline();
     } else {
       setLoading(false);
     }
-  }, [fetchPipeline, userId]);
+  }, [fetchPipeline, userId, profileLoading]);
 
   // Find which column an item belongs to
   const findColumnByItemId = useCallback((itemId: string): PipelineStatus | null => {
@@ -293,8 +298,25 @@ export const usePipeline = () => {
 
   // Add item - creates a new artwork
   const handleAddItem = useCallback(async () => {
-    if (!validateForm() || !userId) {
-      if (!userId) toast.error('Sesi belum siap. Silakan refresh halaman.');
+    // Wait for profile if still loading
+    if (profileLoading) {
+      toast.info('Menunggu sesi siap...');
+      return;
+    }
+    
+    if (!validateForm()) return;
+    
+    // Check if user exists but profile is missing - try to refresh
+    if (!userId && user) {
+      toast.info('Memperbarui profil...');
+      await refreshProfile();
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    
+    // Re-check userId after potential refresh
+    const currentUserId = profile?.id;
+    if (!currentUserId) {
+      toast.error('Profil tidak ditemukan. Silakan logout dan login kembali.');
       return;
     }
     setIsSubmitting(true);
@@ -306,7 +328,7 @@ export const usePipeline = () => {
 
       // Create artwork with the specified status
       await artworksService.create({
-        user_id: userId,
+        user_id: currentUserId,
         title: formData.title,
         medium: formData.medium,
         dimensions: '', // Default empty
@@ -327,7 +349,7 @@ export const usePipeline = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, userId, validateForm, resetForm, fetchPipeline]);
+  }, [formData, userId, validateForm, resetForm, fetchPipeline, profileLoading, user, profile, refreshProfile]);
 
   // Edit item - updates the artwork
   const handleEditItem = useCallback(async () => {

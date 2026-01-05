@@ -117,21 +117,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    // Get initial session - optimized for faster profile loading
+    // Get initial session - wait for profile to be fully loaded before ending loading
     const initAuth = async () => {
-      const { data: { session: s } } = await supabase.auth.getSession();
-      
-      setSession(s);
-      setUser(s?.user ?? null);
-      
-      if (s?.user) {
-        // Start profile fetch immediately, don't wait
-        setProfileLoading(true);
-        fetchProfile(s.user);
+      try {
+        const { data: { session: s } } = await supabase.auth.getSession();
+        
+        setSession(s);
+        setUser(s?.user ?? null);
+        
+        if (s?.user) {
+          // Wait for profile to be fetched before ending loading
+          setProfileLoading(true);
+          await fetchProfile(s.user);
+        }
+      } catch (error) {
+        console.error('Auth init error:', error);
+      } finally {
+        // Only end loading after everything is done
+        setLoading(false);
       }
-      
-      // End loading immediately after session check
-      setLoading(false);
     };
 
     initAuth();
@@ -143,6 +147,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(s?.user ?? null);
       
       if (event === 'SIGNED_IN' && s?.user) {
+        setProfileLoading(true);
         fetchProfile(s.user);
       } else if (event === 'SIGNED_OUT') {
         setProfile(null);

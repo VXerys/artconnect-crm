@@ -8,7 +8,7 @@ import { initialFormData, isValidEmail, isValidPhone } from "./constants";
 import { toast } from "sonner";
 
 export const useContacts = () => {
-  const { getUserId, profile, profileLoading } = useAuth();
+  const { getUserId, profile, profileLoading, user, refreshProfile } = useAuth();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
@@ -137,17 +137,28 @@ export const useContacts = () => {
 
   // Add contact
   const handleAddContact = useCallback(async () => {
-    const userId = getUserId();
-    console.log('handleAddContact called, userId:', userId);
-    
-    if (!validateForm()) {
-      console.log('Form validation failed');
+    // Wait for profile if still loading
+    if (profileLoading) {
+      toast.info('Menunggu sesi siap...');
       return;
     }
     
+    if (!validateForm()) {
+      return;
+    }
+    
+    let userId = getUserId();
+    
+    // Check if user exists but profile is missing - try to refresh
+    if (!userId && user) {
+      toast.info('Memperbarui profil...');
+      await refreshProfile();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      userId = getUserId();
+    }
+    
     if (!userId) {
-      console.error('No userId available - profile not loaded');
-      toast.error('Sesi belum siap. Silakan refresh halaman.');
+      toast.error('Profil tidak ditemukan. Silakan logout dan login kembali.');
       return;
     }
 
@@ -187,7 +198,7 @@ export const useContacts = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, getUserId, validateForm, resetForm, fetchContacts]);
+  }, [formData, getUserId, validateForm, resetForm, fetchContacts, profileLoading, user, refreshProfile]);
 
   // Edit contact
   const handleEditContact = useCallback(async () => {
