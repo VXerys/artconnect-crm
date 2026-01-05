@@ -220,29 +220,80 @@ const RegisterPage: React.FC = () => {
   // Email confirmation screen
   if (showConfirmation) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-8 bg-white">
-        <div className="w-full max-w-md text-center">
-          <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
-            <Check className="w-10 h-10 text-white" />
+      <div className="min-h-screen flex items-center justify-center p-8 bg-gradient-to-b from-white via-amber-50/30 to-white">
+        <div className="w-full max-w-md text-center animate-in fade-in zoom-in-95 duration-500">
+          {/* Animated Icon */}
+          <div className="relative w-28 h-28 mx-auto mb-8">
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-400/30 to-orange-500/30 rounded-full animate-ping" />
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-400/20 to-orange-500/20 rounded-full animate-pulse" />
+            <div className="relative w-28 h-28 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-2xl shadow-amber-500/40">
+              <Mail className="w-14 h-14 text-white" />
+            </div>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Cek Email Anda
+
+          {/* Confetti Icon */}
+          <div className="text-4xl mb-4 animate-bounce">🎉</div>
+
+          {/* Title */}
+          <h2 className="text-3xl font-bold text-gray-900 mb-3 animate-in slide-in-from-bottom-4 duration-500 delay-100">
+            Hampir Selesai!
           </h2>
-          <p className="text-gray-600 mb-6">
-            Kami telah mengirim link konfirmasi ke <strong>{email}</strong>. 
-            Silakan cek inbox Anda dan klik link untuk mengaktifkan akun.
+          
+          {/* Description */}
+          <p className="text-gray-500 mb-8 leading-relaxed animate-in slide-in-from-bottom-4 duration-500 delay-200">
+            Kami telah mengirim link konfirmasi ke{' '}
+            <span className="inline-block font-semibold text-gray-800 bg-amber-100 px-3 py-1 rounded-lg mt-2">{email}</span>
           </p>
-          <div className="space-y-3">
+
+          {/* Steps */}
+          <div className="bg-gray-50 rounded-2xl p-6 mb-8 text-left space-y-4 animate-in slide-in-from-bottom-4 duration-500 delay-250">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-amber-600 font-bold text-sm">1</span>
+              </div>
+              <div>
+                <p className="font-medium text-gray-800">Buka email Anda</p>
+                <p className="text-sm text-gray-500">Cek inbox atau folder spam</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-amber-600 font-bold text-sm">2</span>
+              </div>
+              <div>
+                <p className="font-medium text-gray-800">Klik link konfirmasi</p>
+                <p className="text-sm text-gray-500">Link berlaku 24 jam</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Check className="w-4 h-4 text-emerald-600" />
+              </div>
+              <div>
+                <p className="font-medium text-gray-800">Mulai berkreasi!</p>
+                <p className="text-sm text-gray-500">Akun Anda siap digunakan</p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Buttons */}
+          <div className="space-y-3 animate-in slide-in-from-bottom-4 duration-500 delay-300">
             <Button
               variant="outline"
-              className="w-full bg-white border-gray-200 text-gray-900 hover:bg-gray-50"
+              className="w-full h-12 bg-white border-2 border-gray-200 text-gray-700 font-semibold
+                hover:border-amber-500 hover:text-amber-600 hover:bg-amber-50 hover:shadow-lg hover:shadow-amber-500/10
+                active:scale-[0.98] transition-all duration-300"
               onClick={() => setShowConfirmation(false)}
             >
-              Kembali ke Registrasi
+              ← Kembali ke Registrasi
             </Button>
-            <Link to="/auth/login">
-              <Button variant="ghost" className="w-full text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-                Sudah konfirmasi? Login
+            <Link to="/auth/login" className="block">
+              <Button 
+                className="w-full h-12 bg-gradient-to-r from-amber-500 to-orange-500 
+                  hover:from-amber-600 hover:to-orange-600 hover:shadow-xl hover:shadow-amber-500/30
+                  active:scale-[0.98] transition-all duration-300 font-semibold"
+              >
+                Sudah konfirmasi? Login →
               </Button>
             </Link>
           </div>

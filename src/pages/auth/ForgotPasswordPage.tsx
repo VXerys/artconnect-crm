@@ -58,32 +58,57 @@ const ForgotPasswordPage: React.FC = () => {
   // Success screen
   if (isEmailSent) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-8 bg-white">
-        <div className="w-full max-w-md text-center">
-          <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
-            <CheckCircle className="w-10 h-10 text-white" />
+      <div className="min-h-screen flex items-center justify-center p-8 bg-gradient-to-b from-white via-gray-50 to-white">
+        <div className="w-full max-w-md text-center animate-in fade-in zoom-in-95 duration-500">
+          {/* Animated Icon */}
+          <div className="relative w-24 h-24 mx-auto mb-8">
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/30 to-green-500/30 rounded-full animate-ping" />
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-green-500/20 rounded-full animate-pulse" />
+            <div className="relative w-24 h-24 bg-gradient-to-br from-emerald-400 to-green-500 rounded-full flex items-center justify-center shadow-xl shadow-emerald-500/30">
+              <CheckCircle className="w-12 h-12 text-white" />
+            </div>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Cek Email Anda
+
+          {/* Title with animation */}
+          <h2 className="text-3xl font-bold text-gray-900 mb-3 animate-in slide-in-from-bottom-4 duration-500 delay-100">
+            Cek Email Anda! 📬
           </h2>
-          <p className="text-gray-600 mb-6">
-            Kami telah mengirim link reset password ke <strong>{email}</strong>. 
-            Silakan cek inbox Anda.
+          
+          {/* Description */}
+          <p className="text-gray-500 mb-8 leading-relaxed animate-in slide-in-from-bottom-4 duration-500 delay-200">
+            Kami telah mengirim link reset password ke{' '}
+            <span className="font-semibold text-gray-800 bg-amber-100 px-2 py-0.5 rounded">{email}</span>
+            <br />Silakan cek inbox atau folder spam Anda.
           </p>
-          <div className="space-y-3">
+          
+          {/* Buttons with animations */}
+          <div className="space-y-3 animate-in slide-in-from-bottom-4 duration-500 delay-300">
             <Button
               variant="outline"
-              className="w-full bg-white border-gray-200 text-gray-900 hover:bg-gray-50"
+              className="w-full h-12 bg-white border-2 border-gray-200 text-gray-700 font-semibold
+                hover:border-amber-500 hover:text-amber-600 hover:bg-amber-50 hover:shadow-lg hover:shadow-amber-500/10
+                active:scale-[0.98] transition-all duration-300"
               onClick={() => setIsEmailSent(false)}
             >
-              Kirim Ulang
+              <Mail className="w-4 h-4 mr-2" />
+              Kirim Ulang Email
             </Button>
-            <Link to="/auth/login">
-              <Button variant="ghost" className="w-full text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-                Kembali ke Login
+            <Link to="/auth/login" className="block">
+              <Button 
+                variant="ghost" 
+                className="w-full h-12 text-gray-500 font-medium
+                  hover:text-gray-900 hover:bg-gray-100
+                  active:scale-[0.98] transition-all duration-300"
+              >
+                ← Kembali ke Login
               </Button>
             </Link>
           </div>
+          
+          {/* Help text */}
+          <p className="mt-8 text-xs text-gray-400 animate-in fade-in duration-500 delay-500">
+            Tidak menerima email? Cek folder spam atau tunggu beberapa menit.
+          </p>
         </div>
       </div>
     );

@@ -278,10 +278,16 @@ const ResetPasswordPage: React.FC = () => {
   // Loading
   if (isValidSession === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-8 bg-white">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-amber-500 mx-auto mb-4" />
-          <p className="text-gray-600">Memverifikasi link reset password...</p>
+      <div className="min-h-screen flex items-center justify-center p-8 bg-gradient-to-b from-white via-gray-50 to-white">
+        <div className="text-center animate-in fade-in duration-500">
+          <div className="relative w-20 h-20 mx-auto mb-6">
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-400/30 to-orange-500/30 rounded-full animate-ping" />
+            <div className="relative w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-xl shadow-amber-500/30">
+              <Loader2 className="w-10 h-10 animate-spin text-white" />
+            </div>
+          </div>
+          <p className="text-gray-600 font-medium">Memverifikasi link reset password...</p>
+          <p className="text-sm text-gray-400 mt-2">Mohon tunggu sebentar</p>
         </div>
       </div>
     );
@@ -290,26 +296,40 @@ const ResetPasswordPage: React.FC = () => {
   // Invalid
   if (!isValidSession) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-8 bg-white">
-        <div className="w-full max-w-md text-center">
-          <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-red-400 to-red-500 rounded-full flex items-center justify-center">
-            <AlertCircle className="w-10 h-10 text-white" />
+      <div className="min-h-screen flex items-center justify-center p-8 bg-gradient-to-b from-white via-red-50/30 to-white">
+        <div className="w-full max-w-md text-center animate-in fade-in zoom-in-95 duration-500">
+          {/* Animated Icon */}
+          <div className="relative w-24 h-24 mx-auto mb-8">
+            <div className="absolute inset-0 bg-gradient-to-br from-red-400/30 to-red-500/30 rounded-full animate-pulse" />
+            <div className="relative w-24 h-24 bg-gradient-to-br from-red-400 to-red-500 rounded-full flex items-center justify-center shadow-xl shadow-red-500/30">
+              <AlertCircle className="w-12 h-12 text-white" />
+            </div>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Link Tidak Valid
+
+          <h2 className="text-3xl font-bold text-gray-900 mb-3 animate-in slide-in-from-bottom-4 duration-500 delay-100">
+            Link Tidak Valid 😔
           </h2>
-          <p className="text-gray-600 mb-6">
+          
+          <p className="text-gray-500 mb-8 leading-relaxed animate-in slide-in-from-bottom-4 duration-500 delay-200">
             {errorMessage}
           </p>
-          <div className="space-y-3">
-            <Link to="/auth/forgot-password">
-              <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white">
-                Minta Link Baru
+          
+          <div className="space-y-3 animate-in slide-in-from-bottom-4 duration-500 delay-300">
+            <Link to="/auth/forgot-password" className="block">
+              <Button className="w-full h-12 bg-gradient-to-r from-amber-500 to-orange-500 
+                hover:from-amber-600 hover:to-orange-600 hover:shadow-xl hover:shadow-amber-500/30
+                active:scale-[0.98] transition-all duration-300 font-semibold">
+                🔗 Minta Link Baru
               </Button>
             </Link>
-            <Link to="/auth/login">
-              <Button variant="ghost" className="w-full text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-                Kembali ke Login
+            <Link to="/auth/login" className="block">
+              <Button 
+                variant="outline" 
+                className="w-full h-12 border-2 border-gray-200 text-gray-700 font-medium
+                  hover:border-gray-300 hover:bg-gray-50
+                  active:scale-[0.98] transition-all duration-300"
+              >
+                ← Kembali ke Login
               </Button>
             </Link>
           </div>
@@ -321,22 +341,42 @@ const ResetPasswordPage: React.FC = () => {
   // Success
   if (isSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-8 bg-white">
-        <div className="w-full max-w-md text-center">
-          <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
-            <CheckCircle className="w-10 h-10 text-white" />
+      <div className="min-h-screen flex items-center justify-center p-8 bg-gradient-to-b from-white via-emerald-50/30 to-white">
+        <div className="w-full max-w-md text-center animate-in fade-in zoom-in-95 duration-500">
+          {/* Animated Icon */}
+          <div className="relative w-28 h-28 mx-auto mb-8">
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/30 to-green-500/30 rounded-full animate-ping" />
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-green-500/20 rounded-full animate-pulse" />
+            <div className="relative w-28 h-28 bg-gradient-to-br from-emerald-400 to-green-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/40">
+              <CheckCircle className="w-14 h-14 text-white" />
+            </div>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+
+          {/* Confetti */}
+          <div className="text-4xl mb-4 animate-bounce">🎉</div>
+
+          <h2 className="text-3xl font-bold text-gray-900 mb-3 animate-in slide-in-from-bottom-4 duration-500 delay-100">
             Password Diperbarui!
           </h2>
-          <p className="text-gray-600 mb-6">
-            Password Anda telah berhasil diubah. Silakan login dengan password baru.
+          
+          <p className="text-gray-500 mb-8 leading-relaxed animate-in slide-in-from-bottom-4 duration-500 delay-200">
+            Password Anda telah berhasil diubah.<br/>
+            Silakan login dengan password baru Anda.
           </p>
-          <Link to="/auth/login">
-            <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold">
-              Masuk Sekarang
-            </Button>
-          </Link>
+
+          <div className="animate-in slide-in-from-bottom-4 duration-500 delay-300">
+            <Link to="/auth/login" className="block">
+              <Button className="w-full h-14 bg-gradient-to-r from-amber-500 to-orange-500 text-lg
+                hover:from-amber-600 hover:to-orange-600 hover:shadow-xl hover:shadow-amber-500/30
+                active:scale-[0.98] transition-all duration-300 font-semibold">
+                🚀 Masuk Sekarang
+              </Button>
+            </Link>
+          </div>
+          
+          <p className="mt-6 text-xs text-gray-400 animate-in fade-in duration-500 delay-500">
+            Anda akan diarahkan ke halaman login
+          </p>
         </div>
       </div>
     );
@@ -419,7 +459,10 @@ const ResetPasswordPage: React.FC = () => {
 
           <Button
             type="submit"
-            className="w-full h-12 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold shadow-lg shadow-amber-500/25"
+            className="w-full h-12 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold
+              hover:from-amber-600 hover:to-orange-600 hover:shadow-xl hover:shadow-amber-500/30
+              active:scale-[0.98] transition-all duration-300
+              disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -428,7 +471,7 @@ const ResetPasswordPage: React.FC = () => {
                 Menyimpan...
               </>
             ) : (
-              'Simpan Password Baru'
+              '🔐 Simpan Password Baru'
             )}
           </Button>
         </form>
