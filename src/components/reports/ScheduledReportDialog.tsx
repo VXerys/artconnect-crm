@@ -80,62 +80,63 @@ export const ScheduledReportDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{initialData ? "Edit Jadwal Laporan" : "Buat Jadwal Laporan Baru"}</DialogTitle>
+          <DialogTitle className="text-base sm:text-lg">{initialData ? "Edit Jadwal Laporan" : "Buat Jadwal Laporan Baru"}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Nama Jadwal</Label>
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 py-3 sm:py-4">
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label htmlFor="name" className="text-xs sm:text-sm">Nama Jadwal</Label>
             <Input
               id="name"
               placeholder="Contoh: Laporan Penjualan Mingguan"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
+              className="text-xs sm:text-sm h-9 sm:h-10"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="type">Tipe Laporan</Label>
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="type" className="text-xs sm:text-sm">Tipe Laporan</Label>
               <Select
                 value={formData.type}
                 onValueChange={(value) => setFormData({ ...formData, type: value })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="text-xs sm:text-sm h-9 sm:h-10">
                   <SelectValue placeholder="Pilih tipe" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="inventory">Inventaris</SelectItem>
-                  <SelectItem value="sales">Penjualan</SelectItem>
-                  <SelectItem value="contacts">Kontak</SelectItem>
-                  <SelectItem value="activity">Aktivitas</SelectItem>
+                  <SelectItem value="inventory" className="text-xs sm:text-sm">Inventaris</SelectItem>
+                  <SelectItem value="sales" className="text-xs sm:text-sm">Penjualan</SelectItem>
+                  <SelectItem value="contacts" className="text-xs sm:text-sm">Kontak</SelectItem>
+                  <SelectItem value="activity" className="text-xs sm:text-sm">Aktivitas</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="frequency">Frekuensi</Label>
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="frequency" className="text-xs sm:text-sm">Frekuensi</Label>
               <Select
                 value={formData.frequency}
                 onValueChange={(value) => setFormData({ ...formData, frequency: value as any })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="text-xs sm:text-sm h-9 sm:h-10">
                   <SelectValue placeholder="Pilih frekuensi" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="daily">Harian</SelectItem>
-                  <SelectItem value="weekly">Mingguan</SelectItem>
-                  <SelectItem value="monthly">Bulanan</SelectItem>
+                  <SelectItem value="daily" className="text-xs sm:text-sm">Harian</SelectItem>
+                  <SelectItem value="weekly" className="text-xs sm:text-sm">Mingguan</SelectItem>
+                  <SelectItem value="monthly" className="text-xs sm:text-sm">Bulanan</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Penerima (Email)</Label>
-            <div className="flex gap-2">
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label className="text-xs sm:text-sm">Penerima (Email)</Label>
+            <div className="flex gap-1.5 sm:gap-2">
               <Input
                 placeholder="email@example.com"
                 value={recipientInput}
@@ -146,33 +147,36 @@ export const ScheduledReportDialog = ({
                     handleAddRecipient();
                   }
                 }}
+                className="text-xs sm:text-sm h-9 sm:h-10"
               />
-              <Button type="button" onClick={handleAddRecipient} variant="secondary">Tambah</Button>
+              <Button type="button" onClick={handleAddRecipient} variant="secondary" size="sm" className="h-9 sm:h-10 px-2 sm:px-3 text-xs sm:text-sm">
+                Tambah
+              </Button>
             </div>
-            <div className="flex flex-wrap gap-2 mt-2">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-1.5 sm:mt-2">
               {formData.recipients?.map((email) => (
-                <div key={email} className="bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-xs flex items-center gap-1">
-                  {email}
+                <div key={email} className="bg-secondary text-secondary-foreground px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-[10px] sm:text-xs flex items-center gap-0.5 sm:gap-1">
+                  <span className="truncate max-w-[120px]">{email}</span>
                   <button
                     type="button"
                     onClick={() => removeRecipient(email)}
-                    className="hover:text-destructive"
+                    className="hover:text-destructive flex-shrink-0"
                   >
                     &times;
                   </button>
                 </div>
               ))}
               {(!formData.recipients || formData.recipients.length === 0) && (
-                <span className="text-xs text-muted-foreground italic">Belum ada penerima</span>
+                <span className="text-[10px] sm:text-xs text-muted-foreground italic">Belum ada penerima</span>
               )}
             </div>
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="h-9 sm:h-10 text-xs sm:text-sm">
               Batal
             </Button>
-            <Button type="submit">
+            <Button type="submit" className="h-9 sm:h-10 text-xs sm:text-sm">
               {initialData ? "Simpan Perubahan" : "Buat Jadwal"}
             </Button>
           </DialogFooter>

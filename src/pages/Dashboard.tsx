@@ -121,7 +121,7 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-5 md:space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
         {/* Hero Section */}
         <DashboardHero 
           userName={userName}
@@ -131,9 +131,9 @@ const Dashboard = () => {
 
         {/* Stats Grid */}
         <section>
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-1 h-4 bg-primary rounded-full" />
-            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-2.5 md:mb-3 lg:mb-4">
+            <div className="w-0.5 sm:w-1 h-3 sm:h-3.5 md:h-4 bg-primary rounded-full" />
+            <h2 className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wider">
               Statistik Utama
             </h2>
           </div>
@@ -157,7 +157,7 @@ const Dashboard = () => {
         </section>
 
         {/* Sales Chart & Recent Contacts - Side by Side with Equal Heights */}
-        <div className="grid lg:grid-cols-5 gap-6 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-5 md:gap-6 items-stretch">
           {/* Sales Chart - Takes 3 columns */}
           <div className="lg:col-span-3 flex">
             <SalesChart data={salesChartData} />
@@ -174,9 +174,9 @@ const Dashboard = () => {
 
         {/* Activity Feed */}
         <section>
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-1 h-4 bg-amber-400 rounded-full" />
-            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-2.5 md:mb-3 lg:mb-4">
+            <div className="w-0.5 sm:w-1 h-3 sm:h-3.5 md:h-4 bg-amber-400 rounded-full" />
+            <h2 className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wider">
               Aktivitas Terkini
             </h2>
           </div>
@@ -185,9 +185,9 @@ const Dashboard = () => {
 
         {/* Quick Actions */}
         <section>
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-1 h-4 bg-primary rounded-full" />
-            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-2.5 md:mb-3 lg:mb-4">
+            <div className="w-0.5 sm:w-1 h-3 sm:h-3.5 md:h-4 bg-primary rounded-full" />
+            <h2 className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wider">
               Aksi Cepat
             </h2>
           </div>

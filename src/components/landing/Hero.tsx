@@ -4,18 +4,19 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import heroBg from "@/assets/hero-bg.jpg";
 import SplitText from "@/components/ui/SplitText";
+import { Container } from "@/components/ui/responsive";
 
 const Hero = () => {
   const { user } = useAuth();
 
   return (
-    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section id="hero" className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0">
         <img 
           src={heroBg} 
           alt="ArtConnect Gallery" 
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover object-center"
           loading="eager"
           // @ts-ignore
           fetchpriority="high"
@@ -26,26 +27,25 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-transparent to-background" />
       </div>
 
-      <div className="container relative z-10 px-4 py-20">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
+      <Container className="relative z-10 py-12 sm:py-16 md:py-20">
+        <div className="max-w-5xl mx-auto text-center space-y-8 sm:space-y-10">
           {/* Badge */}
           <div 
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium animate-fade-in"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary text-sm font-semibold animate-fade-in backdrop-blur-sm"
           >
-            <Palette className="w-4 h-4" />
+            <Palette className="w-4 h-4 flex-shrink-0" />
             <span>CRM Khusus untuk Seniman Visual</span>
           </div>
 
           {/* Main Title with SplitText Animation */}
-          {/* Main Title with SplitText Animation */}
           <div 
-            className="font-display text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight"
+            className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight leading-[1.1] px-4 sm:px-0"
             style={{ willChange: "transform" }}
           >
             <SplitText
               text="Art"
               tag="div"
-              className="text-foreground font-display font-bold inline-block mr-2"
+              className="text-foreground font-display font-extrabold inline-block mr-2 sm:mr-3"
               delay={70}
               duration={1.0}
               ease="power3.out"
@@ -59,7 +59,7 @@ const Hero = () => {
             <SplitText
               text="Connect"
               tag="div"
-              className="text-primary font-display font-bold inline-block"
+              className="text-primary font-display font-extrabold inline-block"
               delay={70}
               duration={1.0}
               ease="power3.out"
@@ -74,7 +74,7 @@ const Hero = () => {
 
           {/* Subtitle */}
           <p 
-            className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto animate-slide-up font-body"
+            className="text-lg sm:text-xl md:text-2xl text-muted-foreground/90 max-w-3xl mx-auto animate-slide-up font-normal leading-relaxed px-4 sm:px-0"
             style={{ animationDelay: "0.2s" }}
           >
             Pusat komando digital untuk seniman. Kelola karya, jejaring profesional, 
@@ -83,21 +83,21 @@ const Hero = () => {
 
           {/* CTA Buttons - Changes based on auth state */}
           <div 
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 animate-slide-up"
+            className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4 pt-4 sm:pt-6 animate-slide-up px-4 sm:px-0"
             style={{ animationDelay: "0.3s" }}
           >
             {user ? (
               // User is logged in - show dashboard button
               <>
-                <Link to="/dashboard">
-                  <Button variant="hero" size="xl" className="group gap-2">
+                <Link to="/dashboard" className="w-full sm:w-auto">
+                  <Button variant="hero" size="xl" className="group gap-2.5 w-full sm:w-auto h-14 px-8 text-base font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all">
                     <LayoutDashboard className="w-5 h-5" />
                     Buka Dashboard
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
-                <a href="#features">
-                  <Button variant="hero-outline" size="xl">
+                <a href="#features" className="w-full sm:w-auto">
+                  <Button variant="hero-outline" size="xl" className="w-full sm:w-auto h-14 px-8 text-base font-semibold">
                     Lihat Fitur
                   </Button>
                 </a>
@@ -105,14 +105,14 @@ const Hero = () => {
             ) : (
               // User is not logged in - show register/login buttons
               <>
-                <Link to="/auth/register">
-                  <Button variant="hero" size="xl" className="group">
+                <Link to="/auth/register" className="w-full sm:w-auto">
+                  <Button variant="hero" size="xl" className="group w-full sm:w-auto h-14 px-8 text-base font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all">
                     Coba Gratis
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
-                <a href="#features">
-                  <Button variant="hero-outline" size="xl">
+                <a href="#features" className="w-full sm:w-auto">
+                  <Button variant="hero-outline" size="xl" className="w-full sm:w-auto h-14 px-8 text-base font-semibold">
                     Lihat Fitur
                   </Button>
                 </a>
@@ -122,33 +122,33 @@ const Hero = () => {
 
           {/* Feature Pills */}
           <div 
-            className="flex flex-wrap items-center justify-center gap-6 pt-12 animate-slide-up"
+            className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-6 sm:gap-8 pt-10 sm:pt-14 animate-slide-up px-2"
             style={{ animationDelay: "0.4s" }}
           >
             <div className="flex items-center gap-2 text-muted-foreground">
-              <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center">
-                <Palette className="w-5 h-5 text-primary" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
+                <Palette className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
-              <span className="font-medium">Inventaris Karya</span>
+              <span className="font-medium text-sm sm:text-base">Inventaris Karya</span>
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
-              <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center">
-                <Users className="w-5 h-5 text-primary" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
-              <span className="font-medium">Jejaring Profesional</span>
+              <span className="font-medium text-sm sm:text-base">Jejaring Profesional</span>
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
-              <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center">
-                <BarChart3 className="w-5 h-5 text-primary" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
+                <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
-              <span className="font-medium">Analitik Dashboard</span>
+              <span className="font-medium text-sm sm:text-base">Analitik Dashboard</span>
             </div>
           </div>
         </div>
-      </div>
+      </Container>
 
       {/* Bottom fade to seamless transition */}
-      <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-background via-background/80 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 sm:h-48 bg-gradient-to-t from-background via-background/80 to-transparent" />
     </section>
   );
 };

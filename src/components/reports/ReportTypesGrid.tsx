@@ -11,7 +11,7 @@ interface ReportTypesGridProps {
 
 export const ReportTypesGrid = ({ reportTypes, onGenerateReport }: ReportTypesGridProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
       {reportTypes.map((report, index) => (
         <Card 
           key={report.id} 
@@ -29,53 +29,53 @@ export const ReportTypesGrid = ({ reportTypes, onGenerateReport }: ReportTypesGr
 
           {/* Side accent with glow */}
           <div className={cn(
-            "absolute left-0 top-0 bottom-0 w-1 transition-all duration-300",
-            "group-hover:w-1.5 group-hover:shadow-[0_0_10px_rgba(0,0,0,0.5)]",
+            "absolute left-0 top-0 bottom-0 w-0.5 sm:w-1 transition-all duration-300",
+            "group-hover:w-1 sm:group-hover:w-1.5 group-hover:shadow-[0_0_10px_rgba(0,0,0,0.5)]",
             report.color.replace('text-', 'bg-')
           )} />
 
-          <CardContent className="p-6 relative z-10 flex flex-col h-full">
-            <div className="flex items-start gap-5">
+          <CardContent className="p-3 sm:p-4 md:p-5 lg:p-6 relative z-10 flex flex-col h-full">
+            <div className="flex items-start gap-2 sm:gap-3 md:gap-4 lg:gap-5">
               {/* Animated Icon Container */}
               <div className={cn(
-                "w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0",
+                "w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-lg sm:rounded-xl md:rounded-2xl flex items-center justify-center flex-shrink-0",
                 "transition-all duration-500 group-hover:scale-110 group-hover:rotate-3",
                 "bg-gradient-to-br from-background to-secondary shadow-inner border border-white/5",
                 report.bgColor
               )}>
-                <report.icon className={cn("w-7 h-7 transition-colors duration-300", report.color)} />
+                <report.icon className={cn("w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 transition-colors duration-300", report.color)} />
               </div>
 
               {/* Header Content */}
               <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <h3 className="font-display font-semibold text-lg tracking-tight group-hover:text-primary transition-colors">
+                <div className="flex items-start justify-between gap-1 sm:gap-2">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-display font-semibold text-sm sm:text-base md:text-lg tracking-tight group-hover:text-primary transition-colors leading-tight">
                       {report.title}
                     </h3>
-                    <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed line-clamp-2">
+                    <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-0.5 sm:mt-1 md:mt-1.5 leading-relaxed line-clamp-2">
                       {report.description}
                     </p>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground/50 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 flex-shrink-0" />
+                  <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground/50 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 flex-shrink-0" />
                 </div>
               </div>
             </div>
 
-            <div className="mt-6 flex-1">
+            <div className="mt-3 sm:mt-4 md:mt-5 lg:mt-6 flex-1">
               {/* Features as Chips */}
-              <div className="flex flex-wrap gap-2 mb-6">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4 md:mb-5 lg:mb-6">
                 {report.features.slice(0, 3).map((feature, idx) => (
                   <span 
                     key={idx} 
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-secondary/50 border border-border/50 text-xs text-muted-foreground"
+                    className="inline-flex items-center gap-1 sm:gap-1.5 px-1.5 py-0.5 sm:px-2 sm:py-1 md:px-2.5 md:py-1 rounded-md bg-secondary/50 border border-border/50 text-[9px] sm:text-[10px] md:text-xs text-muted-foreground"
                   >
-                    <Check className={cn("w-3 h-3", report.color)} />
-                    {feature}
+                    <Check className={cn("w-2.5 h-2.5 sm:w-3 sm:h-3", report.color)} />
+                    <span className="truncate">{feature}</span>
                   </span>
                 ))}
                 {report.features.length > 3 && (
-                  <span className="text-xs text-muted-foreground px-1 py-1 self-center">
+                  <span className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground px-1 py-0.5 sm:py-1 self-center">
                     +{report.features.length - 3} more
                   </span>
                 )}
@@ -83,24 +83,24 @@ export const ReportTypesGrid = ({ reportTypes, onGenerateReport }: ReportTypesGr
             </div>
 
             {/* Actions */}
-            <div className="grid grid-cols-2 gap-3 mt-auto pt-4 border-t border-border/50">
+            <div className="grid grid-cols-2 gap-2 sm:gap-2.5 md:gap-3 mt-auto pt-3 sm:pt-4 border-t border-border/50">
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="w-full gap-2 border-primary/20 hover:border-primary/50 hover:bg-primary/5 group/btn"
+                className="w-full gap-1 sm:gap-1.5 md:gap-2 h-8 sm:h-9 md:h-10 text-[10px] sm:text-xs md:text-sm border-primary/20 hover:border-primary/50 hover:bg-primary/5 group/btn px-2 sm:px-3"
                 onClick={() => onGenerateReport(report.id, "csv")}
               >
-                <Download className="w-3.5 h-3.5 group-hover/btn:translate-y-0.5 transition-transform" />
-                CSV
+                <Download className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover/btn:translate-y-0.5 transition-transform" />
+                <span className="font-medium">CSV</span>
               </Button>
               <Button 
                 variant="default" 
                 size="sm" 
-                className="w-full gap-2 shadow-lg shadow-primary/20 hover:shadow-primary/30 group/btn"
+                className="w-full gap-1 sm:gap-1.5 md:gap-2 h-8 sm:h-9 md:h-10 text-[10px] sm:text-xs md:text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 group/btn px-2 sm:px-3"
                 onClick={() => onGenerateReport(report.id, "pdf")}
               >
-                <FileText className="w-3.5 h-3.5" />
-                PDF
+                <FileText className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                <span className="font-medium">PDF</span>
               </Button>
             </div>
           </CardContent>

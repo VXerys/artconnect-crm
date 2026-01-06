@@ -66,21 +66,21 @@ export const QuickActions = ({
 
   return (
     <Card className="bg-card border-border overflow-hidden">
-      <CardHeader className="pb-4 border-b border-border">
-        <CardTitle className="font-display text-lg">Aksi Cepat</CardTitle>
-        <p className="text-xs text-muted-foreground mt-0.5">
+      <CardHeader className="pb-3 sm:pb-4 border-b border-border px-3 sm:px-4 md:px-6 pt-3 sm:pt-4 md:pt-6">
+        <CardTitle className="font-display text-base sm:text-lg">Aksi Cepat</CardTitle>
+        <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-0.5">
           Akses fitur utama dengan cepat
         </p>
       </CardHeader>
       
-      <CardContent className="p-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <CardContent className="p-2 sm:p-3 md:p-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-2.5 md:gap-3">
           {actions.map((action, index) => {
             const handler = getActionHandler(action) || action.onClick;
             const content = (
               <div 
                 className={cn(
-                  "group relative p-4 rounded-xl",
+                  "group relative p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl",
                   "bg-secondary/30 border border-border",
                   "hover:border-primary/40 hover:bg-secondary/50",
                   "transition-all duration-300",
@@ -95,29 +95,29 @@ export const QuickActions = ({
                 )} />
 
                 {/* Content */}
-                <div className="relative z-10 flex flex-col items-center text-center gap-3">
+                <div className="relative z-10 flex flex-col items-center text-center gap-1.5 sm:gap-2 md:gap-3">
                   {/* Icon */}
                   <div className={cn(
-                    "w-14 h-14 rounded-xl flex items-center justify-center",
+                    "w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-lg sm:rounded-xl flex items-center justify-center",
                     "transition-all duration-300 group-hover:scale-110",
                     action.bgColor
                   )}>
-                    <action.icon className={cn("w-6 h-6", action.color)} />
+                    <action.icon className={cn("w-5 h-5 sm:w-5.5 sm:h-5.5 md:w-6 md:h-6", action.color)} />
                   </div>
 
                   {/* Label */}
-                  <div>
-                    <h3 className="font-semibold text-sm group-hover:text-primary transition-colors">
+                  <div className="w-full">
+                    <h3 className="font-semibold text-xs sm:text-sm md:text-base group-hover:text-primary transition-colors leading-tight">
                       {action.label}
                     </h3>
-                    <p className="text-xs text-muted-foreground mt-0.5 hidden md:block">
+                    <p className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground mt-0.5 hidden md:block line-clamp-2">
                       {action.description}
                     </p>
                   </div>
 
                   {/* Arrow that appears on hover */}
-                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <ArrowRight className="w-4 h-4 text-primary" />
+                  <div className="absolute top-1 sm:top-2 right-1 sm:right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 text-primary" />
                   </div>
                 </div>
               </div>

@@ -2,6 +2,7 @@ import { Github, Mail, Instagram, ArrowUpRight, Heart } from "lucide-react";
 import Logo from "@/components/ui/Logo";
 import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
+import { Container, Section } from "@/components/ui/responsive";
 
 // Team members - Sechan first
 const teamMembers = [
@@ -23,7 +24,7 @@ const infoLinks = [
   { label: "Tentang Kami", href: "/about", isRoute: true },
   { label: "Panduan Penggunaan", href: "/guide", isRoute: true },
   { label: "Kebijakan Privasi", href: "/privacy", isRoute: true },
-  { label: "Syarat & Ketentuan", href: "#", isRoute: false },
+  { label: "Syarat & Ketentuan", href: "/terms", isRoute: true },
 ];
 
 const Footer = () => {
@@ -55,35 +56,32 @@ const Footer = () => {
   return (
     <footer 
       ref={footerRef}
-      className="relative pt-20 pb-8"
+      className="relative bg-muted/30 border-t border-border/50"
     >
-      {/* Top gradient line */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-
-      <div className="container px-4">
+      <Container className="pt-8 sm:pt-12 pb-6">
         {/* Main Footer Content */}
-        <div className={`grid md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8 mb-16 transition-all duration-700
+        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-6 sm:gap-8 mb-8 sm:mb-10 transition-all duration-700
           ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           
-          {/* Brand Section */}
-          <div className="lg:col-span-1">
+          {/* Brand Section - Full width on mobile, 4 cols on lg */}
+          <div className="lg:col-span-4">
             <button 
               onClick={scrollToTop}
-              className="mb-4 group"
+              className="mb-3 sm:mb-4 group inline-block"
             >
               <Logo size="sm" showText={true} />
             </button>
-            <p className="text-muted-foreground text-sm leading-relaxed mb-6">
+            <p className="text-muted-foreground text-sm leading-relaxed mb-4 sm:mb-5 max-w-sm">
               Platform CRM berbasis web yang dirancang khusus untuk seniman visual independen. 
               Kelola karya, jejaring, dan kembangkan karier seni Anda.
             </p>
             
             {/* Social Links */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5">
               <a 
                 href="mailto:support@artconnect.id" 
-                className="w-9 h-9 rounded-lg bg-card/50 border border-border/30 flex items-center justify-center
-                  hover:border-primary/50 hover:bg-primary/10 transition-all group"
+                className="w-9 h-9 rounded-lg bg-background border border-border hover:border-primary/50 hover:bg-primary/5 
+                  flex items-center justify-center transition-all group"
                 aria-label="Email"
               >
                 <Mail className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -92,8 +90,8 @@ const Footer = () => {
                 href="https://github.com" 
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-lg bg-card/50 border border-border/30 flex items-center justify-center
-                  hover:border-primary/50 hover:bg-primary/10 transition-all group"
+                className="w-9 h-9 rounded-lg bg-background border border-border hover:border-primary/50 hover:bg-primary/5 
+                  flex items-center justify-center transition-all group"
                 aria-label="GitHub"
               >
                 <Github className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -102,8 +100,8 @@ const Footer = () => {
                 href="https://instagram.com" 
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-lg bg-card/50 border border-border/30 flex items-center justify-center
-                  hover:border-primary/50 hover:bg-primary/10 transition-all group"
+                className="w-9 h-9 rounded-lg bg-background border border-border hover:border-primary/50 hover:bg-primary/5 
+                  flex items-center justify-center transition-all group"
                 aria-label="Instagram"
               >
                 <Instagram className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -111,11 +109,11 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div className={`transition-all duration-700 delay-100
+          {/* Quick Links - 2 cols on lg */}
+          <div className={`lg:col-span-2 transition-all duration-700 delay-100
             ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <h4 className="font-display font-semibold text-foreground mb-4">Platform</h4>
-            <ul className="space-y-3">
+            <h4 className="font-display font-semibold text-foreground text-sm sm:text-base mb-3 sm:mb-4">Platform</h4>
+            <ul className="space-y-2">
               {quickLinks.map((link) => (
                 <li key={link.label}>
                   <Link 
@@ -130,11 +128,11 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Info Links */}
-          <div className={`transition-all duration-700 delay-200
+          {/* Info Links - 3 cols on lg */}
+          <div className={`lg:col-span-3 transition-all duration-700 delay-200
             ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <h4 className="font-display font-semibold text-foreground mb-4">Informasi</h4>
-            <ul className="space-y-3">
+            <h4 className="font-display font-semibold text-foreground text-sm sm:text-base mb-3 sm:mb-4">Informasi</h4>
+            <ul className="space-y-2">
               {infoLinks.map((link) => (
                 <li key={link.label}>
                   {link.isRoute ? (
@@ -156,21 +154,24 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Team Section */}
-          <div className={`transition-all duration-700 delay-300
+          {/* Team Section - 3 cols on lg */}
+          <div className={`lg:col-span-3 transition-all duration-700 delay-300
             ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <h4 className="font-display font-semibold text-foreground mb-4">Tim Pengembang</h4>
-            <ul className="space-y-2">
+            <h4 className="font-display font-semibold text-foreground text-sm sm:text-base mb-3 sm:mb-4">Tim Pengembang</h4>
+            <ul className="space-y-2.5">
               {teamMembers.map((member, index) => (
-                <li key={member.name} className="flex items-center gap-2">
-                  <div className={`w-6 h-6 rounded-full bg-gradient-to-br from-primary/80 to-primary/40 
-                    flex items-center justify-center text-[10px] font-bold text-background
-                    ${index === 0 ? 'ring-2 ring-primary/50' : ''}`}>
+                <li key={member.name} className="flex items-center gap-2.5">
+                  <div className={`w-8 h-8 rounded-lg bg-gradient-to-br from-primary/80 to-primary/40 
+                    flex items-center justify-center text-xs font-bold text-background flex-shrink-0
+                    ${index === 0 ? 'ring-2 ring-primary/30 ring-offset-1 ring-offset-background' : ''}`}>
                     {member.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <span className={`text-sm truncate block ${index === 0 ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
+                    <span className={`text-sm block truncate leading-tight ${index === 0 ? 'text-primary font-semibold' : 'text-foreground font-medium'}`}>
                       {member.name}
+                    </span>
+                    <span className="text-xs text-muted-foreground block truncate leading-tight">
+                      {member.role}
                     </span>
                   </div>
                 </li>
@@ -180,41 +181,40 @@ const Footer = () => {
         </div>
 
         {/* Divider */}
-        <div className="h-px bg-gradient-to-r from-transparent via-border/50 to-transparent mb-8" />
+        <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent mb-5 sm:mb-6" />
 
         {/* Bottom Section */}
-        <div className={`flex flex-col lg:flex-row items-center justify-between gap-4 transition-all duration-700 delay-400
+        <div className={`flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 transition-all duration-700 delay-400
           ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           
           {/* Copyright & Project Info */}
-          <div className="flex flex-col sm:flex-row items-center gap-2 text-center sm:text-left">
-            <p className="text-sm text-muted-foreground">
+          <div className="flex flex-col items-center sm:items-start gap-0.5 text-center sm:text-left">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               © 2025 ArtConnect. All rights reserved.
             </p>
-            <span className="hidden sm:inline text-muted-foreground/50">•</span>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground/70">
               Projek UAS Pengembangan Aplikasi Berbasis Web
             </p>
           </div>
 
           {/* Made with love */}
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
             <span>Dibuat dengan</span>
-            <Heart className="w-4 h-4 text-rose-500 fill-rose-500 animate-pulse" />
+            <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-500 fill-rose-500 animate-pulse" />
             <span>di Indonesia</span>
           </div>
         </div>
 
         {/* Back to top button */}
-        <div className="flex justify-center mt-8">
+        <div className="flex justify-center mt-6 sm:mt-8">
           <button
             onClick={scrollToTop}
             className="group flex items-center gap-2 px-4 py-2 rounded-full 
-              bg-card/30 border border-border/30 hover:border-primary/30
-              text-sm text-muted-foreground hover:text-primary transition-all"
+              bg-background border border-border hover:border-primary/50 hover:bg-primary/5
+              text-xs sm:text-sm text-muted-foreground hover:text-primary transition-all shadow-sm"
           >
             <svg 
-              className="w-4 h-4 group-hover:-translate-y-1 transition-transform" 
+              className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:-translate-y-0.5 transition-transform" 
               fill="none" 
               viewBox="0 0 24 24" 
               stroke="currentColor"
@@ -224,7 +224,7 @@ const Footer = () => {
             Kembali ke Atas
           </button>
         </div>
-      </div>
+      </Container>
     </footer>
   );
 };

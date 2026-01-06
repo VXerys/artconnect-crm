@@ -261,7 +261,7 @@ const Reports = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
         
         {/* Hero */}
         <ReportsHero 
@@ -273,10 +273,10 @@ const Reports = () => {
         />
 
         {/* Metrics */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="w-1 h-4 bg-emerald-400 rounded-full" />
-            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+        <div className="space-y-2 sm:space-y-2.5 md:space-y-3 lg:space-y-4">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="w-0.5 sm:w-1 h-3 sm:h-3.5 md:h-4 bg-emerald-400 rounded-full" />
+            <h2 className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wider">
               Ringkasan Performa
             </h2>
           </div>
@@ -284,12 +284,12 @@ const Reports = () => {
         </div>
 
         {/* Top Section: Quick Actions & Scheduled Reports */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 lg:gap-8 items-stretch">
           {/* Quick Actions (Types) */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-4 bg-primary rounded-full" />
-              <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+          <div className="lg:col-span-2 space-y-2 sm:space-y-2.5 md:space-y-3 lg:space-y-4">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="w-0.5 sm:w-1 h-3 sm:h-3.5 md:h-4 bg-primary rounded-full" />
+              <h2 className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wider">
                 Buat Laporan Cepat
               </h2>
             </div>
@@ -300,10 +300,10 @@ const Reports = () => {
           </div>
 
           {/* Scheduled Reports */}
-          <div className="flex flex-col h-full gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-4 bg-blue-400 rounded-full" />
-              <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+          <div className="flex flex-col h-full gap-2 sm:gap-2.5 md:gap-3 lg:gap-4">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="w-0.5 sm:w-1 h-3 sm:h-3.5 md:h-4 bg-blue-400 rounded-full" />
+              <h2 className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wider">
                 Monitor Jadwal
               </h2>
             </div>
@@ -320,10 +320,10 @@ const Reports = () => {
         </div>
 
         {/* Custom Report Builder - Full Width */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="w-1 h-4 bg-purple-400 rounded-full" />
-            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+        <div className="space-y-2 sm:space-y-2.5 md:space-y-3 lg:space-y-4">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="w-0.5 sm:w-1 h-3 sm:h-3.5 md:h-4 bg-purple-400 rounded-full" />
+            <h2 className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wider">
               Laporan Kustom
             </h2>
           </div>
@@ -335,10 +335,10 @@ const Reports = () => {
         </div>
 
         {/* Recent Reports - Full Width */}
-        <div className="space-y-4">
-            <div className="flex items-center gap-2">
-                <div className="w-1 h-4 bg-amber-400 rounded-full" />
-                <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+        <div className="space-y-2 sm:space-y-2.5 md:space-y-3 lg:space-y-4">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+                <div className="w-0.5 sm:w-1 h-3 sm:h-3.5 md:h-4 bg-amber-400 rounded-full" />
+                <h2 className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wider">
                 Riwayat Laporan
                 </h2>
             </div>

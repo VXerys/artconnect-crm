@@ -16,6 +16,7 @@ import Index from "./pages/Index";
 import AboutPage from "./pages/AboutPage";
 import GuidePage from "./pages/GuidePage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import TermsConditionsPage from "./pages/TermsConditionsPage";
 import NotFound from "./pages/NotFound";
 
 // Auth Pages
@@ -59,6 +60,7 @@ const App = () => (
               <Route path="/about" element={<AboutPage />} />
               <Route path="/guide" element={<GuidePage />} />
               <Route path="/privacy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms" element={<TermsConditionsPage />} />
 
               {/* ============================================ */}
               {/* AUTH ROUTES */}

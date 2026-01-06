@@ -1,5 +1,5 @@
 import { useLayoutEffect, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { 
   Palette, 
   ArrowLeft, 
@@ -254,6 +254,7 @@ const SectionCard = ({ section, index, isVisible }: {
 };
 
 const PrivacyPolicyPage = () => {
+  const location = useLocation();
   const [heroVisible, setHeroVisible] = useState(false);
   const [keyPointsVisible, setKeyPointsVisible] = useState(false);
   const [sectionsVisible, setSectionsVisible] = useState(false);
@@ -263,6 +264,10 @@ const PrivacyPolicyPage = () => {
   const keyPointsRef = useRef<HTMLElement>(null);
   const sectionsRef = useRef<HTMLElement>(null);
   const contactRef = useRef<HTMLElement>(null);
+
+  // Determine back route - if came from register, go back to register
+  const from = (location.state as { from?: string })?.from;
+  const backRoute = from === 'register' ? '/auth/register' : '/';
 
   // Scroll to top on mount
   useLayoutEffect(() => {
@@ -324,7 +329,7 @@ const PrivacyPolicyPage = () => {
                 </span>
               </Link>
               
-              <Link to="/">
+              <Link to={backRoute}>
                 <Button variant="ghost" size="sm" className="gap-2">
                   <ArrowLeft className="w-4 h-4" />
                   Kembali

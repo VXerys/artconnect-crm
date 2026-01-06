@@ -47,23 +47,23 @@ export const ArtworkFilters = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {/* Filter Pills */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
         {/* All filter */}
         <button
           onClick={() => onFilterChange('all')}
           className={cn(
-            "flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-all duration-200",
+            "flex items-center gap-1 sm:gap-1.5 md:gap-2 px-2.5 py-1.5 sm:px-3 sm:py-2 md:px-4 md:py-2 rounded-full border text-xs sm:text-sm font-medium transition-all duration-200",
             filter === 'all'
               ? "bg-primary text-primary-foreground border-primary shadow-glow"
               : statusColors.all
           )}
         >
-          <Layers className="w-4 h-4" />
-          Semua
+          <Layers className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 flex-shrink-0" />
+          <span className="hidden xs:inline">Semua</span>
           <span className={cn(
-            "px-1.5 py-0.5 rounded-full text-xs",
+            "px-1 sm:px-1.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold",
             filter === 'all' ? "bg-white/20" : "bg-current/10"
           )}>
             {counts.all}
@@ -81,7 +81,7 @@ export const ArtworkFilters = ({
               key={key}
               onClick={() => onFilterChange(key)}
               className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-all duration-200",
+                "flex items-center gap-1 sm:gap-1.5 md:gap-2 px-2.5 py-1.5 sm:px-3 sm:py-2 md:px-4 md:py-2 rounded-full border text-xs sm:text-sm font-medium transition-all duration-200",
                 isActive
                   ? cn(
                       "shadow-lg",
@@ -93,11 +93,11 @@ export const ArtworkFilters = ({
                   : statusColors[key as keyof typeof statusColors]
               )}
             >
-              <Icon className="w-4 h-4" />
-              {value.label}
+              <Icon className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 flex-shrink-0" />
+              <span className="hidden xs:inline truncate">{value.label}</span>
               {count > 0 && (
                 <span className={cn(
-                  "px-1.5 py-0.5 rounded-full text-xs",
+                  "px-1 sm:px-1.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold",
                   isActive ? "bg-white/20" : "bg-current/10"
                 )}>
                   {count}
@@ -109,37 +109,37 @@ export const ArtworkFilters = ({
       </div>
 
       {/* View Toggle & Actions */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
+      <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2 xs:gap-3">
+        <p className="text-xs sm:text-sm text-muted-foreground">
           Menampilkan <span className="font-medium text-foreground">{
             filter === 'all' ? counts.all : counts[filter as keyof typeof counts]
           }</span> karya seni
         </p>
 
         {/* View Toggle */}
-        <div className="flex items-center gap-1 p-1 bg-secondary/50 backdrop-blur-sm rounded-xl border border-border">
+        <div className="flex items-center gap-0.5 sm:gap-1 p-0.5 sm:p-1 bg-secondary/50 backdrop-blur-sm rounded-lg sm:rounded-xl border border-border">
           <button
             onClick={() => onViewChange('grid')}
             className={cn(
-              "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+              "flex items-center gap-1 sm:gap-1.5 md:gap-2 px-2 py-1.5 sm:px-3 sm:py-2 rounded-md sm:rounded-lg text-xs sm:text-sm font-medium transition-all duration-200",
               view === 'grid'
                 ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground hover:bg-background/50"
             )}
           >
-            <Grid3X3 className="w-4 h-4" />
+            <Grid3X3 className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
             <span className="hidden sm:inline">Grid</span>
           </button>
           <button
             onClick={() => onViewChange('list')}
             className={cn(
-              "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+              "flex items-center gap-1 sm:gap-1.5 md:gap-2 px-2 py-1.5 sm:px-3 sm:py-2 rounded-md sm:rounded-lg text-xs sm:text-sm font-medium transition-all duration-200",
               view === 'list'
                 ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground hover:bg-background/50"
             )}
           >
-            <List className="w-4 h-4" />
+            <List className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
             <span className="hidden sm:inline">List</span>
           </button>
         </div>

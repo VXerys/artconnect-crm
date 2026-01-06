@@ -9,6 +9,7 @@ import {
   Check
 } from "lucide-react";
 import { memo, useEffect, useRef, useState } from "react";
+import { Container, Section, ResponsiveGrid } from "@/components/ui/responsive";
 
 const features = [
   {
@@ -65,23 +66,23 @@ const FeatureCard = memo(({ feature, index, isVisible }: {
   
   return (
     <div
-      className={`group relative h-full p-8 rounded-3xl bg-card/30 border border-border/30 
+      className={`group relative h-full p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl bg-card/30 border border-border/30 
         hover:border-primary/30 transition-all duration-500
         ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
       style={{ transitionDelay: `${index * 80}ms` }}
     >
       {/* Icon Container */}
-      <div className={`relative w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.color} p-[1px] mb-6`}>
-        <div className="w-full h-full rounded-2xl bg-background/90 flex items-center justify-center">
-          <Icon className="w-7 h-7 text-foreground" />
+      <div className={`relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br ${feature.color} p-[1px] mb-4 sm:mb-6`}>
+        <div className="w-full h-full rounded-xl sm:rounded-2xl bg-background/90 flex items-center justify-center">
+          <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-foreground" />
         </div>
       </div>
 
       {/* Content */}
-      <h3 className="font-display text-xl font-bold mb-3 text-foreground group-hover:text-primary transition-colors">
+      <h3 className="font-display text-lg sm:text-xl font-bold mb-2 sm:mb-3 text-foreground group-hover:text-primary transition-colors">
         {feature.title}
       </h3>
-      <p className="text-muted-foreground text-sm leading-relaxed mb-6">
+      <p className="text-muted-foreground text-sm leading-relaxed mb-4 sm:mb-6">
         {feature.description}
       </p>
 
@@ -90,10 +91,10 @@ const FeatureCard = memo(({ feature, index, isVisible }: {
         {feature.highlights.map((highlight) => (
           <span 
             key={highlight}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/50 text-xs font-medium text-muted-foreground"
+            className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-secondary/50 text-xs font-medium text-muted-foreground"
           >
-            <Check className="w-3 h-3 text-primary" />
-            {highlight}
+            <Check className="w-3 h-3 text-primary flex-shrink-0" />
+            <span className="whitespace-nowrap">{highlight}</span>
           </span>
         ))}
       </div>
@@ -126,10 +127,11 @@ const Features = () => {
   }, []);
 
   return (
-    <section 
+    <Section 
       ref={sectionRef}
       id="features" 
-      className="py-28 relative"
+      spacing="lg"
+      className="relative"
     >      
       {/* Subtle Grid Pattern */}
       <div 
@@ -140,26 +142,29 @@ const Features = () => {
         }}
       />
       
-      <div className="container px-4 relative z-10">
+      <Container className="relative z-10">
         {/* Section Header */}
-        <div className={`text-center max-w-3xl mx-auto mb-20 transition-all duration-700
+        <div className={`text-center max-w-3xl mx-auto mb-12 sm:mb-16 md:mb-20 transition-all duration-700
           ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium mb-6">
-            <Sparkles className="w-4 h-4" />
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs sm:text-sm font-medium mb-4 sm:mb-6">
+            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
             <span>Fitur Unggulan</span>
           </div>
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 px-4 sm:px-0">
             Semua yang Anda
             <span className="text-gradient"> Butuhkan</span>
           </h2>
-          <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed px-4 sm:px-0">
             ArtConnect mengintegrasikan manajemen inventaris, jejaring profesional, 
             dan analisis bisnis dalam satu platform yang intuitif dan powerful.
           </p>
         </div>
 
         {/* Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+        <ResponsiveGrid 
+          cols={{ base: 1, sm: 2, lg: 3 }}
+          gap="md"
+        >
           {features.map((feature, index) => (
             <FeatureCard 
               key={feature.title} 
@@ -168,9 +173,9 @@ const Features = () => {
               isVisible={isVisible}
             />
           ))}
-        </div>
-      </div>
-    </section>
+        </ResponsiveGrid>
+      </Container>
+    </Section>
   );
 };
 

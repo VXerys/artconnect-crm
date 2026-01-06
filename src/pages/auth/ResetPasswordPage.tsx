@@ -278,7 +278,7 @@ const ResetPasswordPage: React.FC = () => {
   // Loading
   if (isValidSession === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-8 bg-gradient-to-b from-white via-gray-50 to-white">
+      <div className="min-h-screen flex items-center justify-center p-8 bg-white">
         <div className="text-center animate-in fade-in duration-500">
           <div className="relative w-20 h-20 mx-auto mb-6">
             <div className="absolute inset-0 bg-gradient-to-br from-amber-400/30 to-orange-500/30 rounded-full animate-ping" />
@@ -296,7 +296,7 @@ const ResetPasswordPage: React.FC = () => {
   // Invalid
   if (!isValidSession) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-8 bg-gradient-to-b from-white via-red-50/30 to-white">
+      <div className="min-h-screen flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md text-center animate-in fade-in zoom-in-95 duration-500">
           {/* Animated Icon */}
           <div className="relative w-24 h-24 mx-auto mb-8">
@@ -341,7 +341,7 @@ const ResetPasswordPage: React.FC = () => {
   // Success
   if (isSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-8 bg-gradient-to-b from-white via-emerald-50/30 to-white">
+      <div className="min-h-screen flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md text-center animate-in fade-in zoom-in-95 duration-500">
           {/* Animated Icon */}
           <div className="relative w-28 h-28 mx-auto mb-8">

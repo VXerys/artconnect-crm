@@ -220,7 +220,7 @@ const RegisterPage: React.FC = () => {
   // Email confirmation screen
   if (showConfirmation) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-8 bg-gradient-to-b from-white via-amber-50/30 to-white">
+      <div className="min-h-screen flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md text-center animate-in fade-in zoom-in-95 duration-500">
           {/* Animated Icon */}
           <div className="relative w-28 h-28 mx-auto mb-8">
@@ -459,11 +459,19 @@ const RegisterPage: React.FC = () => {
               />
               <label htmlFor="terms" className="text-sm text-gray-600">
                 Saya setuju dengan{' '}
-                <Link to="/privacy" className="text-amber-600 hover:text-amber-700">
+                <Link 
+                  to="/privacy" 
+                  state={{ from: 'register' }}
+                  className="text-amber-600 hover:text-amber-700"
+                >
                   Kebijakan Privasi
                 </Link>
                 {' '}dan{' '}
-                <Link to="/terms" className="text-amber-600 hover:text-amber-700">
+                <Link 
+                  to="/terms" 
+                  state={{ from: 'register' }}
+                  className="text-amber-600 hover:text-amber-700"
+                >
                   Syarat & Ketentuan
                 </Link>
               </label>
