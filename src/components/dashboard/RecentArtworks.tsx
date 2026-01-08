@@ -104,7 +104,7 @@ export const RecentArtworks = ({ artworks, onViewArtwork }: RecentArtworksProps)
                 <div 
                   key={artwork.id} 
                   className={cn(
-                    "group flex items-center gap-4 px-6 py-4",
+                    "group flex items-center gap-3 sm:gap-4 px-3 sm:px-6 py-3 sm:py-4",
                     "hover:bg-secondary/30 transition-all duration-200",
                     "cursor-pointer"
                   )}
@@ -116,7 +116,7 @@ export const RecentArtworks = ({ artworks, onViewArtwork }: RecentArtworksProps)
                   aria-label={`Lihat detail ${artwork.title}`}
                 >
                   {/* Thumbnail */}
-                  <div className="relative w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-secondary">
+                  <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden flex-shrink-0 bg-secondary">
                     {artwork.image ? (
                       <img 
                         src={artwork.image} 
@@ -125,53 +125,51 @@ export const RecentArtworks = ({ artworks, onViewArtwork }: RecentArtworksProps)
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <Palette className="w-6 h-6 text-muted-foreground" />
+                        <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground" />
                       </div>
                     )}
                     {/* Status dot */}
                     <div className={cn(
-                      "absolute bottom-1 right-1 w-2.5 h-2.5 rounded-full border-2 border-card",
+                      "absolute bottom-1 right-1 w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full border-2 border-card",
                       config.dotColor
                     )} />
                   </div>
 
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-medium truncate group-hover:text-primary transition-colors">
+                  {/* Info - takes available space */}
+                  <div className="flex-1 min-w-0 overflow-hidden">
+                    <h4 className="font-medium text-sm sm:text-base truncate group-hover:text-primary transition-colors">
                       {artwork.title}
                     </h4>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-muted-foreground">{artwork.medium}</span>
-                      <span className="text-muted-foreground/50">•</span>
-                      <span className="text-xs text-muted-foreground">{artwork.date}</span>
-                    </div>
+                    <p className="text-[11px] sm:text-xs text-muted-foreground truncate mt-0.5">
+                      {artwork.medium} • {artwork.date}
+                    </p>
                   </div>
 
-                  {/* Status & Price */}
-                  <div className="flex items-center gap-3">
+                  {/* Status Badge */}
+                  <span className={cn(
+                    "px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium border flex-shrink-0",
+                    config.className
+                  )}>
+                    {config.label}
+                  </span>
+
+                  {/* Price - hidden on mobile */}
+                  {artwork.price && (
                     <span className={cn(
-                      "px-2.5 py-1 rounded-full text-xs font-medium border",
-                      config.className
+                      "text-sm font-semibold hidden md:block flex-shrink-0",
+                      isPriceHidden(artwork.id) ? "text-muted-foreground" : "text-primary"
                     )}>
-                      {config.label}
+                      {isPriceHidden(artwork.id) ? "••••••••" : artwork.price}
                     </span>
-                    {artwork.price && (
-                      <span className={cn(
-                        "text-sm font-semibold hidden sm:block",
-                        isPriceHidden(artwork.id) ? "text-muted-foreground" : "text-primary"
-                      )}>
-                        {isPriceHidden(artwork.id) ? "••••••••" : artwork.price}
-                      </span>
-                    )}
-                  </div>
+                  )}
 
-                  {/* Toggle Price Visibility Button */}
+                  {/* Toggle Price Visibility Button - hidden on mobile */}
                   {artwork.price && (
                     <Button 
                       variant="ghost" 
                       size="icon" 
                       className={cn(
-                        "h-8 w-8 transition-all",
+                        "h-7 w-7 sm:h-8 sm:w-8 transition-all hidden md:flex",
                         isPriceHidden(artwork.id) 
                           ? "opacity-100 text-muted-foreground hover:text-primary" 
                           : "opacity-0 group-hover:opacity-100 hover:bg-primary/10 hover:text-primary"
