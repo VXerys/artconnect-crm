@@ -92,7 +92,7 @@ export const PipelineSummary = ({ pipelineData }: PipelineSummaryProps) => {
                 <div 
                   key={key} 
                   className={cn(
-                    "relative p-2.5 sm:p-3.5 md:p-4 lg:p-5 rounded-lg sm:rounded-xl border-2 transition-all duration-300 group",
+                    "relative p-2.5 sm:p-3.5 md:p-4 lg:p-5 rounded-lg sm:rounded-xl border-2 transition-all duration-300 group overflow-hidden",
                     column.bgColor,
                     column.color.replace('border-', 'border-').replace('-500', '-500/50'),
                     // Hover animation - lift up effect
@@ -128,14 +128,14 @@ export const PipelineSummary = ({ pipelineData }: PipelineSummaryProps) => {
                     )}
                   </div>
 
-                  {/* Progress bar */}
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 sm:h-1 bg-background/30 rounded-b-lg sm:rounded-b-xl overflow-hidden">
+                  {/* Progress bar - now visible inside card */}
+                  <div className="mt-2 sm:mt-3 h-1.5 sm:h-2 bg-background/40 rounded-full overflow-hidden">
                     <div 
                       className={cn(
-                        "h-full transition-all duration-500",
+                        "h-full rounded-full transition-all duration-700 ease-out",
                         column.textColor.replace('text-', 'bg-')
                       )}
-                      style={{ width: `${percentage}%` }}
+                      style={{ width: `${Math.max(percentage, 8)}%` }}
                     />
                   </div>
 
