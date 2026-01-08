@@ -8,9 +8,14 @@ interface AnalyticsStatsGridProps {
 }
 
 export const AnalyticsStatsGrid = ({ stats }: AnalyticsStatsGridProps) => {
+  // Filter out any invalid stats
+  const validStats = stats?.filter(s => s && s.icon) || [];
+  
+  if (validStats.length === 0) return null;
+  
   return (
     <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
-      {stats.map((stat, index) => (
+      {validStats.map((stat, index) => (
         <Card 
           key={stat.id} 
           className={cn(

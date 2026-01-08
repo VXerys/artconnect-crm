@@ -98,7 +98,7 @@ export const RecentArtworks = ({ artworks, onViewArtwork }: RecentArtworksProps)
           <div className="divide-y divide-border">
             {artworks.map((artwork, index) => {
               const status = artwork.status as keyof typeof statusConfig;
-              const config = statusConfig[status];
+              const config = statusConfig[status] || statusConfig.concept;
 
               return (
                 <div 

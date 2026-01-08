@@ -72,7 +72,7 @@ export const QuickInsightsCard = () => {
       {/* Insights Grid */}
       <CardContent className="p-2 sm:p-3 md:p-4">
         <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
-          {quickInsights.map((insight) => (
+          {quickInsights?.filter(i => i && i.icon).map((insight) => (
             <div 
               key={insight.id}
               className={cn(

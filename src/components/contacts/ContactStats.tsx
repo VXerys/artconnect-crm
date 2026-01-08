@@ -41,7 +41,7 @@ export const ContactStats = ({
       </Card>
 
       {/* Type-specific Cards */}
-      {Object.entries(typeConfig).map(([key, config]) => {
+      {Object.entries(typeConfig).filter(([_, config]) => config && config.icon).map(([key, config]) => {
         const Icon = config.icon;
         const count = contactsByType[key as keyof ContactsByType];
         const isActive = currentFilter === key;

@@ -86,7 +86,7 @@ export const ActivityFeed = ({
             {/* Timeline line */}
             <div className="absolute left-[27px] top-0 bottom-0 w-px bg-border" />
 
-            {displayedActivities.map((activity, index) => (
+            {displayedActivities?.filter(a => a && a.icon).map((activity, index) => (
               <div 
                 key={activity.id}
                 className={cn(

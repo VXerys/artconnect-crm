@@ -75,7 +75,7 @@ export const QuickActions = ({
       
       <CardContent className="p-2 sm:p-3 md:p-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-2.5 md:gap-3">
-          {actions.map((action, index) => {
+          {actions?.filter(a => a && a.icon).map((action, index) => {
             const handler = getActionHandler(action) || action.onClick;
             const content = (
               <div 

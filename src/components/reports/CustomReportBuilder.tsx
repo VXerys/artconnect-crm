@@ -111,7 +111,7 @@ export const CustomReportBuilder = ({
           <div className="space-y-2 sm:space-y-2.5 md:space-y-3">
             <Label className="text-xs sm:text-sm font-medium text-foreground/80">Format File</Label>
             <div className="grid grid-cols-3 gap-2 sm:gap-2.5 md:gap-3">
-              {formatOptions.map((option) => (
+              {formatOptions.filter(option => option && option.icon).map((option) => (
                 <button
                   key={option.value}
                   onClick={() => setFormData({ ...formData, format: option.value as "csv" | "pdf" | "xlsx" })}

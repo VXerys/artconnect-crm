@@ -90,6 +90,7 @@ export const typeConfig: Record<string, TypeConfig> = {
   collector: { label: "Kolektor", icon: User, color: "text-blue-400", bg: "bg-blue-500/10" },
   museum: { label: "Museum", icon: Palette, color: "text-emerald-400", bg: "bg-emerald-500/10" },
   curator: { label: "Kurator", icon: Star, color: "text-primary", bg: "bg-primary/10" },
+  other: { label: "Lainnya", icon: User, color: "text-gray-400", bg: "bg-gray-500/10" },
 };
 
 // Location options

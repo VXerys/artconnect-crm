@@ -10,9 +10,20 @@ interface ReportTypesGridProps {
 }
 
 export const ReportTypesGrid = ({ reportTypes, onGenerateReport }: ReportTypesGridProps) => {
+  // Filter out any undefined items
+  const validReports = reportTypes?.filter(r => r && r.icon) || [];
+  
+  if (validReports.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        <p>Tidak ada tipe laporan tersedia</p>
+      </div>
+    );
+  }
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
-      {reportTypes.map((report, index) => (
+      {validReports.map((report, index) => (
         <Card 
           key={report.id} 
           className={cn(

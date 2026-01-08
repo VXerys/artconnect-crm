@@ -80,7 +80,7 @@ export const EditContactDialog = ({
                   <SelectValue placeholder="Pilih tipe" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover">
-                  {Object.entries(typeConfig).map(([key, config]) => (
+                  {Object.entries(typeConfig).filter(([_, config]) => config && config.icon).map(([key, config]) => (
                     <SelectItem key={key} value={key} className="text-xs sm:text-sm">
                       <div className="flex items-center gap-1.5 sm:gap-2">
                         <config.icon className={cn("w-3.5 h-3.5 sm:w-4 sm:h-4", config.color)} />

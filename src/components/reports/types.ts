@@ -15,7 +15,7 @@ export interface ReportType {
 export interface RecentReport {
   id: number;
   name: string;
-  type: "inventory" | "sales" | "contacts" | "activity";
+  type: "inventory" | "sales" | "contacts" | "activity" | "combined";
   date: string;
   size: string;
   format: "csv" | "pdf" | "xlsx";

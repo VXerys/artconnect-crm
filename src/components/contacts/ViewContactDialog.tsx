@@ -36,7 +36,9 @@ export const ViewContactDialog = ({
 }: ViewContactDialogProps) => {
   if (!contact) return null;
 
-  const config = typeConfig[contact.type];
+  const config = typeConfig[contact.type] || typeConfig.other;
+
+  if (!config) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>

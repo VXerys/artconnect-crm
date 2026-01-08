@@ -8,9 +8,16 @@ interface ReportMetricsGridProps {
 }
 
 export const ReportMetricsGrid = ({ metrics }: ReportMetricsGridProps) => {
+  // Filter out any undefined items
+  const validMetrics = metrics?.filter(m => m && m.icon) || [];
+  
+  if (validMetrics.length === 0) {
+    return null;
+  }
+  
   return (
     <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
-      {metrics.map((metric, index) => (
+      {validMetrics.map((metric, index) => (
         <Card 
           key={metric.id} 
           className={cn(

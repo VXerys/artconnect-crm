@@ -79,20 +79,21 @@ export const PipelineColumnComponent = ({
     default: 'w-80',
   });
 
-  // Responsive max height for cards container
+  // Max height for cards container - approx 3 cards visible
+  // Card height is roughly 70-80px each, so ~250px for 3 cards
   const maxHeight = value({
-    xs: 'max-h-[35vh]',
-    sm: 'max-h-[40vh]',
-    md: 'max-h-[50vh]',
-    lg: 'max-h-[55vh]',
-    default: 'max-h-[60vh]',
+    xs: 'max-h-[200px]',   // ~3 small cards
+    sm: 'max-h-[240px]',   // ~3 cards
+    md: 'max-h-[280px]',   // ~3 cards
+    lg: 'max-h-[300px]',   // ~3 cards
+    default: 'max-h-[320px]',
   });
 
   const minHeight = value({
-    xs: 'min-h-[120px]',
-    sm: 'min-h-[150px]',
-    md: 'min-h-[200px]',
-    default: 'min-h-[250px]',
+    xs: 'min-h-[100px]',
+    sm: 'min-h-[120px]',
+    md: 'min-h-[140px]',
+    default: 'min-h-[160px]',
   });
 
   return (

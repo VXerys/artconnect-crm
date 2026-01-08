@@ -81,7 +81,7 @@ export const ArtworkStatusSummary = ({ statusCounts, totalArtworks }: ArtworkSta
         ) : (
           <>
             <div className="space-y-4">
-              {statuses.map((status, index) => {
+              {statuses.filter(s => s && s.icon).map((status, index) => {
                 const percentage = totalArtworks > 0 
                   ? Math.round((status.count / totalArtworks) * 100) 
                   : 0;

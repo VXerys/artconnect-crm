@@ -28,7 +28,15 @@ export const useReportsData = (): ReportsData => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  const [metrics, setMetrics] = useState<ReportMetric[]>([]);
+  // Default metrics with valid icons to prevent undefined access
+  const defaultMetrics: ReportMetric[] = [
+    { id: "total-sales", label: "Total Penjualan", value: "Rp 0", change: "+0%", trend: "up" as const, icon: DollarSign, color: "text-emerald-400", bgColor: "bg-emerald-500/10" },
+    { id: "artworks-sold", label: "Karya Terjual", value: "0", change: "+0", trend: "up" as const, icon: ShoppingBag, color: "text-purple-400", bgColor: "bg-purple-500/10" },
+    { id: "total-artworks", label: "Total Karya", value: "0", change: "+0", trend: "up" as const, icon: Palette, color: "text-blue-400", bgColor: "bg-blue-500/10" },
+    { id: "conversion-rate", label: "Conversion Rate", value: "0%", change: "+0%", trend: "up" as const, icon: TrendingUp, color: "text-primary", bgColor: "bg-primary/10" },
+  ];
+  
+  const [metrics, setMetrics] = useState<ReportMetric[]>(defaultMetrics);
   const [salesSummary, setSalesSummary] = useState<SalesSummary>({
     totalSales: 0,
     totalArtworks: 0,

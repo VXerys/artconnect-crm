@@ -37,7 +37,9 @@ export const ContactCard = ({
   onEdit, 
   onDelete 
 }: ContactCardProps) => {
-  const config = typeConfig[contact.type];
+  const config = typeConfig[contact.type] || typeConfig.other;
+
+  if (!config) return null;
 
   // Check if this is a new contact (just added today)
   const isNew = contact.lastContact === "Baru ditambahkan";

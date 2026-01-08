@@ -68,6 +68,20 @@ export const reportTypes: ReportType[] = [
       "Catatan penting",
     ],
   },
+  {
+    id: "combined",
+    title: "Laporan Gabungan",
+    description: "Analisis komprehensif yang menggabungkan data inventaris, penjualan, dan aktivitas.",
+    icon: TrendingUp,
+    color: "text-amber-400",
+    bgColor: "bg-amber-500/10",
+    features: [
+      "Overview bisnis total",
+      "Analisis korelasi",
+      "Insight strategis AI",
+      "Executive summary",
+    ],
+  },
 ];
 
 // Recent Reports Data
@@ -205,7 +219,7 @@ export const salesSummary: SalesSummary = {
 };
 
 // Report Type Config (for icons and colors)
-export const reportTypeConfig = {
+export const reportTypeConfig: Record<string, any> = {
   inventory: {
     icon: FileText,
     color: "text-purple-400",
@@ -229,6 +243,12 @@ export const reportTypeConfig = {
     color: "text-primary",
     bgColor: "bg-primary/10",
     label: "Aktivitas",
+  },
+  combined: {
+    icon: TrendingUp,
+    color: "text-amber-400",
+    bgColor: "bg-amber-500/10",
+    label: "Gabungan",
   },
 };
 

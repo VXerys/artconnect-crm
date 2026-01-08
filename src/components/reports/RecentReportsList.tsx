@@ -84,6 +84,12 @@ export const RecentReportsList = ({
             {reports.map((report, index) => {
               const typeConfig = reportTypeConfig[report.type];
               const format = formatConfig[report.format];
+              
+              // Skip if config is missing
+              if (!typeConfig || !typeConfig.icon || !format) {
+                return null;
+              }
+              
               const TypeIcon = typeConfig.icon;
 
               return (

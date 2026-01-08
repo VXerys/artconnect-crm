@@ -13,11 +13,11 @@ import {
   EyeOff, 
   Loader2, 
   ArrowRight,
-  Palette,
-  Sparkles,
-  User,
-  Check
+  Sparkles, 
+  User, 
+  Check 
 } from 'lucide-react';
+import Logo from '@/components/ui/Logo';
 
 // ============================================================================
 // GOOGLE ICON COMPONENT
@@ -308,11 +308,8 @@ const RegisterPage: React.FC = () => {
       <div className="flex-1 flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
-          <div className="lg:hidden flex items-center justify-center gap-2 mb-8">
-            <div className="p-2 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl">
-              <Palette className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-2xl font-bold text-gray-900">ArtConnect</span>
+          <div className="lg:hidden flex justify-center mb-8">
+            <Logo size="md" forceTheme="light" />
           </div>
 
           {/* Header */}
@@ -538,11 +535,8 @@ const RegisterPage: React.FC = () => {
         </div>
 
         {/* Logo - Top Left */}
-        <div className="absolute top-12 left-12 z-20 flex items-center gap-3">
-          <div className="p-2.5 bg-white/10 rounded-xl backdrop-blur-md border border-white/10">
-            <Palette className="w-6 h-6 text-white" />
-          </div>
-          <span className="text-2xl font-bold text-white tracking-tight">ArtConnect</span>
+        <div className="absolute top-12 left-12 z-20">
+          <Logo size="md" forceTheme="dark" />
         </div>
 
         {/* Content - Bottom Left */}
