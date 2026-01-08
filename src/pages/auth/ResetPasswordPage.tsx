@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
+import { useLanguage } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -70,6 +71,7 @@ const ResetPasswordPage: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     let isSubscribed = true;
@@ -392,17 +394,17 @@ const ResetPasswordPage: React.FC = () => {
 
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            Buat Password Baru
+            {t.auth.resetPassword.title}
           </h2>
           <p className="text-gray-600">
-            Masukkan password baru untuk akun Anda
+            {t.auth.resetPassword.subtitle}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <Label htmlFor="password" className="text-gray-700">
-              Password Baru
+              {t.auth.resetPassword.newPassword}
             </Label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -428,7 +430,7 @@ const ResetPasswordPage: React.FC = () => {
 
           <div className="space-y-2">
             <Label htmlFor="confirmPassword" className="text-gray-700">
-              Konfirmasi Password
+              {t.auth.resetPassword.confirmPassword}
             </Label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -465,10 +467,10 @@ const ResetPasswordPage: React.FC = () => {
             {isLoading ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Menyimpan...
+                {t.common.loading}
               </>
             ) : (
-              '🔐 Simpan Password Baru'
+              `🔐 ${t.auth.resetPassword.resetButton}`
             )}
           </Button>
         </form>
@@ -479,7 +481,7 @@ const ResetPasswordPage: React.FC = () => {
             className="inline-flex items-center text-gray-600 hover:text-gray-800"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Kembali ke Login
+            {t.auth.forgotPassword.backToLogin}
           </Link>
         </div>
       </div>

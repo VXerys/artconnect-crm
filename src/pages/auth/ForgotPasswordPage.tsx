@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,6 +18,7 @@ const ForgotPasswordPage: React.FC = () => {
   const [isEmailSent, setIsEmailSent] = useState(false);
 
   const { resetPassword } = useAuth();
+  const { t } = useLanguage();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -114,7 +116,7 @@ const ForgotPasswordPage: React.FC = () => {
                   className="w-full h-11 sm:h-12 gap-2 font-medium"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  Kembali ke Login
+                  {t.auth.forgotPassword.backToLogin}
                 </Button>
               </Link>
             </div>
@@ -143,10 +145,10 @@ const ForgotPasswordPage: React.FC = () => {
           {/* Header */}
           <div className="space-y-2 text-center">
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-              Lupa Password?
+              {t.auth.forgotPassword.title}
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-              Masukkan email Anda dan kami akan mengirim link untuk reset password
+              {t.auth.forgotPassword.subtitle}
             </p>
           </div>
 
@@ -154,7 +156,7 @@ const ForgotPasswordPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">
-                Email
+                {t.auth.forgotPassword.email}
               </Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground pointer-events-none" />
@@ -179,12 +181,12 @@ const ForgotPasswordPage: React.FC = () => {
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
-                  Mengirim...
+                  {t.common.loading}
                 </>
               ) : (
                 <>
                   <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
-                  Kirim Link Reset
+                  {t.auth.forgotPassword.sendButton}
                 </>
               )}
             </Button>
@@ -197,16 +199,16 @@ const ForgotPasswordPage: React.FC = () => {
               className="flex items-center justify-center gap-2 text-sm sm:text-base text-muted-foreground hover:text-foreground transition-colors font-medium"
             >
               <ArrowLeft className="w-4 h-4" />
-              Kembali ke Login
+              {t.auth.forgotPassword.backToLogin}
             </Link>
           </div>
         </div>
 
         {/* Footer Text */}
         <p className="text-center text-xs sm:text-sm text-muted-foreground/70 mt-6 sm:mt-8 animate-in fade-in duration-500 delay-200">
-          Belum punya akun?{' '}
+          {t.auth.login.noAccount}{' '}
           <Link to="/auth/register" className="text-primary hover:underline font-medium">
-            Daftar sekarang
+            {t.auth.login.registerLink}
           </Link>
         </p>
       </div>

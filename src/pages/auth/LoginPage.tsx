@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -53,6 +54,7 @@ const LoginPage: React.FC = () => {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const { signIn, signInWithGoogle } = useAuth();
+  const { t } = useLanguage();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -67,7 +69,7 @@ const LoginPage: React.FC = () => {
     if (!email || !password) {
       toast({
         title: "Error",
-        description: "Silakan isi email dan password",
+        description: t.messages.error.generic,
         variant: "destructive",
       });
       return;
@@ -80,23 +82,23 @@ const LoginPage: React.FC = () => {
       
       if (error) {
         toast({
-          title: "Login Gagal",
+          title: t.messages.error.loginFailed,
           description: error.message === "Invalid login credentials" 
-            ? "Email atau password salah" 
+            ? t.messages.error.loginFailed 
             : error.message,
           variant: "destructive",
         });
       } else {
         toast({
-          title: "Selamat Datang! 🎨",
-          description: "Login berhasil",
+          title: `${t.dashboard.greeting}! 🎨`,
+          description: t.messages.success.saved,
         });
         navigate(from, { replace: true });
       }
     } catch (err) {
       toast({
         title: "Error",
-        description: "Terjadi kesalahan saat login",
+        description: t.messages.error.generic,
         variant: "destructive",
       });
     } finally {
@@ -113,7 +115,7 @@ const LoginPage: React.FC = () => {
       
       if (error) {
         toast({
-          title: "Login Google Gagal",
+          title: t.messages.error.loginFailed,
           description: error.message,
           variant: "destructive",
         });
@@ -123,7 +125,7 @@ const LoginPage: React.FC = () => {
     } catch (err) {
       toast({
         title: "Error",
-        description: "Terjadi kesalahan saat login dengan Google",
+        description: t.messages.error.generic,
         variant: "destructive",
       });
       setIsGoogleLoading(false);
@@ -157,22 +159,22 @@ const LoginPage: React.FC = () => {
         {/* Content - Bottom Left */}
         <div className="absolute bottom-0 left-0 right-0 p-12 z-20 flex flex-col items-start justify-end h-full">
           <h1 className="text-5xl font-bold text-white mb-6 leading-tight max-w-lg">
-            Kelola Karya Seni <br/>
-            <span className="text-amber-400">Dengan Profesional</span>
+            {t.auth.login.title} <br/>
+            <span className="text-amber-400">ArtConnect</span>
           </h1>
           <p className="text-lg text-white/80 max-w-md mb-8 leading-relaxed">
-            Platform CRM terlengkap untuk seniman Indonesia. Lacak karya, kelola kontak, dan tingkatkan penjualan dalam satu tempat.
+            {t.auth.login.subtitle}
           </p>
 
           {/* Feature Badges */}
           <div className="flex flex-wrap gap-3">
             <div className="flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/10 rounded-full backdrop-blur-md">
               <Sparkles className="w-4 h-4 text-amber-400" />
-              <span className="text-sm font-medium">Manajemen Karya</span>
+              <span className="text-sm font-medium">{t.nav.artworks}</span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/10 rounded-full backdrop-blur-md">
               <Sparkles className="w-4 h-4 text-amber-400" />
-              <span className="text-sm font-medium">Pipeline Penjualan</span>
+              <span className="text-sm font-medium">{t.nav.pipeline}</span>
             </div>
           </div>
         </div>
@@ -189,10 +191,10 @@ const LoginPage: React.FC = () => {
           {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Selamat Datang
+              {t.auth.login.title}
             </h2>
             <p className="text-gray-600">
-              Masuk ke akun Anda untuk melanjutkan
+              {t.auth.login.subtitle}
             </p>
           </div>
 
@@ -209,7 +211,7 @@ const LoginPage: React.FC = () => {
             ) : (
               <GoogleIcon />
             )}
-            <span className="ml-3">Lanjutkan dengan Google</span>
+            <span className="ml-3">{t.auth.login.googleButton}</span>
           </Button>
 
           {/* Divider */}
@@ -219,7 +221,7 @@ const LoginPage: React.FC = () => {
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="px-4 bg-white text-gray-500">
-                atau gunakan email
+                {t.auth.login.orContinueWith}
               </span>
             </div>
           </div>
@@ -229,7 +231,7 @@ const LoginPage: React.FC = () => {
             {/* Email Field */}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-gray-700">
-                Email
+                {t.auth.login.email}
               </Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -249,13 +251,13 @@ const LoginPage: React.FC = () => {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password" className="text-gray-700">
-                  Password
+                  {t.auth.login.password}
                 </Label>
                 <Link 
                   to="/auth/forgot-password" 
                   className="text-sm text-amber-600 hover:text-amber-700 font-medium"
                 >
-                  Lupa password?
+                  {t.auth.login.forgotPassword}
                 </Link>
               </div>
               <div className="relative">
@@ -292,11 +294,11 @@ const LoginPage: React.FC = () => {
               {isLoading ? (
                 <>
                   <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Memproses...
+                  {t.common.loading}
                 </>
               ) : (
                 <>
-                  Masuk
+                  {t.auth.login.loginButton}
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </>
               )}
@@ -305,12 +307,12 @@ const LoginPage: React.FC = () => {
 
           {/* Sign Up Link */}
           <p className="mt-8 text-center text-gray-600">
-            Belum punya akun?{' '}
+            {t.auth.login.noAccount}{' '}
             <Link 
               to="/auth/register" 
               className="text-amber-600 hover:text-amber-700 font-semibold"
             >
-              Daftar sekarang
+              {t.auth.login.registerLink}
             </Link>
           </p>
 
@@ -320,7 +322,7 @@ const LoginPage: React.FC = () => {
               to="/" 
               className="text-sm text-gray-500 hover:text-gray-700"
             >
-              ← Kembali ke beranda
+              ← {t.common.back}
             </Link>
           </div>
         </div>
