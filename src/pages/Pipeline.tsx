@@ -30,7 +30,7 @@ import {
 } from "@/components/pipeline";
 
 const Pipeline = () => {
-  const { isMobile, isTablet, isPortrait } = useResponsive();
+  const { isMobile, isTablet } = useResponsive();
   
   // Use the custom hook for all pipeline logic
   const {
@@ -149,19 +149,6 @@ const Pipeline = () => {
             </div>
           </div>
         </div>
-
-        {/* Mobile/Tablet Orientation Hint */}
-        {(isMobile || isTablet) && isPortrait && (
-          <div className="p-2 xs:p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-primary/10 border border-primary/20 flex items-center gap-1.5 xs:gap-2 sm:gap-3">
-            <div className="p-1 xs:p-1.5 sm:p-2 rounded-md sm:rounded-lg bg-primary/20 flex-shrink-0">
-              <RotateCcw className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 text-primary" />
-            </div>
-            <p className="text-[10px] xs:text-[11px] sm:text-xs md:text-sm text-primary leading-tight">
-              <span className="hidden xs:inline">Putar perangkat ke landscape untuk tampilan yang lebih baik.</span>
-              <span className="xs:hidden">Putar ke landscape untuk tampilan optimal.</span>
-            </p>
-          </div>
-        )}
 
         {/* Kanban Section Header */}
         <section className="overflow-hidden">
