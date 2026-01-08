@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useTheme } from '@/components/theme-provider';
 import { Palette } from 'lucide-react';
 
+// Import logos
+import LogoLightMode from '@/assets/logo-lightmode.png';
+import LogoDarkMode from '@/assets/logo-darkmode.png';
+
 interface LogoProps {
   /** Size of the logo */
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -56,15 +60,18 @@ const Logo: React.FC<LogoProps> = ({
   // Default text color based on context
   const defaultTextClass = textClassName || (isDark ? 'text-white' : 'text-gray-900');
 
+  // Select logo based on theme
+  const logoSrc = isDark ? LogoDarkMode : LogoLightMode;
+
   if (!mounted) return null;
 
   return (
     <div className={`flex items-center ${sizes.gap} ${className}`}>
-      <div className={`${sizes.logo} rounded-xl overflow-hidden flex items-center justify-center shadow-lg shadow-orange-500/10`}>
+      <div className={`${sizes.logo} flex items-center justify-center`}>
         <img 
-          src="/favicon.svg" 
+          src={logoSrc} 
           alt="ArtConnect" 
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
         />
       </div>
       {showText && (
