@@ -267,15 +267,15 @@ const Settings = () => {
               size="sm"
               className="border-primary/20 hover:bg-primary/10 hover:text-primary w-full sm:w-auto h-9 sm:h-10 text-xs sm:text-sm"
             >
-              Edit Profil
+              {t.settings.profile.editProfile}
             </Button>
           </div>
 
           {/* General Settings */}
-          <Section title="Tampilan & Bahasa" icon={SettingsIcon}>
+          <Section title={t.settings.appearance.title} icon={SettingsIcon}>
             <Row 
-              label="Tema Gelap" 
-              description="Aktifkan tampilan gelap untuk kenyamanan mata"
+              label={t.settings.appearance.darkMode} 
+              description={t.settings.appearance.darkModeDesc}
               action={
                 <Switch 
                   checked={theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)}
@@ -291,10 +291,10 @@ const Settings = () => {
           </Section>
 
           {/* Notifications */}
-          <Section title="Notifikasi" icon={Bell}>
+          <Section title={t.settings.notifications.title} icon={Bell}>
             <Row 
-              label="Email Notifikasi" 
-              description="Terima update mingguan tentang portofolio Anda"
+              label={t.settings.notifications.emailNotifs} 
+              description={t.settings.notifications.emailNotifsDesc}
               action={
                 <Switch 
                   checked={emailNotifs} 
@@ -306,27 +306,28 @@ const Settings = () => {
           </Section>
 
           {/* Privacy & Security */}
-          <Section title="Keamanan" icon={Shield}>
+          <Section title={t.settings.security.title} icon={Shield}>
             <Row 
-              label="Ubah Password" 
-              description="Perbarui kata sandi akun Anda secara berkala"
+              label={t.settings.security.changePassword} 
+              description={t.settings.security.changePasswordDesc}
               onClick={() => setIsPasswordDialogOpen(true)}
             />
           </Section>
 
           {/* Support */}
-          <Section title="Bantuan" icon={HelpCircle}>
+          <Section title={t.settings.help.title} icon={HelpCircle}>
             <Row 
-              label="Pusat Bantuan" 
-              onClick={() => {}}
+              label={t.settings.help.helpCenter} 
+              onClick={() => navigate("/guide")}
             />
             <Row 
-              label="Syarat & Ketentuan" 
-              onClick={() => navigate("/privacy")}
+              label={t.settings.help.terms} 
+              onClick={() => navigate("/terms")}
             />
             <Row 
-              label="Tentang Aplikasi" 
+              label={t.settings.help.about} 
               value="v1.0.0" 
+              onClick={() => navigate("/about")}
             />
           </Section>
 
@@ -339,10 +340,10 @@ const Settings = () => {
               disabled={loading}
             >
               <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
-              {loading ? "Keluar..." : "Keluar dari Aplikasi"}
+              {loading ? t.common.loading : t.settings.logout}
             </Button>
             <p className="text-center text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-3 sm:mt-4">
-              Anda akan diarahkan kembali ke halaman login.
+              {t.settings.logoutDesc}
             </p>
           </div>
         </div>

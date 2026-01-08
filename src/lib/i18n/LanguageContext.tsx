@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
 import { Language, Translations, getTranslations, availableLanguages } from './translations';
 
 // ============================================================================
@@ -20,6 +20,26 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 const STORAGE_KEY = 'artconnect-language';
 
+// Get initial language (extracted for reuse)
+const getInitialLanguage = (defaultLanguage: Language): Language => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored === 'id' || stored === 'en') {
+      return stored;
+    }
+    
+    // Try to detect from browser
+    const browserLang = navigator.language.split('-')[0];
+    if (browserLang === 'en') {
+      return 'en';
+    }
+  } catch (e) {
+    // localStorage may not be available
+  }
+  
+  return defaultLanguage;
+};
+
 // ============================================================================
 // PROVIDER
 // ============================================================================
@@ -33,43 +53,38 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
   children,
   defaultLanguage = 'id',
 }) => {
-  const [language, setLanguageState] = useState<Language>(() => {
-    // Try to get from localStorage
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === 'id' || stored === 'en') {
-      return stored;
-    }
-    
-    // Try to detect from browser
-    const browserLang = navigator.language.split('-')[0];
-    if (browserLang === 'en') {
-      return 'en';
-    }
-    
-    return defaultLanguage;
-  });
-
-  const [translations, setTranslations] = useState<Translations>(() => 
-    getTranslations(language)
+  const [language, setLanguageInternal] = useState<Language>(() => 
+    getInitialLanguage(defaultLanguage)
   );
-
-  // Update translations when language changes
-  useEffect(() => {
-    setTranslations(getTranslations(language));
-  }, [language]);
+  
+  // Force update counter to trigger re-renders
+  const [, forceUpdate] = useState(0);
 
   // Set language and persist to localStorage
   const setLanguage = useCallback((lang: Language) => {
-    localStorage.setItem(STORAGE_KEY, lang);
-    setLanguageState(lang);
+    console.log('[i18n] Setting language to:', lang);
+    try {
+      localStorage.setItem(STORAGE_KEY, lang);
+    } catch (e) {
+      console.error('[i18n] Failed to save language to localStorage:', e);
+    }
+    setLanguageInternal(lang);
+    // Force re-render of all consumers
+    forceUpdate(prev => prev + 1);
   }, []);
 
-  const value: LanguageContextType = {
+  // Get translations directly based on current language state
+  const t = useMemo(() => {
+    console.log('[i18n] Getting translations for:', language);
+    return getTranslations(language);
+  }, [language]);
+
+  const value: LanguageContextType = useMemo(() => ({
     language,
     setLanguage,
-    t: translations,
+    t,
     availableLanguages,
-  };
+  }), [language, setLanguage, t]);
 
   return (
     <LanguageContext.Provider value={value}>

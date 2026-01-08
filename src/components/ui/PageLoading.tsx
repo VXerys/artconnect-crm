@@ -1,5 +1,6 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n';
 
 interface PageLoadingProps {
   title?: string;
@@ -19,10 +20,15 @@ interface PageLoadingProps {
  * - Fast fade-in animation (200ms)
  */
 const PageLoading: React.FC<PageLoadingProps> = ({ 
-  title = 'Memuat...', 
+  title, 
   subtitle,
   size = 'md' 
 }) => {
+  const { t } = useLanguage();
+  
+  // Use provided title or default from translations
+  const displayTitle = title || t.common.loading;
+  
   const sizeClasses = {
     sm: {
       container: 'w-10 h-10',
@@ -55,7 +61,7 @@ const PageLoading: React.FC<PageLoadingProps> = ({
         </div>
         
         {/* Text - compact */}
-        <p className={`${sizes.title} text-muted-foreground font-medium`}>{title}</p>
+        <p className={`${sizes.title} text-muted-foreground font-medium`}>{displayTitle}</p>
         {subtitle && (
           <p className={`${sizes.subtitle} text-muted-foreground/60 mt-0.5`}>{subtitle}</p>
         )}
