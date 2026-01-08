@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { useLanguage } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -101,7 +100,6 @@ const RegisterPage: React.FC = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const { signUp, signInWithGoogle } = useAuth();
-  const { t } = useLanguage();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -317,10 +315,10 @@ const RegisterPage: React.FC = () => {
           {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              {t.auth.register.title}
+              Buat Akun Baru
             </h2>
             <p className="text-gray-600">
-              {t.auth.register.subtitle}
+              Mulai kelola karya seni Anda dengan mudah
             </p>
           </div>
 
@@ -337,7 +335,7 @@ const RegisterPage: React.FC = () => {
             ) : (
               <GoogleIcon />
             )}
-            <span className="ml-3">{t.auth.login.googleButton}</span>
+            <span className="ml-3">Lanjutkan dengan Google</span>
           </Button>
 
           {/* Divider */}
@@ -347,7 +345,7 @@ const RegisterPage: React.FC = () => {
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="px-4 bg-white text-gray-500">
-                {t.auth.login.orContinueWith}
+                atau lanjutkan dengan email
               </span>
             </div>
           </div>
@@ -357,7 +355,7 @@ const RegisterPage: React.FC = () => {
             {/* Full Name Field */}
             <div className="space-y-2">
               <Label htmlFor="fullName" className="text-gray-700">
-                {t.auth.register.fullName}
+                Nama Lengkap
               </Label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -376,7 +374,7 @@ const RegisterPage: React.FC = () => {
             {/* Email Field */}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-gray-700">
-                {t.auth.register.email}
+                Email
               </Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -395,7 +393,7 @@ const RegisterPage: React.FC = () => {
             {/* Password Field */}
             <div className="space-y-2">
               <Label htmlFor="password" className="text-gray-700">
-                {t.auth.register.password}
+                Password
               </Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -485,11 +483,11 @@ const RegisterPage: React.FC = () => {
               {isLoading ? (
                 <>
                   <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  {t.common.loading}
+                  Memuat...
                 </>
               ) : (
                 <>
-                  {t.auth.register.registerButton}
+                  Daftar Sekarang
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </>
               )}
@@ -498,12 +496,12 @@ const RegisterPage: React.FC = () => {
 
           {/* Login Link */}
           <p className="mt-6 text-center text-gray-600">
-            {t.auth.register.hasAccount}{' '}
+            Sudah punya akun?{' '}
             <Link 
               to="/auth/login" 
               className="text-amber-600 hover:text-amber-700 font-semibold"
             >
-              {t.auth.register.loginLink}
+              Masuk
             </Link>
           </p>
 

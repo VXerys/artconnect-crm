@@ -4,7 +4,6 @@ import { useAuth } from "@/context/AuthContext";
 import { reportGeneratorService } from "@/lib/services/report-generator.service";
 import useReportsData from "@/hooks/useReportsData";
 import { toast } from "sonner";
-import { useLanguage } from "@/lib/i18n";
 import PageLoading from "@/components/ui/PageLoading";
 import {
   ReportsHero,
@@ -21,7 +20,6 @@ import { ScheduledReportDialog } from "@/components/reports/ScheduledReportDialo
 
 const Reports = () => {
   const { profile } = useAuth();
-  const { t } = useLanguage();
   const userId = profile?.id;
   const [isGenerating, setIsGenerating] = useState(false);
   
@@ -243,7 +241,7 @@ const Reports = () => {
   if (loading) {
     return (
       <DashboardLayout>
-        <PageLoading title={t.common.loading} subtitle={t.common.loading} />
+        <PageLoading />
       </DashboardLayout>
     );
   }
@@ -254,7 +252,7 @@ const Reports = () => {
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
           <p className="text-destructive">Error: {error}</p>
           <button onClick={() => window.location.reload()} className="text-primary hover:underline">
-            {t.common.refresh}
+            Refresh
           </button>
         </div>
       </DashboardLayout>

@@ -39,12 +39,7 @@ export interface Translations {
   // Dashboard
   dashboard: {
     title: string;
-    greeting: {
-      morning: string;
-      afternoon: string;
-      evening: string;
-      night: string;
-    };
+    greeting: string;
     subtitle: string;
     stats: {
       totalArtworks: string;
@@ -52,76 +47,12 @@ export interface Translations {
       totalSales: string;
       activePipeline: string;
     };
-    hero: {
-      artworks: string;
-      sales: string;
-      addArtwork: string;
-      addArtworkShort: string;
-      viewPipeline: string;
-    };
-    recentArtworks: {
-      title: string;
-      count: string;
-      viewAll: string;
-      noArtworks: string;
-      noArtworksDesc: string;
-      priceShown: string;
-      priceHidden: string;
-    };
-    recentContacts: {
-      title: string;
-      count: string;
-      viewAll: string;
-      noContacts: string;
-      noContactsDesc: string;
-      emailShown: string;
-      emailHidden: string;
-    };
+    recentArtworks: string;
+    recentContacts: string;
     activityFeed: string;
-    activitySection: {
-      title: string;
-      subtitle: string;
-      hide: string;
-      showAll: string;
-      noActivity: string;
-      noActivityDesc: string;
-      clickToShow: string;
-    };
-    artworkStatus: {
-      title: string;
-      subtitle: string;
-      concept: string;
-      wip: string;
-      finished: string;
-      sold: string;
-      total: string;
-      noArtworks: string;
-      noArtworksDesc: string;
-    };
-    salesChart: {
-      title: string;
-      subtitle: string;
-      totalSales: string;
-      artworksSold: string;
-      vsLastMonth: string;
-      noData: string;
-      noDataDesc: string;
-      artworkSoldTooltip: string;
-    };
+    artworkStatus: string;
+    salesChart: string;
     quickActions: string;
-    quickActionsSection: {
-      title: string;
-      subtitle: string;
-      addArtwork: string;
-      addArtworkDesc: string;
-      addContact: string;
-      addContactDesc: string;
-      viewPipeline: string;
-      viewPipelineDesc: string;
-      recordSale: string;
-      recordSaleDesc: string;
-      navigatingTo: string;
-    };
   };
   
   // Artworks
@@ -362,89 +293,20 @@ export const id: Translations = {
   
   dashboard: {
     title: 'Dashboard',
-    greeting: {
-      morning: 'Selamat Pagi',
-      afternoon: 'Selamat Siang',
-      evening: 'Selamat Sore',
-      night: 'Selamat Malam',
-    },
-    subtitle: 'Pantau perkembangan karya seni dan kelola bisnis Anda dengan mudah.',
+    greeting: 'Selamat datang kembali',
+    subtitle: 'Berikut ringkasan aktivitas Anda hari ini.',
     stats: {
       totalArtworks: 'Total Karya',
       totalContacts: 'Total Kontak',
       totalSales: 'Total Penjualan',
       activePipeline: 'Pipeline Aktif',
     },
-    hero: {
-      artworks: 'karya',
-      sales: 'penjualan',
-      addArtwork: 'Tambah Karya Baru',
-      addArtworkShort: 'Tambah Karya',
-      viewPipeline: 'Lihat Pipeline',
-    },
-    recentArtworks: {
-      title: 'Karya Terbaru',
-      count: 'karya ditampilkan',
-      viewAll: 'Lihat Semua',
-      noArtworks: 'Belum Ada Karya',
-      noArtworksDesc: 'Tambahkan karya seni pertama Anda untuk memulai',
-      priceShown: 'Harga ditampilkan',
-      priceHidden: 'Harga disembunyikan',
-    },
-    recentContacts: {
-      title: 'Kontak Terbaru',
-      count: 'kontak ditampilkan',
-      viewAll: 'Lihat Semua',
-      noContacts: 'Belum Ada Kontak',
-      noContactsDesc: 'Tambahkan kontak pertama Anda untuk membangun jaringan',
-      emailShown: 'Email ditampilkan',
-      emailHidden: 'Email disembunyikan',
-    },
+    recentArtworks: 'Karya Terbaru',
+    recentContacts: 'Kontak Terbaru',
     activityFeed: 'Aktivitas Terbaru',
-    activitySection: {
-      title: 'Aktivitas Terkini',
-      subtitle: 'Pembaruan terbaru',
-      hide: 'Sembunyikan',
-      showAll: 'Semua',
-      noActivity: 'Belum Ada Aktivitas',
-      noActivityDesc: 'Aktivitas akan muncul saat Anda mulai menggunakan aplikasi',
-      clickToShow: 'Klik untuk menampilkan aktivitas lainnya',
-    },
-    artworkStatus: {
-      title: 'Status Karya',
-      subtitle: 'Ringkasan status semua karya',
-      concept: 'Konsep',
-      wip: 'Proses',
-      finished: 'Selesai',
-      sold: 'Terjual',
-      total: 'Total Karya',
-      noArtworks: 'Belum Ada Karya',
-      noArtworksDesc: 'Status karya akan muncul setelah Anda menambahkan karya seni',
-    },
-    salesChart: {
-      title: 'Ringkasan Penjualan',
-      subtitle: '6 bulan terakhir',
-      totalSales: 'Total Penjualan',
-      artworksSold: 'Karya Terjual',
-      vsLastMonth: 'vs bulan lalu',
-      noData: 'Belum Ada Data Penjualan',
-      noDataDesc: 'Grafik akan muncul setelah ada transaksi penjualan karya seni Anda',
-      artworkSoldTooltip: 'karya terjual',
-    },
+    artworkStatus: 'Status Karya',
+    salesChart: 'Grafik Penjualan',
     quickActions: 'Aksi Cepat',
-    quickActionsSection: {
-      title: 'Aksi Cepat',
-      subtitle: 'Akses fitur utama dengan cepat',
-      addArtwork: 'Tambah Karya',
-      addArtworkDesc: 'Tambah karya seni baru ke inventaris',
-      addContact: 'Tambah Kontak',
-      addContactDesc: 'Tambah kontak baru ke jejaring',
-      viewPipeline: 'Lihat Pipeline',
-      viewPipelineDesc: 'Pantau progres karya seni',
-      recordSale: 'Catat Penjualan',
-      recordSaleDesc: 'Rekam transaksi penjualan baru',
-      navigatingTo: 'Menuju',
-    },
   },
   
   artworks: {
@@ -677,89 +539,20 @@ export const en: Translations = {
   
   dashboard: {
     title: 'Dashboard',
-    greeting: {
-      morning: 'Good Morning',
-      afternoon: 'Good Afternoon',
-      evening: 'Good Evening',
-      night: 'Good Night',
-    },
-    subtitle: 'Track your artwork progress and manage your business with ease.',
+    greeting: 'Welcome back',
+    subtitle: "Here's a summary of your activity today.",
     stats: {
       totalArtworks: 'Total Artworks',
       totalContacts: 'Total Contacts',
       totalSales: 'Total Sales',
       activePipeline: 'Active Pipeline',
     },
-    hero: {
-      artworks: 'artworks',
-      sales: 'sales',
-      addArtwork: 'Add New Artwork',
-      addArtworkShort: 'Add Artwork',
-      viewPipeline: 'View Pipeline',
-    },
-    recentArtworks: {
-      title: 'Recent Artworks',
-      count: 'artworks displayed',
-      viewAll: 'View All',
-      noArtworks: 'No Artworks Yet',
-      noArtworksDesc: 'Add your first artwork to get started',
-      priceShown: 'Price shown',
-      priceHidden: 'Price hidden',
-    },
-    recentContacts: {
-      title: 'Recent Contacts',
-      count: 'contacts displayed',
-      viewAll: 'View All',
-      noContacts: 'No Contacts Yet',
-      noContactsDesc: 'Add your first contact to build your network',
-      emailShown: 'Email shown',
-      emailHidden: 'Email hidden',
-    },
+    recentArtworks: 'Recent Artworks',
+    recentContacts: 'Recent Contacts',
     activityFeed: 'Recent Activity',
-    activitySection: {
-      title: 'Recent Activity',
-      subtitle: 'Latest updates',
-      hide: 'Hide',
-      showAll: 'All',
-      noActivity: 'No Activity Yet',
-      noActivityDesc: 'Activity will appear as you start using the app',
-      clickToShow: 'Click to show more activities',
-    },
-    artworkStatus: {
-      title: 'Artwork Status',
-      subtitle: 'Summary of all artwork statuses',
-      concept: 'Concept',
-      wip: 'In Progress',
-      finished: 'Finished',
-      sold: 'Sold',
-      total: 'Total Artworks',
-      noArtworks: 'No Artworks Yet',
-      noArtworksDesc: 'Status will appear after you add artwork',
-    },
-    salesChart: {
-      title: 'Sales Summary',
-      subtitle: 'Last 6 months',
-      totalSales: 'Total Sales',
-      artworksSold: 'Artworks Sold',
-      vsLastMonth: 'vs last month',
-      noData: 'No Sales Data Yet',
-      noDataDesc: 'Chart will appear after you make a sale',
-      artworkSoldTooltip: 'artworks sold',
-    },
+    artworkStatus: 'Artwork Status',
+    salesChart: 'Sales Chart',
     quickActions: 'Quick Actions',
-    quickActionsSection: {
-      title: 'Quick Actions',
-      subtitle: 'Access main features quickly',
-      addArtwork: 'Add Artwork',
-      addArtworkDesc: 'Add new artwork to inventory',
-      addContact: 'Add Contact',
-      addContactDesc: 'Add new contact to network',
-      viewPipeline: 'View Pipeline',
-      viewPipelineDesc: 'Track artwork progress',
-      recordSale: 'Record Sale',
-      recordSaleDesc: 'Record a new transaction',
-      navigatingTo: 'Going to',
-    },
   },
   
   artworks: {

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useLanguage } from "@/lib/i18n";
 import { 
   User, 
   Settings as SettingsIcon, 
@@ -14,8 +13,6 @@ import {
   EyeOff,
   Loader2,
   Lock,
-  Globe,
-  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -40,11 +37,7 @@ const Settings = () => {
   const { user, profile, refreshProfile, signOut } = useAuth();
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
-  const { language, setLanguage, t, availableLanguages } = useLanguage();
   const [loading, setLoading] = useState(false);
-  
-  // Language Dialog State
-  const [isLanguageDialogOpen, setIsLanguageDialogOpen] = useState(false);
   
   // Real states synchronized with database
   const [emailNotifs, setEmailNotifs] = useState(true);
@@ -267,15 +260,15 @@ const Settings = () => {
               size="sm"
               className="border-primary/20 hover:bg-primary/10 hover:text-primary w-full sm:w-auto h-9 sm:h-10 text-xs sm:text-sm"
             >
-              {t.settings.profile.editProfile}
+              Edit Profil
             </Button>
           </div>
 
-          {/* General Settings */}
-          <Section title={t.settings.appearance.title} icon={SettingsIcon}>
+          {/* Appearance Settings */}
+          <Section title="Tampilan" icon={SettingsIcon}>
             <Row 
-              label={t.settings.appearance.darkMode} 
-              description={t.settings.appearance.darkModeDesc}
+              label="Tema Gelap" 
+              description="Aktifkan tampilan gelap untuk kenyamanan mata"
               action={
                 <Switch 
                   checked={theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)}
@@ -283,18 +276,13 @@ const Settings = () => {
                 />
               }
             />
-            <Row 
-              label={t.settings.appearance.language} 
-              value={availableLanguages.find(l => l.code === language)?.name || 'Indonesia'} 
-              onClick={() => setIsLanguageDialogOpen(true)}
-            />
           </Section>
 
           {/* Notifications */}
-          <Section title={t.settings.notifications.title} icon={Bell}>
+          <Section title="Notifikasi" icon={Bell}>
             <Row 
-              label={t.settings.notifications.emailNotifs} 
-              description={t.settings.notifications.emailNotifsDesc}
+              label="Email Notifikasi" 
+              description="Terima update mingguan tentang portofolio Anda"
               action={
                 <Switch 
                   checked={emailNotifs} 
@@ -306,26 +294,26 @@ const Settings = () => {
           </Section>
 
           {/* Privacy & Security */}
-          <Section title={t.settings.security.title} icon={Shield}>
+          <Section title="Keamanan" icon={Shield}>
             <Row 
-              label={t.settings.security.changePassword} 
-              description={t.settings.security.changePasswordDesc}
+              label="Ubah Password" 
+              description="Perbarui kata sandi akun Anda secara berkala"
               onClick={() => setIsPasswordDialogOpen(true)}
             />
           </Section>
 
           {/* Support */}
-          <Section title={t.settings.help.title} icon={HelpCircle}>
+          <Section title="Bantuan" icon={HelpCircle}>
             <Row 
-              label={t.settings.help.helpCenter} 
+              label="Pusat Bantuan" 
               onClick={() => navigate("/guide", { state: { from: 'settings' } })}
             />
             <Row 
-              label={t.settings.help.terms} 
+              label="Syarat & Ketentuan" 
               onClick={() => navigate("/terms", { state: { from: 'settings' } })}
             />
             <Row 
-              label={t.settings.help.about} 
+              label="Tentang Aplikasi" 
               value="v1.0.0" 
               onClick={() => navigate("/about", { state: { from: 'settings' } })}
             />
@@ -340,10 +328,10 @@ const Settings = () => {
               disabled={loading}
             >
               <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
-              {loading ? t.common.loading : t.settings.logout}
+              {loading ? "Memuat..." : "Keluar dari Aplikasi"}
             </Button>
             <p className="text-center text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-3 sm:mt-4">
-              {t.settings.logoutDesc}
+              Anda akan diarahkan kembali ke halaman login.
             </p>
           </div>
         </div>
@@ -460,53 +448,6 @@ const Settings = () => {
                 "Simpan Password"
               )}
             </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Language Selection Dialog */}
-      <Dialog open={isLanguageDialogOpen} onOpenChange={setIsLanguageDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-lg">
-              <Globe className="w-5 h-5 text-primary" />
-              {t.dialogs.selectLanguage.title}
-            </DialogTitle>
-            <DialogDescription>
-              {t.dialogs.selectLanguage.subtitle}
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="py-4 space-y-2">
-            {availableLanguages.map((lang) => (
-              <button
-                key={lang.code}
-                onClick={() => {
-                  setLanguage(lang.code);
-                  setIsLanguageDialogOpen(false);
-                  toast.success(t.messages.success.languageChanged);
-                }}
-                className={cn(
-                  "w-full flex items-center justify-between p-3 sm:p-4 rounded-lg border-2 transition-all",
-                  language === lang.code
-                    ? "border-primary bg-primary/10"
-                    : "border-border hover:border-primary/50 hover:bg-secondary/50"
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-xl sm:text-2xl">{lang.flag}</span>
-                  <span className={cn(
-                    "font-medium text-sm sm:text-base",
-                    language === lang.code && "text-primary"
-                  )}>
-                    {lang.name}
-                  </span>
-                </div>
-                {language === lang.code && (
-                  <Check className="w-5 h-5 text-primary" />
-                )}
-              </button>
-            ))}
           </div>
         </DialogContent>
       </Dialog>
