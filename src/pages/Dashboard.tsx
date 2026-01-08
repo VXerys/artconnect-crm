@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useLanguage } from "@/lib/i18n";
 import PageLoading from "@/components/ui/PageLoading";
 
 // Dashboard Components
@@ -28,6 +29,7 @@ import { useContacts } from "@/components/contacts/useContacts";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   
   const {
     userName,
@@ -96,7 +98,7 @@ const Dashboard = () => {
   if (loading) {
     return (
       <DashboardLayout>
-        <PageLoading title="Memuat dashboard..." subtitle="Mengambil data terbaru" />
+        <PageLoading title={t.common.loading} subtitle={t.common.loading} />
       </DashboardLayout>
     );
   }
@@ -111,7 +113,7 @@ const Dashboard = () => {
               onClick={() => window.location.reload()}
               className="text-primary hover:underline"
             >
-              Coba lagi
+              {t.common.refresh}
             </button>
           </div>
         </div>
@@ -134,7 +136,7 @@ const Dashboard = () => {
           <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-2.5 md:mb-3 lg:mb-4">
             <div className="w-0.5 sm:w-1 h-3 sm:h-3.5 md:h-4 bg-primary rounded-full" />
             <h2 className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wider">
-              Statistik Utama
+              {t.dashboard.stats.totalArtworks}
             </h2>
           </div>
           <StatsGrid stats={stats} />
@@ -177,7 +179,7 @@ const Dashboard = () => {
           <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-2.5 md:mb-3 lg:mb-4">
             <div className="w-0.5 sm:w-1 h-3 sm:h-3.5 md:h-4 bg-amber-400 rounded-full" />
             <h2 className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wider">
-              Aktivitas Terkini
+              {t.dashboard.activityFeed}
             </h2>
           </div>
           <ActivityFeed activities={recentActivities} />
@@ -188,7 +190,7 @@ const Dashboard = () => {
           <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-2.5 md:mb-3 lg:mb-4">
             <div className="w-0.5 sm:w-1 h-3 sm:h-3.5 md:h-4 bg-primary rounded-full" />
             <h2 className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wider">
-              Aksi Cepat
+              {t.dashboard.quickActions}
             </h2>
           </div>
           <QuickActions 

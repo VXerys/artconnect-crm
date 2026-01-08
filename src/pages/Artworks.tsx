@@ -1,6 +1,7 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Plus, Palette, Sparkles } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 import PageLoading from "@/components/ui/PageLoading";
 
 // Artworks Components
@@ -54,11 +55,13 @@ const Artworks = () => {
     loading,
   } = useArtworks();
 
+  const { t } = useLanguage();
+
   // Loading Screen
   if (loading) {
     return (
       <DashboardLayout>
-        <PageLoading title="Memuat koleksi karya..." subtitle="Mengambil data inventaris" />
+        <PageLoading title={t.common.loading} subtitle={t.common.loading} />
       </DashboardLayout>
     );
   }
@@ -86,13 +89,13 @@ const Artworks = () => {
                   <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-primary/10">
                     <Palette className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                   </div>
-                  <span className="text-[10px] sm:text-xs font-medium text-primary uppercase tracking-wider">Inventaris</span>
+                  <span className="text-[10px] sm:text-xs font-medium text-primary uppercase tracking-wider">{t.nav.artworks}</span>
                 </div>
                 <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text leading-tight">
-                  Karya Seni
+                  {t.artworks.title}
                 </h1>
                 <p className="text-muted-foreground text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1 max-w-md leading-relaxed">
-                  Kelola koleksi karya seni Anda dengan mudah. Tambah, edit, dan pantau status setiap karya.
+                  {t.artworks.subtitle}
                 </p>
               </div>
               
@@ -103,7 +106,7 @@ const Artworks = () => {
                 onClick={() => setIsAddDialogOpen(true)}
               >
                 <Plus className="w-4 h-4 sm:w-4.5 sm:h-4.5 md:w-5 md:h-5 group-hover:rotate-90 transition-transform duration-300 flex-shrink-0" />
-                <span className="font-medium">Tambah Karya</span>
+                <span className="font-medium">{t.artworks.addArtwork}</span>
                 <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
               </Button>
             </div>

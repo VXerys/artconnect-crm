@@ -1,6 +1,7 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Plus, Users, Sparkles } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 import PageLoading from "@/components/ui/PageLoading";
 
 // Contacts Components
@@ -48,11 +49,13 @@ const Contacts = () => {
     handleDeleteDialogClose,
   } = useContacts();
 
+  const { t } = useLanguage();
+
   // Loading Screen
   if (loading) {
     return (
       <DashboardLayout>
-        <PageLoading title="Memuat kontak..." subtitle="Mengambil data jejaring" />
+        <PageLoading title={t.common.loading} subtitle={t.common.loading} />
       </DashboardLayout>
     );
   }
@@ -74,10 +77,10 @@ const Contacts = () => {
               </div>
               <div>
                 <h1 className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
-                  Jejaring Kontak
+                  {t.contacts.title}
                 </h1>
                 <p className="text-muted-foreground mt-0.5 sm:mt-1 md:mt-2 text-xs sm:text-sm md:text-base lg:text-lg max-w-xl leading-relaxed">
-                  Kelola hubungan profesional dengan galeri, kolektor, museum, dan kurator seni
+                  {t.contacts.subtitle}
                 </p>
               </div>
             </div>
@@ -90,7 +93,7 @@ const Contacts = () => {
                 onClick={() => setIsAddDialogOpen(true)}
               >
                 <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-4.5 md:h-4.5 lg:w-5 lg:h-5 group-hover:rotate-90 transition-transform duration-300 flex-shrink-0" />
-                <span className="truncate font-medium">Tambah Kontak</span>
+                <span className="truncate font-medium">{t.contacts.addContact}</span>
                 <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
               </Button>
             </div>

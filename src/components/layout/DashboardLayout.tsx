@@ -13,9 +13,9 @@ import {
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/lib/i18n";
 import UserAvatar from "./UserAvatar";
 import Logo from "@/components/ui/Logo";
 import GlobalSearch from "./GlobalSearch";
@@ -24,22 +24,24 @@ interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
-const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-  { icon: Palette, label: "Karya Seni", href: "/artworks" },
-  { icon: Kanban, label: "Pipeline", href: "/pipeline" },
-  { icon: Users, label: "Kontak", href: "/contacts" },
-  { icon: BarChart3, label: "Analitik", href: "/analytics" },
-  { icon: FileText, label: "Laporan", href: "/reports" },
-];
-
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const { t } = useLanguage();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+
+  // Dynamic nav items with translations
+  const navItems = [
+    { icon: LayoutDashboard, label: t.nav.dashboard, href: "/dashboard" },
+    { icon: Palette, label: t.nav.artworks, href: "/artworks" },
+    { icon: Kanban, label: t.nav.pipeline, href: "/pipeline" },
+    { icon: Users, label: t.nav.contacts, href: "/contacts" },
+    { icon: BarChart3, label: t.nav.analytics, href: "/analytics" },
+    { icon: FileText, label: t.nav.reports, href: "/reports" },
+  ];
 
   const handleLogout = async () => {
     await signOut();
@@ -115,14 +117,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
             >
               <Settings className="w-5 h-5 flex-shrink-0" />
-              {!collapsed && <span className="font-medium text-sm">Pengaturan</span>}
+              {!collapsed && <span className="font-medium text-sm">{t.nav.settings}</span>}
             </Link>
             <button
               onClick={handleLogout}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors text-left"
             >
               <LogOut className="w-5 h-5 flex-shrink-0" />
-              {!collapsed && <span className="font-medium text-sm">Keluar</span>}
+              {!collapsed && <span className="font-medium text-sm">{t.nav.logout}</span>}
             </button>
           </div>
         </div>
@@ -150,7 +152,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               <div className="flex-1 flex items-center justify-center p-6 text-center">
                 <div className="text-muted-foreground">
                   <Search className="w-12 h-12 mx-auto mb-4 opacity-30" />
-                  <p className="text-sm">Ketik untuk mencari karya seni, kontak, atau laporan</p>
+                  <p className="text-sm">{t.common.search}</p>
                 </div>
               </div>
             </div>

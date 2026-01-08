@@ -1,6 +1,7 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Plus, Layers, RotateCcw, Sparkles } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 import PageLoading from "@/components/ui/PageLoading";
 import {
   DndContext,
@@ -31,6 +32,7 @@ import {
 
 const Pipeline = () => {
   const { isMobile, isTablet } = useResponsive();
+  const { t } = useLanguage();
   
   // Use the custom hook for all pipeline logic
   const {
@@ -91,7 +93,7 @@ const Pipeline = () => {
   if (loading) {
     return (
       <DashboardLayout>
-        <PageLoading title="Memuat pipeline..." subtitle="Mengambil data karya seni" />
+        <PageLoading title={t.common.loading} subtitle={t.common.loading} />
       </DashboardLayout>
     );
   }
@@ -113,13 +115,13 @@ const Pipeline = () => {
                   <div className="p-1 xs:p-1.5 sm:p-2 rounded-md xs:rounded-lg sm:rounded-xl bg-primary/10 flex-shrink-0">
                     <Layers className="w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 text-primary" />
                   </div>
-                  <span className="text-[9px] xs:text-[10px] sm:text-xs font-medium text-primary uppercase tracking-wider">Pipeline</span>
+                  <span className="text-[9px] xs:text-[10px] sm:text-xs font-medium text-primary uppercase tracking-wider">{t.nav.pipeline}</span>
                 </div>
                 <h1 className="font-display text-xl xs:text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text leading-tight">
-                  Pipeline Karya
+                  {t.pipeline.title}
                 </h1>
                 <p className="text-muted-foreground text-[11px] xs:text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1 leading-relaxed line-clamp-2 xs:line-clamp-none">
-                  {totalItems} karya dalam pipeline. Kelola alur kerja karya seni Anda.
+                  {totalItems} {t.pipeline.totalItems.toLowerCase()}. {t.pipeline.subtitle}
                 </p>
               </div>
               
@@ -142,7 +144,7 @@ const Pipeline = () => {
                   onClick={() => handleOpenAddDialogForColumn("concept")}
                 >
                   <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:rotate-90 transition-transform duration-300 flex-shrink-0" />
-                  <span className="font-medium">Tambah Karya</span>
+                  <span className="font-medium">{t.pipeline.addItem}</span>
                   <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 hidden sm:block" />
                 </Button>
               </div>
