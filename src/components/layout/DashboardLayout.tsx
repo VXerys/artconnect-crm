@@ -18,6 +18,7 @@ import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import UserAvatar from "./UserAvatar";
 import Logo from "@/components/ui/Logo";
+import GlobalSearch from "./GlobalSearch";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -139,23 +140,16 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               <Menu className="w-5 h-5" />
             </button>
 
-            {/* Search - Responsive: icon only on xs, input on sm+ */}
+            {/* Search - Responsive: icon only on xs, GlobalSearch on sm+ */}
             <div className="flex-1 flex justify-start">
               {/* Mobile: Icon button only */}
               <button className="sm:hidden p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg">
                 <Search className="w-4 h-4" />
               </button>
               
-              {/* Tablet+: Full search input */}
+              {/* Tablet+: Full search with functionality */}
               <div className="hidden sm:block flex-1 max-w-xs md:max-w-sm lg:max-w-md">
-                <div className="relative">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 md:w-4 md:h-4 text-muted-foreground" />
-                  <input
-                    type="text"
-                    placeholder="Cari..."
-                    className="w-full h-8 md:h-9 pl-8 md:pl-9 pr-3 bg-secondary border border-border rounded-lg text-xs md:text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
-                  />
-                </div>
+                <GlobalSearch />
               </div>
             </div>
 
