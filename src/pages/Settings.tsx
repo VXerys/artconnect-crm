@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/lib/i18n";
 import { 
   User, 
   Settings as SettingsIcon, 
@@ -13,6 +14,8 @@ import {
   EyeOff,
   Loader2,
   Lock,
+  Globe,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -37,7 +40,11 @@ const Settings = () => {
   const { user, profile, refreshProfile, signOut } = useAuth();
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
+  const { language, setLanguage, t, availableLanguages } = useLanguage();
   const [loading, setLoading] = useState(false);
+  
+  // Language Dialog State
+  const [isLanguageDialogOpen, setIsLanguageDialogOpen] = useState(false);
   
   // Real states synchronized with database
   const [emailNotifs, setEmailNotifs] = useState(true);
@@ -277,9 +284,9 @@ const Settings = () => {
               }
             />
             <Row 
-              label="Bahasa" 
-              value="Indonesia" 
-              onClick={() => {}}
+              label={t.settings.appearance.language} 
+              value={availableLanguages.find(l => l.code === language)?.name || 'Indonesia'} 
+              onClick={() => setIsLanguageDialogOpen(true)}
             />
           </Section>
 
@@ -452,6 +459,53 @@ const Settings = () => {
                 "Simpan Password"
               )}
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Language Selection Dialog */}
+      <Dialog open={isLanguageDialogOpen} onOpenChange={setIsLanguageDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <Globe className="w-5 h-5 text-primary" />
+              {t.dialogs.selectLanguage.title}
+            </DialogTitle>
+            <DialogDescription>
+              {t.dialogs.selectLanguage.subtitle}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-4 space-y-2">
+            {availableLanguages.map((lang) => (
+              <button
+                key={lang.code}
+                onClick={() => {
+                  setLanguage(lang.code);
+                  setIsLanguageDialogOpen(false);
+                  toast.success(t.messages.success.languageChanged);
+                }}
+                className={cn(
+                  "w-full flex items-center justify-between p-3 sm:p-4 rounded-lg border-2 transition-all",
+                  language === lang.code
+                    ? "border-primary bg-primary/10"
+                    : "border-border hover:border-primary/50 hover:bg-secondary/50"
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-xl sm:text-2xl">{lang.flag}</span>
+                  <span className={cn(
+                    "font-medium text-sm sm:text-base",
+                    language === lang.code && "text-primary"
+                  )}>
+                    {lang.name}
+                  </span>
+                </div>
+                {language === lang.code && (
+                  <Check className="w-5 h-5 text-primary" />
+                )}
+              </button>
+            ))}
           </div>
         </DialogContent>
       </Dialog>

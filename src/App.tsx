@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 // Context Providers
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./components/theme-provider";
+import { LanguageProvider } from "./lib/i18n";
 
 // Components
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -52,8 +53,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-          <AuthProvider>
-            <Routes>
+          <LanguageProvider defaultLanguage="id">
+            <AuthProvider>
+              <Routes>
               {/* ============================================ */}
               {/* PUBLIC ROUTES - Always Dark Mode */}
               {/* ============================================ */}
@@ -137,7 +139,8 @@ const App = () => (
               {/* ============================================ */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </AuthProvider>
+            </AuthProvider>
+          </LanguageProvider>
         </ThemeProvider>
       </BrowserRouter>
     </TooltipProvider>
