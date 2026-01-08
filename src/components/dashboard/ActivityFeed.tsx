@@ -67,66 +67,82 @@ export const ActivityFeed = ({
 
       {/* Activity Timeline */}
       <CardContent className="p-0">
-        <div className="relative">
-          {/* Timeline line */}
-          <div className="absolute left-[27px] top-0 bottom-0 w-px bg-border" />
-
-          {displayedActivities.map((activity, index) => (
-            <div 
-              key={activity.id}
-              className={cn(
-                "group relative flex gap-4 px-6 py-4",
-                "hover:bg-secondary/30 transition-all duration-200",
-                index !== displayedActivities.length - 1 && "border-b border-border/50"
-              )}
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              {/* Timeline dot */}
-              <div className={cn(
-                "relative z-10 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0",
-                "bg-card border-2 border-border",
-                "group-hover:border-primary/50 transition-colors"
-              )}>
-                <div className={cn(
-                  "w-2 h-2 rounded-full",
-                  activity.color.replace('text-', 'bg-')
-                )} />
+        {activities.length === 0 ? (
+          /* Empty State */
+          <div className="flex flex-col items-center justify-center py-10 sm:py-12 md:py-16 px-4 text-center">
+            <div className="relative mb-3 sm:mb-4">
+              <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-2xl animate-pulse" />
+              <div className="relative p-3 sm:p-4 rounded-full bg-secondary/50 border-2 border-dashed border-border">
+                <Clock className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground" />
               </div>
+            </div>
+            <h3 className="text-sm sm:text-base font-semibold mb-1 sm:mb-1.5">Belum Ada Aktivitas</h3>
+            <p className="text-[10px] sm:text-xs text-muted-foreground max-w-[200px] sm:max-w-xs">
+              Aktivitas akan muncul saat Anda mulai menggunakan aplikasi
+            </p>
+          </div>
+        ) : (
+          <div className="relative">
+            {/* Timeline line */}
+            <div className="absolute left-[27px] top-0 bottom-0 w-px bg-border" />
 
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <activity.icon className={cn("w-4 h-4 flex-shrink-0", activity.color)} />
-                      <h4 className="font-medium text-sm truncate">
-                        {activity.title}
-                      </h4>
+            {displayedActivities.map((activity, index) => (
+              <div 
+                key={activity.id}
+                className={cn(
+                  "group relative flex gap-4 px-6 py-4",
+                  "hover:bg-secondary/30 transition-all duration-200",
+                  index !== displayedActivities.length - 1 && "border-b border-border/50"
+                )}
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                {/* Timeline dot */}
+                <div className={cn(
+                  "relative z-10 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0",
+                  "bg-card border-2 border-border",
+                  "group-hover:border-primary/50 transition-colors"
+                )}>
+                  <div className={cn(
+                    "w-2 h-2 rounded-full",
+                    activity.color.replace('text-', 'bg-')
+                  )} />
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <activity.icon className={cn("w-4 h-4 flex-shrink-0", activity.color)} />
+                        <h4 className="font-medium text-sm truncate">
+                          {activity.title}
+                        </h4>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1 truncate">
+                        {activity.description}
+                      </p>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-1 truncate">
-                      {activity.description}
-                    </p>
+                    <span className="text-xs text-muted-foreground flex-shrink-0">
+                      {activity.time}
+                    </span>
                   </div>
-                  <span className="text-xs text-muted-foreground flex-shrink-0">
-                    {activity.time}
-                  </span>
                 </div>
               </div>
-            </div>
-          ))}
-          
-          {/* Show expand button at bottom if collapsed and has more */}
-          {!isExpanded && hasMoreActivities && (
-            <div 
-              className="px-6 py-3 text-center border-t border-border/50 cursor-pointer hover:bg-secondary/20 transition-colors"
-              onClick={toggleExpand}
-            >
-              <span className="text-xs text-muted-foreground">
-                Klik untuk menampilkan {hiddenCount} aktivitas lainnya
-              </span>
-            </div>
-          )}
-        </div>
+            ))}
+            
+            {/* Show expand button at bottom if collapsed and has more */}
+            {!isExpanded && hasMoreActivities && (
+              <div 
+                className="px-6 py-3 text-center border-t border-border/50 cursor-pointer hover:bg-secondary/20 transition-colors"
+                onClick={toggleExpand}
+              >
+                <span className="text-xs text-muted-foreground">
+                  Klik untuk menampilkan {hiddenCount} aktivitas lainnya
+                </span>
+              </div>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

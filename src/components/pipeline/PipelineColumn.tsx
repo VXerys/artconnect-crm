@@ -60,7 +60,7 @@ export const PipelineColumnComponent = ({
   onDeleteItem,
   onMoveToColumn,
 }: PipelineColumnProps) => {
-  const { isMobile, isTablet, value } = useResponsive();
+  const { isMobile, value } = useResponsive();
   
   // Make the column a droppable target for cross-column drops
   const { setNodeRef, isOver } = useDroppable({
@@ -69,28 +69,30 @@ export const PipelineColumnComponent = ({
 
   const theme = COLUMN_THEMES[columnKey];
   
-  // Responsive column width
+  // Responsive column width - optimized for mobile-first
   const columnWidth = value({
-    xs: 'w-[85vw]',
-    sm: 'w-[75vw]',
-    md: 'w-80',
-    lg: 'w-80',
+    xs: 'w-[220px] min-w-[200px]',
+    sm: 'w-[260px] min-w-[240px]',
+    md: 'w-64',
+    lg: 'w-72',
+    xl: 'w-80',
     default: 'w-80',
   });
 
   // Responsive max height for cards container
   const maxHeight = value({
-    xs: 'max-h-[50vh]',
-    sm: 'max-h-[55vh]',
-    md: 'max-h-[60vh]',
-    lg: 'max-h-[65vh]',
-    default: 'max-h-[65vh]',
+    xs: 'max-h-[35vh]',
+    sm: 'max-h-[40vh]',
+    md: 'max-h-[50vh]',
+    lg: 'max-h-[55vh]',
+    default: 'max-h-[60vh]',
   });
 
   const minHeight = value({
-    xs: 'min-h-[200px]',
-    md: 'min-h-[300px]',
-    default: 'min-h-[300px]',
+    xs: 'min-h-[120px]',
+    sm: 'min-h-[150px]',
+    md: 'min-h-[200px]',
+    default: 'min-h-[250px]',
   });
 
   return (
@@ -121,18 +123,18 @@ export const PipelineColumnComponent = ({
         )}
       >
         {/* Column Header */}
-        <CardHeader className="pb-2 pt-4 px-4 flex-shrink-0">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+        <CardHeader className="pb-1 xs:pb-1.5 sm:pb-2 pt-2 xs:pt-2.5 sm:pt-3 md:pt-4 px-2 xs:px-2.5 sm:px-3 md:px-4 flex-shrink-0">
+          <div className="flex items-center justify-between gap-1">
+            <div className="flex items-center gap-1 xs:gap-1.5 sm:gap-2 md:gap-3 min-w-0 flex-1">
               {/* Drag handle for mobile column reorder (future feature) */}
               {isMobile && (
-                <GripVertical className="w-4 h-4 text-muted-foreground/50" />
+                <GripVertical className="w-2.5 h-2.5 xs:w-3 xs:h-3 text-muted-foreground/50 flex-shrink-0" />
               )}
-              <CardTitle className="text-base font-bold tracking-tight">
+              <CardTitle className="text-[11px] xs:text-xs sm:text-sm md:text-base font-bold tracking-tight truncate">
                 {column.title}
               </CardTitle>
               <span className={cn(
-                "px-2.5 py-0.5 rounded-full text-xs font-bold tabular-nums",
+                "px-1 xs:px-1.5 sm:px-2 md:px-2.5 py-0.5 rounded-full text-[8px] xs:text-[9px] sm:text-[10px] md:text-xs font-bold tabular-nums flex-shrink-0",
                 theme.badge
               )}>
                 {column.items.length}
@@ -142,13 +144,13 @@ export const PipelineColumnComponent = ({
               variant="ghost" 
               size="icon"
               className={cn(
-                "h-8 w-8 rounded-lg transition-all",
+                "h-5 w-5 xs:h-6 xs:w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 rounded-md sm:rounded-lg transition-all flex-shrink-0",
                 "hover:bg-white/10 hover:text-white",
                 "active:scale-95"
               )}
               onClick={() => onAddItem(columnKey)}
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-2.5 h-2.5 xs:w-3 xs:h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4" />
             </Button>
           </div>
         </CardHeader>
@@ -157,7 +159,7 @@ export const PipelineColumnComponent = ({
         <CardContent className="pt-0 pb-0 px-0 flex-1 overflow-hidden flex flex-col">
           <div 
             className={cn(
-              "flex-1 px-3 pb-4 pt-1 space-y-3 overflow-y-auto",
+              "flex-1 px-1.5 xs:px-2 sm:px-2.5 md:px-3 pb-2 xs:pb-2.5 sm:pb-3 md:pb-4 pt-0.5 space-y-1.5 xs:space-y-2 sm:space-y-2.5 md:space-y-3 overflow-y-auto",
               "scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent",
               maxHeight,
               minHeight
@@ -170,32 +172,32 @@ export const PipelineColumnComponent = ({
               {column.items.length === 0 ? (
                 // Empty state
                 <div className={cn(
-                  "flex flex-col items-center justify-center py-12 text-center",
-                  "rounded-xl border-2 border-dashed transition-all duration-200",
+                  "flex flex-col items-center justify-center py-4 xs:py-6 sm:py-8 md:py-10 lg:py-12 text-center",
+                  "rounded-lg sm:rounded-xl border-2 border-dashed transition-all duration-200",
                   isOver 
                     ? "border-primary bg-primary/10 scale-[1.02]" 
                     : "border-white/10 hover:border-white/20"
                 )}>
                   <div className={cn(
-                    "p-4 rounded-2xl mb-4 transition-transform",
+                    "p-2 xs:p-2.5 sm:p-3 md:p-4 rounded-lg sm:rounded-xl md:rounded-2xl mb-2 xs:mb-2.5 sm:mb-3 md:mb-4 transition-transform",
                     theme.badge,
                     isOver && "scale-110"
                   )}>
-                    <Sparkles className="w-6 h-6" />
+                    <Sparkles className="w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
                   </div>
-                  <p className="text-sm text-muted-foreground mb-3">
+                  <p className="text-[9px] xs:text-[10px] sm:text-xs md:text-sm text-muted-foreground mb-1.5 xs:mb-2 sm:mb-2.5 md:mb-3">
                     Belum ada karya
                   </p>
                   <Button 
                     variant="outline" 
                     size="sm" 
                     className={cn(
-                      "gap-2 border-white/20 hover:bg-white/10",
-                      "transition-all active:scale-95"
+                      "gap-1 sm:gap-1.5 md:gap-2 border-white/20 hover:bg-white/10 text-[9px] xs:text-[10px] sm:text-xs md:text-sm",
+                      "transition-all active:scale-95 h-6 xs:h-7 sm:h-8 md:h-9 px-2 sm:px-3"
                     )}
                     onClick={() => onAddItem(columnKey)}
                   >
-                    <Plus className="w-3 h-3" />
+                    <Plus className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                     Tambah Karya
                   </Button>
                 </div>
@@ -220,20 +222,20 @@ export const PipelineColumnComponent = ({
 
         {/* Add Card Button - Trello style (at bottom) */}
         {column.items.length > 0 && (
-          <div className="px-3 pb-3">
+          <div className="px-1.5 xs:px-2 sm:px-2.5 md:px-3 pb-1.5 xs:pb-2 sm:pb-2.5 md:pb-3">
             <Button
               variant="ghost"
               size="sm"
               className={cn(
-                "w-full justify-start gap-2 text-muted-foreground",
+                "w-full justify-start gap-1 xs:gap-1.5 sm:gap-2 text-muted-foreground text-[9px] xs:text-[10px] sm:text-xs md:text-sm",
                 "hover:bg-white/10 hover:text-white",
-                "transition-all rounded-lg",
-                isMobile && "py-3"
+                "transition-all rounded-md sm:rounded-lg h-6 xs:h-7 sm:h-8 md:h-9",
+                isMobile && "py-1.5 xs:py-2 sm:py-2.5"
               )}
               onClick={() => onAddItem(columnKey)}
             >
-              <Plus className="w-4 h-4" />
-              Tambah karya...
+              <Plus className="w-2.5 h-2.5 xs:w-3 xs:h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4" />
+              <span className="truncate">Tambah karya...</span>
             </Button>
           </div>
         )}

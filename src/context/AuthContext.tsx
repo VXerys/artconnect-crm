@@ -43,7 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<DBUser | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
 
-  // Fetch profile - optimized for speed
+  // Fetch profile - uses RPC function for secure auth_id linking
   const fetchProfile = useCallback(async (authUser: User | null) => {
     if (!authUser) {
       setProfile(null);
@@ -53,53 +53,53 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfileLoading(true);
     
     try {
-      // Try to get existing profile - single optimized query
-      const { data, error } = await supabase
-        .from('users')
-        .select('id, auth_id, email, full_name, avatar_url, role, created_at, updated_at')
-        .eq('auth_id', authUser.id)
-        .maybeSingle();
+      console.log('[Auth] Fetching/linking profile for:', authUser.id, 'email:', authUser.email);
+      
+      // Use RPC function to link or create profile (bypasses RLS)
+      const { data, error } = await supabase.rpc('link_or_create_profile' as never, {
+        p_auth_id: authUser.id,
+        p_email: authUser.email || '',
+        p_full_name: authUser.user_metadata?.full_name || authUser.user_metadata?.name || null,
+        p_avatar_url: authUser.user_metadata?.avatar_url || authUser.user_metadata?.picture || null,
+      } as never);
       
       if (error) {
-        console.error('Profile fetch error:', error.message);
-        setProfile(null);
+        console.error('[Auth] RPC error:', error.message, error.code);
+        
+        // Fallback: try direct query
+        console.log('[Auth] Trying fallback direct query...');
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('users')
+          .select('id, auth_id, email, full_name, avatar_url, role, created_at, updated_at')
+          .eq('auth_id', authUser.id)
+          .maybeSingle();
+        
+        if (fallbackError) {
+          console.error('[Auth] Fallback error:', fallbackError.message);
+          setProfile(null);
+        } else if (fallbackData) {
+          console.log('[Auth] Profile found via fallback:', (fallbackData as DBUser).id);
+          setProfile(fallbackData as DBUser);
+        } else {
+          console.error('[Auth] No profile found');
+          setProfile(null);
+        }
         return;
       }
       
-      if (data) {
-        setProfile(data as DBUser);
+      // RPC returns array, get first result
+      const profileData = data && Array.isArray(data) ? data[0] : data;
+      
+      if (profileData) {
+        console.log('[Auth] Profile linked/created successfully:', (profileData as DBUser).id);
+        setProfile(profileData as DBUser);
       } else {
-        // No profile found - create one
-        const insertData = {
-          auth_id: authUser.id,
-          email: authUser.email || '',
-          full_name: authUser.user_metadata?.full_name || authUser.user_metadata?.name || 'User',
-          avatar_url: authUser.user_metadata?.avatar_url || authUser.user_metadata?.picture,
-          role: 'artist',
-        };
-        
-        const { data: newProfile, error: createError } = await supabase
-          .from('users')
-          .insert(insertData as never)
-          .select('id, auth_id, email, full_name, avatar_url, role, created_at, updated_at')
-          .single();
-        
-        if (createError) {
-          // Try fetching again in case of race condition
-          const { data: retryData } = await supabase
-            .from('users')
-            .select('id, auth_id, email, full_name, avatar_url, role, created_at, updated_at')
-            .eq('auth_id', authUser.id)
-            .maybeSingle();
-          if (retryData) {
-            setProfile(retryData as DBUser);
-          }
-        } else if (newProfile) {
-          setProfile(newProfile as DBUser);
-        }
+        console.error('[Auth] RPC returned no data');
+        setProfile(null);
       }
     } catch (err) {
-      console.error('Profile error:', err);
+      console.error('[Auth] Profile error:', err);
+      setProfile(null);
     } finally {
       setProfileLoading(false);
     }

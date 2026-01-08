@@ -128,40 +128,48 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-h-screen">
+      <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden">
         {/* Top Bar */}
-        <header className="h-16 border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-30">
-          <div className="h-full px-4 flex items-center justify-between gap-4">
+        <header className="h-12 sm:h-14 md:h-16 border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-30">
+          <div className="h-full px-2 sm:px-3 md:px-4 flex items-center justify-between gap-2 sm:gap-3">
             {/* Mobile Menu */}
             <button 
               onClick={() => setMobileOpen(true)}
-              className="lg:hidden p-2 -ml-2 text-foreground hover:bg-secondary rounded-lg"
+              className="lg:hidden p-1.5 text-foreground hover:bg-secondary rounded-lg flex-shrink-0"
             >
               <Menu className="w-5 h-5" />
             </button>
 
-            {/* Search */}
-            <div className="flex-1 max-w-md">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Cari karya, kontak, atau aktivitas..."
-                  className="w-full h-10 pl-10 pr-4 bg-secondary border border-border rounded-lg text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
-                />
+            {/* Search - Responsive: icon only on xs, input on sm+ */}
+            <div className="flex-1 flex justify-start">
+              {/* Mobile: Icon button only */}
+              <button className="sm:hidden p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg">
+                <Search className="w-4 h-4" />
+              </button>
+              
+              {/* Tablet+: Full search input */}
+              <div className="hidden sm:block flex-1 max-w-xs md:max-w-sm lg:max-w-md">
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 md:w-4 md:h-4 text-muted-foreground" />
+                  <input
+                    type="text"
+                    placeholder="Cari..."
+                    className="w-full h-8 md:h-9 pl-8 md:pl-9 pr-3 bg-secondary border border-border rounded-lg text-xs md:text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
+                  />
+                </div>
               </div>
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
               <NotificationDropdown />
-              <UserAvatar />
+              <UserAvatar size="sm" />
             </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 md:p-6 overflow-auto">
+        <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-x-hidden">
           {children}
         </main>
       </div>

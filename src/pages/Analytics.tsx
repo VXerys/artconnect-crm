@@ -68,7 +68,7 @@ const Analytics = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-5 md:space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
         {/* Hero Section */}
         <AnalyticsHero 
           totalRevenue={formatTotalRevenue}
@@ -79,9 +79,9 @@ const Analytics = () => {
 
         {/* Stats Grid */}
         <section>
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-1 h-4 bg-primary rounded-full" />
-            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-2.5 md:mb-3 lg:mb-4">
+            <div className="w-0.5 sm:w-1 h-3 sm:h-3.5 md:h-4 bg-primary rounded-full" />
+            <h2 className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wider">
               Ringkasan Performa
             </h2>
           </div>
@@ -89,7 +89,7 @@ const Analytics = () => {
         </section>
 
         {/* Charts Row - Sales Trend & Artwork Status */}
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
           <section>
             <SalesTrendChart data={salesData} />
           </section>
@@ -100,9 +100,9 @@ const Analytics = () => {
 
         {/* Contact Activity - Full Width */}
         <section>
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-1 h-4 bg-blue-400 rounded-full" />
-            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-2.5 md:mb-3 lg:mb-4">
+            <div className="w-0.5 sm:w-1 h-3 sm:h-3.5 md:h-4 bg-blue-400 rounded-full" />
+            <h2 className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wider">
               Aktivitas & Interaksi
             </h2>
           </div>
@@ -110,7 +110,7 @@ const Analytics = () => {
         </section>
 
         {/* Top Artworks & Traffic Sources - Side by Side */}
-        <div className="grid lg:grid-cols-5 gap-6 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-5 md:gap-6 items-stretch">
           <div className="lg:col-span-3 flex">
             <TopArtworksList artworks={topArtworks} />
           </div>
@@ -121,9 +121,9 @@ const Analytics = () => {
 
         {/* Quick Insights */}
         <section>
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-1 h-4 bg-amber-400 rounded-full" />
-            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-2.5 md:mb-3 lg:mb-4">
+            <div className="w-0.5 sm:w-1 h-3 sm:h-3.5 md:h-4 bg-amber-400 rounded-full" />
+            <h2 className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wider">
               Insight & Rekomendasi
             </h2>
           </div>

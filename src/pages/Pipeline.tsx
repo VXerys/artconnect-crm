@@ -1,6 +1,6 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Layers, RotateCcw } from "lucide-react";
+import { Plus, Layers, RotateCcw, Sparkles } from "lucide-react";
 import PageLoading from "@/components/ui/PageLoading";
 import {
   DndContext,
@@ -98,129 +98,139 @@ const Pipeline = () => {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col h-full">
-        {/* Header Section - Consistent with Contacts */}
-        <div className="relative mb-6">
+      <div className="space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 overflow-x-hidden">
+        {/* Header Section - Fully Responsive */}
+        <div className="relative">
           {/* Decorative gradient */}
-          <div className="absolute -top-4 -left-4 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
-          <div className="absolute -top-2 right-20 w-20 h-20 bg-blue-500/10 rounded-full blur-2xl" />
+          <div className="absolute -top-4 -left-4 w-20 h-20 xs:w-24 xs:h-24 sm:w-32 sm:h-32 bg-primary/10 rounded-full blur-3xl" />
+          <div className="absolute -top-2 right-8 xs:right-16 sm:right-20 w-12 h-12 xs:w-16 xs:h-16 sm:w-20 sm:h-20 bg-blue-500/10 rounded-full blur-2xl" />
           
-          <div className="relative flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <div className="p-2 rounded-xl bg-primary/10">
-                  <Layers className="w-5 h-5 text-primary" />
+          <div className="relative flex flex-col gap-2.5 xs:gap-3 sm:gap-4">
+            <div className="flex flex-col gap-2.5 xs:gap-3 sm:gap-4">
+              {/* Header Content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 sm:gap-2 mb-1 xs:mb-1.5 sm:mb-2">
+                  <div className="p-1 xs:p-1.5 sm:p-2 rounded-md xs:rounded-lg sm:rounded-xl bg-primary/10 flex-shrink-0">
+                    <Layers className="w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 text-primary" />
+                  </div>
+                  <span className="text-[9px] xs:text-[10px] sm:text-xs font-medium text-primary uppercase tracking-wider">Pipeline</span>
                 </div>
-                <span className="text-xs font-medium text-primary uppercase tracking-wider">Pipeline</span>
+                <h1 className="font-display text-xl xs:text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text leading-tight">
+                  Pipeline Karya
+                </h1>
+                <p className="text-muted-foreground text-[11px] xs:text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1 leading-relaxed line-clamp-2 xs:line-clamp-none">
+                  {totalItems} karya dalam pipeline. Kelola alur kerja karya seni Anda.
+                </p>
               </div>
-              <h1 className="font-display text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
-                Pipeline Karya
-              </h1>
-              <p className="text-muted-foreground mt-1 max-w-md">
-                {totalItems} karya dalam pipeline. Kelola alur kerja karya seni Anda.
-              </p>
-            </div>
-            
-            {/* Action Buttons */}
-            <div className={cn(
-              "flex gap-2",
-              isMobile && "w-full"
-            )}>
-              <Button
-                variant="outline"
-                size={isMobile ? "default" : "sm"}
-                className="gap-2"
-                onClick={refreshPipeline}
-                disabled={loading}
-              >
-                <RotateCcw className={cn("w-4 h-4", loading && "animate-spin")} />
-                {!isMobile && "Refresh"}
-              </Button>
-              <Button 
-                variant="default" 
-                size="lg"
-                className={cn(
-                  "gap-2 shadow-glow hover:shadow-lg transition-all duration-300 group",
-                  isMobile && "flex-1"
-                )}
-                onClick={() => handleOpenAddDialogForColumn("concept")}
-              >
-                <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
-                Tambah Karya
-              </Button>
+              
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5 sm:gap-2 h-8 sm:h-9 md:h-10 text-xs sm:text-sm px-2.5 sm:px-3 md:px-4"
+                  onClick={refreshPipeline}
+                  disabled={loading}
+                >
+                  <RotateCcw className={cn("w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0", loading && "animate-spin")} />
+                  <span className="hidden sm:inline font-medium">Refresh</span>
+                </Button>
+                <Button 
+                  variant="default" 
+                  size="sm"
+                  className="gap-1.5 sm:gap-2 shadow-glow hover:shadow-lg transition-all duration-300 group h-8 sm:h-9 md:h-10 text-xs sm:text-sm px-3 sm:px-4 md:px-5"
+                  onClick={() => handleOpenAddDialogForColumn("concept")}
+                >
+                  <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:rotate-90 transition-transform duration-300 flex-shrink-0" />
+                  <span className="font-medium">Tambah Karya</span>
+                  <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 hidden sm:block" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Mobile/Tablet Orientation Hint */}
         {(isMobile || isTablet) && isPortrait && (
-          <div className="mb-4 p-3 rounded-lg bg-primary/10 border border-primary/20 flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/20">
-              <RotateCcw className="w-4 h-4 text-primary" />
+          <div className="p-2 xs:p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-primary/10 border border-primary/20 flex items-center gap-1.5 xs:gap-2 sm:gap-3">
+            <div className="p-1 xs:p-1.5 sm:p-2 rounded-md sm:rounded-lg bg-primary/20 flex-shrink-0">
+              <RotateCcw className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 text-primary" />
             </div>
-            <p className="text-sm text-primary">
-              Putar perangkat ke landscape untuk tampilan yang lebih baik.
+            <p className="text-[10px] xs:text-[11px] sm:text-xs md:text-sm text-primary leading-tight">
+              <span className="hidden xs:inline">Putar perangkat ke landscape untuk tampilan yang lebih baik.</span>
+              <span className="xs:hidden">Putar ke landscape untuk tampilan optimal.</span>
             </p>
           </div>
         )}
 
-        {/* Kanban Board with DnD */}
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCorners}
-          onDragStart={handleDragStart}
-          onDragOver={handleDragOver}
-          onDragEnd={handleDragEnd}
-        >
-          {/* Scrollable Kanban Container */}
-          <div className={cn(
-            // Base layout
-            "flex gap-5 pt-4 pb-8",
-            // Allow horizontal scroll
-            "overflow-x-auto overflow-y-visible",
-            // Scroll snap for mobile
-            isMobile && "snap-x snap-mandatory",
-            // Extended padding for shadows/glow to not be clipped
-            "-mx-6 px-6 lg:-mx-8 lg:px-8",
-            // Ensure columns don't shrink
-            "min-w-0",
-            // Scrollbar styling
-            "scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent hover:scrollbar-thumb-white/20",
-            // Add padding at the end for last column
-            "pr-8",
-            // Ensure shadows render above the summary
-            "relative z-10"
-          )}>
-            {(Object.entries(pipelineData) as [PipelineStatus, PipelineColumn][]).map(([key, column]) => (
-              <PipelineColumnComponent
-                key={key}
-                columnKey={key}
-                column={column}
-                onAddItem={handleOpenAddDialogForColumn}
-                onViewItem={handleViewItem}
-                onEditItem={handleOpenEditDialog}
-                onDeleteItem={handleDeleteItem}
-                onMoveToColumn={handleMoveToColumn}
-              />
-            ))}
-            {/* Spacer for end padding */}
-            <div className="w-4 flex-shrink-0" aria-hidden="true" />
+        {/* Kanban Section Header */}
+        <section className="overflow-hidden">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-2.5 md:mb-3 lg:mb-4">
+            <div className="w-0.5 sm:w-1 h-3 sm:h-3.5 md:h-4 bg-primary rounded-full" />
+            <h2 className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wider">
+              Kanban Board
+            </h2>
           </div>
 
-          {/* Drag Overlay */}
-          <DragOverlay dropAnimation={{
-            duration: 250,
-            easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)",
-          }}>
-            {activeItem ? <DragOverlayItem item={activeItem} /> : null}
-          </DragOverlay>
-        </DndContext>
+          {/* Kanban Board with DnD */}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCorners}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDragEnd={handleDragEnd}
+          >
+            {/* Scrollable Kanban Container - Only this scrolls horizontally */}
+            <div className={cn(
+              // Base layout
+              "flex gap-3 sm:gap-4 md:gap-5 py-2 sm:py-3 md:py-4",
+              // Allow horizontal scroll - contained within this element
+              "overflow-x-auto overflow-y-visible",
+              // Scroll snap for mobile
+              isMobile && "snap-x snap-mandatory",
+              // Ensure columns don't shrink
+              "min-w-0",
+              // Scrollbar styling
+              "scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent hover:scrollbar-thumb-white/20",
+              // Ensure shadows render above the summary
+              "relative z-10",
+              // Add slight padding at end for last column visibility
+              "pr-2 sm:pr-4"
+            )}>
+              {(Object.entries(pipelineData) as [PipelineStatus, PipelineColumn][]).map(([key, column]) => (
+                <PipelineColumnComponent
+                  key={key}
+                  columnKey={key}
+                  column={column}
+                  onAddItem={handleOpenAddDialogForColumn}
+                  onViewItem={handleViewItem}
+                  onEditItem={handleOpenEditDialog}
+                  onDeleteItem={handleDeleteItem}
+                  onMoveToColumn={handleMoveToColumn}
+                />
+              ))}
+            </div>
 
-        {!(isMobile && isPortrait) && (
-          <div className="mt-2 relative z-0 px-1">
-            <PipelineSummary pipelineData={pipelineData} />
+            {/* Drag Overlay */}
+            <DragOverlay dropAnimation={{
+              duration: 250,
+              easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)",
+            }}>
+              {activeItem ? <DragOverlayItem item={activeItem} /> : null}
+            </DragOverlay>
+          </DndContext>
+        </section>
+
+        {/* Pipeline Summary - Always visible, separate from kanban */}
+        <section className="w-full">
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-2.5 md:mb-3 lg:mb-4">
+            <div className="w-0.5 sm:w-1 h-3 sm:h-3.5 md:h-4 bg-emerald-400 rounded-full" />
+            <h2 className="text-[10px] sm:text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wider">
+              Ringkasan
+            </h2>
           </div>
-        )}
+          <PipelineSummary pipelineData={pipelineData} />
+        </section>
 
         {/* Dialogs */}
         <AddItemDialog

@@ -100,61 +100,79 @@ export const SalesChart = ({ data }: SalesChartProps) => {
       </CardHeader>
 
       <CardContent className="p-6 flex-1">
-        {/* Summary Stats */}
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <p className="text-sm text-muted-foreground">Total Penjualan</p>
-            <p className="text-2xl font-bold text-emerald-400">
-              {formatCurrency(totalSales)}
+        {totalSales === 0 ? (
+          /* Empty State */
+          <div className="flex flex-col items-center justify-center py-8 sm:py-12 md:py-16 text-center h-full">
+            <div className="relative mb-3 sm:mb-4">
+              <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl animate-pulse" />
+              <div className="relative p-3 sm:p-4 rounded-full bg-secondary/50 border-2 border-dashed border-border">
+                <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground" />
+              </div>
+            </div>
+            <h3 className="text-sm sm:text-base font-semibold mb-1 sm:mb-1.5">Belum Ada Data Penjualan</h3>
+            <p className="text-[10px] sm:text-xs text-muted-foreground max-w-[200px] sm:max-w-xs">
+              Grafik akan muncul setelah ada transaksi penjualan karya seni Anda
             </p>
           </div>
-          <div className="text-right">
-            <p className="text-sm text-muted-foreground">Karya Terjual</p>
-            <p className="text-lg font-semibold">
-              {totalArtworksSold} karya
-            </p>
-          </div>
-        </div>
+        ) : (
+          <>
+            {/* Summary Stats */}
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Penjualan</p>
+                <p className="text-2xl font-bold text-emerald-400">
+                  {formatCurrency(totalSales)}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-muted-foreground">Karya Terjual</p>
+                <p className="text-lg font-semibold">
+                  {totalArtworksSold} karya
+                </p>
+              </div>
+            </div>
 
-        {/* Bar Chart using Recharts */}
-        <div className="h-[200px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-              <defs>
-                <linearGradient id="colorSalesDashboard" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#10b981" stopOpacity={1}/>
-                  <stop offset="100%" stopColor="#10b981" stopOpacity={0.6}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid 
-                strokeDasharray="3 3" 
-                stroke="hsl(var(--border))" 
-                vertical={false}
-              />
-              <XAxis 
-                dataKey="month" 
-                stroke="hsl(var(--muted-foreground))" 
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis 
-                stroke="hsl(var(--muted-foreground))" 
-                fontSize={12}
-                tickFormatter={formatYAxis}
-                tickLine={false}
-                axisLine={false}
-              />
-              <Tooltip content={<CustomTooltip />} cursor={false} />
-              <Bar 
-                dataKey="sales" 
-                fill="url(#colorSalesDashboard)" 
-                radius={[6, 6, 0, 0]}
-                maxBarSize={50}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+            {/* Bar Chart using Recharts */}
+            <div className="h-[200px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorSalesDashboard" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity={1}/>
+                      <stop offset="100%" stopColor="#10b981" stopOpacity={0.6}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid 
+                    strokeDasharray="3 3" 
+                    stroke="hsl(var(--border))" 
+                    vertical={false}
+                  />
+                  <XAxis 
+                    dataKey="month" 
+                    stroke="hsl(var(--muted-foreground))" 
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis 
+                    stroke="hsl(var(--muted-foreground))" 
+                    fontSize={12}
+                    tickFormatter={formatYAxis}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <Tooltip content={<CustomTooltip />} cursor={false} />
+                  <Bar 
+                    dataKey="sales" 
+                    fill="url(#colorSalesDashboard)" 
+                    radius={[6, 6, 0, 0]}
+                    maxBarSize={50}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );
