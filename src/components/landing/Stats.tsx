@@ -68,8 +68,8 @@ const StatCard = ({ stat, index, displayValue, isVisible }: {
   
   return (
     <div 
-      className={`group relative p-6 md:p-8 rounded-2xl bg-card/30 border border-border/30 
-        hover:border-primary/30 transition-all duration-500
+      className={`group relative p-6 md:p-8 rounded-2xl glass-card 
+        hover:border-primary/40 hover:bg-card/80 transition-all duration-500 hover:-translate-y-1 hover:shadow-glow
         ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
       style={{ transitionDelay: `${index * 100}ms` }}
     >
@@ -196,7 +196,7 @@ const Stats = () => {
         {/* Testimonials Section */}
         <div className={`max-w-4xl mx-auto transition-all duration-700 delay-500
           ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <div className="relative p-8 md:p-12 rounded-3xl bg-card/30 border border-border/30">
+          <div className="relative p-8 md:p-12 rounded-3xl glass-card">
             {/* Quote Icon */}
             <div className="absolute -top-6 left-8">
               <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">

@@ -56,7 +56,7 @@ const Footer = () => {
   return (
     <footer 
       ref={footerRef}
-      className="relative bg-muted/30 border-t border-border/50"
+      className="relative bg-background/60 backdrop-blur-lg border-t border-white/5"
     >
       <Container className="pt-8 sm:pt-12 pb-6">
         {/* Main Footer Content */}

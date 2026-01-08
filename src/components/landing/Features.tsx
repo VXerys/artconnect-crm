@@ -66,8 +66,8 @@ const FeatureCard = memo(({ feature, index, isVisible }: {
   
   return (
     <div
-      className={`group relative h-full p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl bg-card/30 border border-border/30 
-        hover:border-primary/30 transition-all duration-500
+      className={`group relative h-full p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl glass-card
+        hover:border-primary/40 hover:bg-card/80 transition-all duration-500 hover:-translate-y-1 hover:shadow-glow
         ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
       style={{ transitionDelay: `${index * 80}ms` }}
     >

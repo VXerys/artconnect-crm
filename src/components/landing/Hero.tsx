@@ -21,10 +21,9 @@ const Hero = () => {
           // @ts-ignore
           fetchpriority="high"
         />
-        {/* Dark overlay for better text readability */}
-        <div className="absolute inset-0 bg-background/85" />
-        {/* Gradient overlay for depth */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-transparent to-background" />
+        {/* Refined overlays for depth and visibility of background glows */}
+        <div className="absolute inset-0 bg-background/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/40 to-background" />
       </div>
 
       <Container className="relative z-10 pt-28 pb-16 sm:pt-32 sm:pb-20 md:pt-40 md:pb-24">
