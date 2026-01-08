@@ -159,10 +159,10 @@ const CTA = () => {
             <span>Bergabung Gratis Sekarang</span>
           </div>
 
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
             Siap Mengembangkan
             <br />
-            <span className="text-gradient">Karier Seni</span> Anda?
+            <span className="text-gradient">Bisnis Seni</span> Anda?
           </h2>
 
           <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">

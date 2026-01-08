@@ -170,13 +170,13 @@ const Stats = () => {
     >
       <div className="container px-4 relative z-10">
         {/* Section Header */}
-        <div className={`text-center max-w-3xl mx-auto mb-16 transition-all duration-700
+        <div className={`text-center max-w-4xl mx-auto mb-16 px-4 transition-all duration-700
           ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <h2 className="font-display text-4xl md:text-5xl font-bold mb-4">
-            Mengapa <span className="text-gradient">Memilih Kami?</span>
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+            Mengapa Seniman <span className="text-gradient">Memilih Kami?</span>
           </h2>
-          <p className="text-lg text-muted-foreground">
-            Dipercaya oleh seniman visual di seluruh Indonesia
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+            Solusi manajemen paling intuitif untuk mendukung ekosistem kreatif Anda.
           </p>
         </div>
 
