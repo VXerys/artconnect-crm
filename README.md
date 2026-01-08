@@ -10,12 +10,10 @@
 
 <p align="center">
   <a href="#-fitur-utama">Fitur</a> •
-  <a href="#-demo">Demo</a> •
   <a href="#-teknologi">Teknologi</a> •
   <a href="#-instalasi">Instalasi</a> •
   <a href="#-struktur-proyek">Struktur</a> •
-  <a href="#-kontribusi">Kontribusi</a> •
-  <a href="#-lisensi">Lisensi</a>
+  <a href="#-tim-pengembang">Tim</a>
 </p>
 
 <p align="center">
@@ -25,6 +23,16 @@
   <img src="https://img.shields.io/badge/Tailwind_CSS-3.4-06B6D4?style=flat-square&logo=tailwindcss" alt="Tailwind CSS" />
   <img src="https://img.shields.io/badge/Supabase-Backend-3FCF8E?style=flat-square&logo=supabase" alt="Supabase" />
 </p>
+
+---
+
+## 🎓 Proyek UAS
+
+> **Proyek Ujian Akhir Semester (UAS)**  
+> **Mata Kuliah:** Pengembangan Aplikasi Berbasis Web  
+> **Tahun Akademik:** 2024/2025
+
+Proyek ini dikembangkan sebagai tugas akhir mata kuliah **Pengembangan Aplikasi Berbasis Web**. ArtConnect CRM adalah aplikasi web yang dirancang untuk membantu seniman visual dalam mengelola karya seni, kontak profesional, dan aktivitas bisnis mereka.
 
 ---
 
@@ -85,13 +93,7 @@
 
 ## 🚀 Demo
 
-**Live Demo:** [https://artconnect.netlify.app](https://artconnect.netlify.app)
-
-### Akun Demo
-```
-Email: demo@artconnect.id
-Password: DemoArtConnect2024
-```
+**Live Demo:** [https://artconnect-crm.netlify.app](https://artconnect-crm.netlify.app)
 
 ---
 
@@ -282,91 +284,25 @@ Proyek ini menggunakan **shadcn/ui** sebagai fondasi komponen, dengan kustomisas
 
 ---
 
-## 🔧 Konfigurasi Lanjutan
+## � Tim Pengembang
 
-### Supabase Row Level Security (RLS)
+Proyek **ArtConnect CRM** dikembangkan oleh tim mahasiswa sebagai tugas akhir mata kuliah Pengembangan Aplikasi Berbasis Web.
 
-Pastikan RLS diaktifkan untuk keamanan data multi-tenant:
+### Anggota Tim
 
-```sql
--- Contoh policy untuk tabel artworks
-CREATE POLICY "Users can only view their own artworks"
-ON artworks FOR SELECT
-USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert their own artworks"
-ON artworks FOR INSERT
-WITH CHECK (auth.uid() = user_id);
-```
-
-### Konfigurasi OAuth (Google)
-
-1. Buka **Supabase Dashboard** → **Authentication** → **Providers**
-2. Enable Google provider
-3. Tambahkan Google OAuth credentials dari [Google Cloud Console](https://console.cloud.google.com/)
-4. Set callback URL: `https://your-project.supabase.co/auth/v1/callback`
-
-### Deployment ke Netlify
-
-1. Connect repository GitHub ke Netlify
-2. Set build command: `npm run build`
-3. Set publish directory: `dist`
-4. Tambahkan environment variables di Netlify dashboard
-5. File `netlify.toml` sudah dikonfigurasi untuk SPA routing
-
----
-
-## 🤝 Kontribusi
-
-Kontribusi sangat diterima! Ikuti langkah berikut:
-
-### 1. Fork Repository
-
-```bash
-git fork https://github.com/your-username/artconnect-crm.git
-```
-
-### 2. Buat Branch Fitur
-
-```bash
-git checkout -b feature/nama-fitur-baru
-```
-
-### 3. Commit Perubahan
-
-```bash
-git commit -m "feat: tambah fitur baru"
-```
-
-### 4. Push ke Branch
-
-```bash
-git push origin feature/nama-fitur-baru
-```
-
-### 5. Buat Pull Request
-
-Buka GitHub dan buat Pull Request dengan deskripsi lengkap.
-
-### Panduan Commit Message
-
-Gunakan format [Conventional Commits](https://www.conventionalcommits.org/):
-
-| Prefix | Penggunaan |
-|--------|------------|
-| `feat:` | Fitur baru |
-| `fix:` | Perbaikan bug |
-| `docs:` | Perubahan dokumentasi |
-| `style:` | Perubahan styling |
-| `refactor:` | Refactoring kode |
-| `test:` | Penambahan/perbaikan test |
-| `chore:` | Maintenance tasks |
+| No | Nama | Peran | Tanggung Jawab |
+|----|------|-------|----------------|
+| 1 | **Sechan** | Fullstack Developer | Pengembangan frontend & backend, integrasi API, arsitektur sistem |
+| 2 | **Akbar** | Documentation | Pembuatan dokumentasi teknis, user guide, laporan proyek |
+| 3 | **Ghibran** | Documentation | Pembuatan dokumentasi teknis, user guide, laporan proyek |
+| 4 | **Fatir** | UI/UX Designer | Desain antarmuka, wireframe, user experience, visual design |
+| 5 | **Sinar** | QA / Testing | Pengujian aplikasi, bug tracking, quality assurance |
 
 ---
 
 ## 📝 Changelog
 
-### v1.0.0 (2024-01-09)
+### v1.0.0 (2025-01-09)
 - 🎉 Initial release
 - ✨ Inventaris karya seni dengan galeri foto
 - ✨ Manajemen kontak profesional
@@ -380,22 +316,11 @@ Gunakan format [Conventional Commits](https://www.conventionalcommits.org/):
 
 ## 📄 Lisensi
 
-Proyek ini dilisensikan di bawah **MIT License** - lihat file [LICENSE](LICENSE) untuk detail.
-
----
-
-## 👤 Tim Pengembang
-
-**ArtConnect** dikembangkan dengan ❤️ untuk komunitas seniman visual Indonesia.
-
-### Kontak
-
-- 📧 Email: [support@artconnect.id](mailto:support@artconnect.id)
-- 💬 WhatsApp: [+62 812-3456-7890](https://wa.me/6281234567890)
-- 🌐 Website: [artconnect.app](https://artconnect.app)
+Proyek ini dikembangkan untuk keperluan akademik dalam rangka memenuhi tugas UAS mata kuliah **Pengembangan Aplikasi Berbasis Web**.
 
 ---
 
 <p align="center">
+  <sub>🎓 UAS Project - Pengembangan Aplikasi Berbasis Web</sub><br/>
   <sub>Built with ❤️ using React, TypeScript, and Supabase</sub>
 </p>
