@@ -39,6 +39,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { signOut } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   const handleLogout = async () => {
     await signOut();
@@ -129,6 +130,33 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden">
+        {/* Mobile Search Modal */}
+        {mobileSearchOpen && (
+          <div className="fixed inset-0 bg-background z-50 sm:hidden">
+            <div className="flex flex-col h-full">
+              {/* Header */}
+              <div className="flex items-center gap-3 p-3 border-b border-border">
+                <button
+                  onClick={() => setMobileSearchOpen(false)}
+                  className="p-2 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <div className="flex-1">
+                  <GlobalSearch />
+                </div>
+              </div>
+              {/* Hint */}
+              <div className="flex-1 flex items-center justify-center p-6 text-center">
+                <div className="text-muted-foreground">
+                  <Search className="w-12 h-12 mx-auto mb-4 opacity-30" />
+                  <p className="text-sm">Ketik untuk mencari karya seni, kontak, atau laporan</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Top Bar */}
         <header className="h-12 sm:h-14 md:h-16 border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-30">
           <div className="h-full px-2 sm:px-3 md:px-4 flex items-center justify-between gap-2 sm:gap-3">
@@ -142,8 +170,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
             {/* Search - Responsive: icon only on xs, GlobalSearch on sm+ */}
             <div className="flex-1 flex justify-start">
-              {/* Mobile: Icon button only */}
-              <button className="sm:hidden p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg">
+              {/* Mobile: Icon button that opens fullscreen search */}
+              <button 
+                onClick={() => setMobileSearchOpen(true)}
+                className="sm:hidden p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg"
+              >
                 <Search className="w-4 h-4" />
               </button>
               
