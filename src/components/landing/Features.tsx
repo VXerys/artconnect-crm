@@ -133,12 +133,14 @@ const Features = () => {
       spacing="lg"
       className="relative"
     >      
-      {/* Subtle Grid Pattern */}
+      {/* Subtle Grid Pattern with Fade-in/out mask */}
       <div 
-        className="absolute inset-0 opacity-[0.02]"
+        className="absolute inset-0 opacity-[0.03]"
         style={{
           backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
           backgroundSize: '40px 40px',
+          maskImage: 'linear-gradient(to bottom, transparent, black 15%, black 85%, transparent)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 15%, black 85%, transparent)'
         }}
       />
       

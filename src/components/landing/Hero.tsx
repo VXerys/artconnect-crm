@@ -21,9 +21,11 @@ const Hero = () => {
           // @ts-ignore
           fetchpriority="high"
         />
-        {/* Refined overlays for depth and visibility of background glows */}
-        <div className="absolute inset-0 bg-background/60" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/40 to-background" />
+        {/* Refined overlays for depth and seamless transition */}
+        <div className="absolute inset-0 bg-background/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background" />
+        {/* Additional bottom mask for seamless blending with next section */}
+        <div className="absolute inset-x-0 bottom-0 h-40 sm:h-64 bg-gradient-to-t from-background via-background/40 to-transparent" />
       </div>
 
       <Container className="relative z-10 pt-28 pb-16 sm:pt-32 sm:pb-20 md:pt-40 md:pb-24">
@@ -118,8 +120,8 @@ const Hero = () => {
         </div>
       </Container>
 
-      {/* Bottom fade to seamless transition */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 sm:h-48 bg-gradient-to-t from-background via-background/80 to-transparent" />
+      {/* Seamless transition to next section */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 sm:h-48 bg-gradient-to-t from-background to-transparent z-10" />
     </section>
   );
 };
