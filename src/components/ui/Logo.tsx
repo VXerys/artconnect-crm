@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTheme } from '@/components/theme-provider';
-
-// Import logos
-import LogoLightMode from '@/assets/logo-lightmode.png';
-import LogoDarkMode from '@/assets/logo-darkmode.png';
+import { Palette } from 'lucide-react';
 
 interface LogoProps {
   /** Size of the logo */
@@ -38,41 +35,41 @@ const Logo: React.FC<LogoProps> = ({
   forceTheme,
 }) => {
   const { theme } = useTheme();
-  const [isDark, setIsDark] = useState(true);
+  const [mounted, setMounted] = useState(false);
   
+  // Handle mounting to avoid hydration mismatch
   useEffect(() => {
-    if (forceTheme) {
-      setIsDark(forceTheme === 'dark');
-      return;
-    }
-    
-    if (theme === 'system') {
-      // Check system preference
-      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setIsDark(systemDark);
-    } else {
-      setIsDark(theme === 'dark');
-    }
-  }, [theme, forceTheme]);
-  
-  // Select logo based on theme
-  const logoSrc = isDark ? LogoDarkMode : LogoLightMode;
+    setMounted(true);
+  }, []);
+
+  const isDark = forceTheme ? forceTheme === 'dark' : (theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches));
   
   const sizes = sizeMap[size];
+  const iconSizes = {
+    xs: 'w-4 h-4',
+    sm: 'w-5 h-5',
+    md: 'w-6 h-6',
+    lg: 'w-7 h-7',
+    xl: 'w-10 h-10',
+  };
   
   // Default text color based on context
   const defaultTextClass = textClassName || (isDark ? 'text-white' : 'text-gray-900');
 
+  if (!mounted) return null;
+
   return (
     <div className={`flex items-center ${sizes.gap} ${className}`}>
-      <img 
-        src={logoSrc} 
-        alt="ArtConnect Logo" 
-        className={`${sizes.logo} object-contain`}
-      />
+      <div className={`${sizes.logo} rounded-xl overflow-hidden flex items-center justify-center shadow-lg shadow-orange-500/10`}>
+        <img 
+          src="/favicon.svg" 
+          alt="ArtConnect" 
+          className="w-full h-full object-cover"
+        />
+      </div>
       {showText && (
-        <span className={`font-bold tracking-tight ${sizes.text} ${defaultTextClass}`}>
-          ArtConnect
+        <span className={`font-display font-bold tracking-tight ${sizes.text} ${defaultTextClass}`}>
+          Art<span className="text-primary">Connect</span>
         </span>
       )}
     </div>
