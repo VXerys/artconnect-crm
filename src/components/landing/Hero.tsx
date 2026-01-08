@@ -12,20 +12,29 @@ const Hero = () => {
   return (
     <section id="hero" className="relative min-h-[100svh] flex flex-col justify-start sm:justify-center overflow-hidden">
       {/* Background Image */}
-      <div className="absolute inset-0 z-0">
-        <img 
-          src={heroBg} 
-          alt="ArtConnect Gallery" 
-          className="w-full h-full object-cover object-center"
-          loading="eager"
-          // @ts-ignore
-          fetchpriority="high"
-        />
-        {/* Refined overlays for depth and seamless transition */}
-        <div className="absolute inset-0 bg-background/70" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background" />
-        {/* Additional bottom mask for seamless blending with next section */}
-        <div className="absolute inset-x-0 bottom-0 h-40 sm:h-64 bg-gradient-to-t from-background via-background/40 to-transparent" />
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        {/* Smoother background image logic with CSS masking */}
+        <div 
+          className="absolute inset-0 z-0"
+          style={{
+            maskImage: 'linear-gradient(to bottom, black 0%, black 60%, transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 60%, transparent 100%)'
+          }}
+        >
+          <img 
+            src={heroBg} 
+            alt="ArtConnect Gallery" 
+            className="w-full h-full object-cover object-center scale-105 animate-fade-in"
+            loading="eager"
+            // @ts-ignore
+            fetchpriority="high"
+          />
+        </div>
+        
+        {/* Layered overlays for a rich, deep cinematic look */}
+        <div className="absolute inset-0 bg-background/40 z-[1]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-transparent to-background z-[2]" />
+        <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-background via-background/20 to-transparent z-[3]" />
       </div>
 
       <Container className="relative z-10 pt-28 pb-16 sm:pt-32 sm:pb-20 md:pt-40 md:pb-24">
@@ -120,8 +129,8 @@ const Hero = () => {
         </div>
       </Container>
 
-      {/* Seamless transition to next section */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 sm:h-48 bg-gradient-to-t from-background to-transparent z-10" />
+      {/* Bottom fade anchor for seamless scrolling */}
+      <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-background to-transparent pointer-events-none z-[4]" />
     </section>
   );
 };
