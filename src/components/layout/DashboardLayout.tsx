@@ -143,7 +143,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   <ChevronLeft className="w-5 h-5" />
                 </button>
                 <div className="flex-1">
-                  <GlobalSearch />
+                  <GlobalSearch onResultSelect={() => setMobileSearchOpen(false)} />
                 </div>
               </div>
               {/* Hint */}

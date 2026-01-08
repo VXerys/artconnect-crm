@@ -1,47 +1,46 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Search, Palette, Users, FileText, BarChart3, X, Loader2, ArrowRight } from "lucide-react";
+import { Search, Palette, Users, FileText, X, Loader2, ArrowRight, Kanban } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { supabase, Artwork, Contact, PipelineItem, Report } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext";
 
 interface SearchResult {
   id: string;
-  type: 'artwork' | 'contact' | 'report';
+  type: 'artwork' | 'contact' | 'report' | 'pipeline';
   title: string;
   subtitle?: string;
   href: string;
 }
 
-// Mock search function - in production, this would call Supabase
-const performSearch = async (query: string): Promise<SearchResult[]> => {
-  if (!query.trim()) return [];
-  
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 300));
-  
-  const lowerQuery = query.toLowerCase();
-  
-  // Mock data - replace with actual Supabase queries
-  const mockData: SearchResult[] = [
-    // Artworks
-    { id: '1', type: 'artwork', title: 'Sunset Over Rice Fields', subtitle: 'Oil on Canvas • Rp 15.000.000', href: '/artworks?id=1' },
-    { id: '2', type: 'artwork', title: 'Abstract Harmony', subtitle: 'Acrylic on Canvas • Rp 8.500.000', href: '/artworks?id=2' },
-    { id: '3', type: 'artwork', title: 'Portrait of Silence', subtitle: 'Watercolor • Rp 5.000.000', href: '/artworks?id=3' },
-    { id: '4', type: 'artwork', title: 'Urban Dreams', subtitle: 'Mixed Media • Rp 12.000.000', href: '/artworks?id=4' },
-    // Contacts
-    { id: '5', type: 'contact', title: 'Galeri Nasional Indonesia', subtitle: 'Galeri • Jakarta', href: '/contacts?id=5' },
-    { id: '6', type: 'contact', title: 'Budi Santoso', subtitle: 'Kolektor • Surabaya', href: '/contacts?id=6' },
-    { id: '7', type: 'contact', title: 'Maya Art Gallery', subtitle: 'Galeri • Bandung', href: '/contacts?id=7' },
-    { id: '8', type: 'contact', title: 'Rina Kusuma', subtitle: 'Kurator • Yogyakarta', href: '/contacts?id=8' },
-    // Reports
-    { id: '9', type: 'report', title: 'Laporan Penjualan Q4 2024', subtitle: 'Dibuat 15 Des 2024', href: '/reports?id=9' },
-    { id: '10', type: 'report', title: 'Inventaris Karya Seni', subtitle: 'Dibuat 10 Des 2024', href: '/reports?id=10' },
-  ];
-  
-  // Filter by query
-  return mockData.filter(item => 
-    item.title.toLowerCase().includes(lowerQuery) ||
-    item.subtitle?.toLowerCase().includes(lowerQuery)
-  ).slice(0, 6);
+const formatCurrency = (amount: number | null): string => {
+  if (amount === null || amount === undefined) return '';
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+
+const getStatusLabel = (status: string): string => {
+  switch (status) {
+    case 'concept': return 'Konsep';
+    case 'wip': return 'Proses';
+    case 'finished': return 'Selesai';
+    case 'sold': return 'Terjual';
+    default: return status;
+  }
+};
+
+const getContactTypeLabel = (type: string): string => {
+  switch (type) {
+    case 'gallery': return 'Galeri';
+    case 'collector': return 'Kolektor';
+    case 'museum': return 'Museum';
+    case 'curator': return 'Kurator';
+    default: return type;
+  }
 };
 
 const getTypeIcon = (type: SearchResult['type']) => {
@@ -49,7 +48,8 @@ const getTypeIcon = (type: SearchResult['type']) => {
     case 'artwork': return Palette;
     case 'contact': return Users;
     case 'report': return FileText;
-    default: return BarChart3;
+    case 'pipeline': return Kanban;
+    default: return Palette;
   }
 };
 
@@ -58,6 +58,7 @@ const getTypeLabel = (type: SearchResult['type']) => {
     case 'artwork': return 'Karya Seni';
     case 'contact': return 'Kontak';
     case 'report': return 'Laporan';
+    case 'pipeline': return 'Pipeline';
     default: return 'Lainnya';
   }
 };
@@ -67,15 +68,17 @@ const getTypeColor = (type: SearchResult['type']) => {
     case 'artwork': return 'text-purple-400 bg-purple-500/20';
     case 'contact': return 'text-blue-400 bg-blue-500/20';
     case 'report': return 'text-emerald-400 bg-emerald-500/20';
+    case 'pipeline': return 'text-orange-400 bg-orange-500/20';
     default: return 'text-primary bg-primary/20';
   }
 };
 
 interface GlobalSearchProps {
   className?: string;
+  onResultSelect?: () => void;
 }
 
-const GlobalSearch = ({ className }: GlobalSearchProps) => {
+const GlobalSearch = ({ className, onResultSelect }: GlobalSearchProps) => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -84,6 +87,110 @@ const GlobalSearch = ({ className }: GlobalSearchProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Perform search against Supabase
+  const performSearch = useCallback(async (searchQuery: string): Promise<SearchResult[]> => {
+    if (!searchQuery.trim() || !user) return [];
+    
+    const searchResults: SearchResult[] = [];
+    const lowerQuery = `%${searchQuery.toLowerCase()}%`;
+
+    try {
+      // Search Artworks
+      const { data: artworksData } = await supabase
+        .from('artworks')
+        .select('id, title, medium, price, status')
+        .ilike('title', lowerQuery)
+        .limit(3);
+
+      const artworks = artworksData as Pick<Artwork, 'id' | 'title' | 'medium' | 'price' | 'status'>[] | null;
+      if (artworks) {
+        artworks.forEach(artwork => {
+          searchResults.push({
+            id: artwork.id,
+            type: 'artwork',
+            title: artwork.title,
+            subtitle: [artwork.medium, artwork.price ? formatCurrency(artwork.price) : null, getStatusLabel(artwork.status)]
+              .filter(Boolean).join(' • '),
+            href: `/artworks?highlight=${artwork.id}`,
+          });
+        });
+      }
+
+      // Search Contacts
+      const { data: contactsData } = await supabase
+        .from('contacts')
+        .select('id, name, type, location, company')
+        .ilike('name', lowerQuery)
+        .limit(3);
+
+      const contacts = contactsData as Pick<Contact, 'id' | 'name' | 'type' | 'location' | 'company'>[] | null;
+      if (contacts) {
+        contacts.forEach(contact => {
+          searchResults.push({
+            id: contact.id,
+            type: 'contact',
+            title: contact.name,
+            subtitle: [getContactTypeLabel(contact.type), contact.company, contact.location]
+              .filter(Boolean).join(' • '),
+            href: `/contacts?highlight=${contact.id}`,
+          });
+        });
+      }
+
+      // Search Pipeline Items
+      const { data: pipelineData } = await supabase
+        .from('pipeline_items')
+        .select('id, title, medium, status, estimated_price')
+        .ilike('title', lowerQuery)
+        .limit(2);
+
+      const pipelineItems = pipelineData as Pick<PipelineItem, 'id' | 'title' | 'medium' | 'status' | 'estimated_price'>[] | null;
+      if (pipelineItems) {
+        pipelineItems.forEach(item => {
+          searchResults.push({
+            id: item.id,
+            type: 'pipeline',
+            title: item.title,
+            subtitle: [item.medium, getStatusLabel(item.status), item.estimated_price ? formatCurrency(item.estimated_price) : null]
+              .filter(Boolean).join(' • '),
+            href: `/pipeline?highlight=${item.id}`,
+          });
+        });
+      }
+
+      // Search Reports
+      const { data: reportsData } = await supabase
+        .from('reports')
+        .select('id, name, type, created_at')
+        .ilike('name', lowerQuery)
+        .limit(2);
+
+      const reports = reportsData as Pick<Report, 'id' | 'name' | 'type' | 'created_at'>[] | null;
+      if (reports) {
+        reports.forEach(report => {
+          const createdDate = new Date(report.created_at).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+          });
+          searchResults.push({
+            id: report.id,
+            type: 'report',
+            title: report.name,
+            subtitle: `${report.type} • Dibuat ${createdDate}`,
+            href: `/reports?highlight=${report.id}`,
+          });
+        });
+      }
+
+    } catch (error) {
+      console.error('Search error:', error);
+    }
+
+    return searchResults;
+  }, [user]);
 
   // Debounced search
   useEffect(() => {
@@ -100,7 +207,7 @@ const GlobalSearch = ({ className }: GlobalSearchProps) => {
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [query]);
+  }, [query, performSearch]);
 
   // Close on click outside
   useEffect(() => {
@@ -145,6 +252,7 @@ const GlobalSearch = ({ className }: GlobalSearchProps) => {
     setQuery("");
     setIsOpen(false);
     setResults([]);
+    onResultSelect?.();
   };
 
   const handleClear = () => {
@@ -200,7 +308,7 @@ const GlobalSearch = ({ className }: GlobalSearchProps) => {
                 
                 return (
                   <button
-                    key={result.id}
+                    key={`${result.type}-${result.id}`}
                     onClick={() => handleSelect(result)}
                     onMouseEnter={() => setSelectedIndex(index)}
                     className={cn(
