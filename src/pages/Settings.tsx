@@ -13,6 +13,7 @@ import {
   EyeOff,
   Loader2,
   Lock,
+  Pencil,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -91,6 +92,16 @@ const Settings = () => {
     confirmPassword?: string;
   }>({});
 
+  // Edit Profile Dialog State
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    fullName: "",
+  });
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [profileErrors, setProfileErrors] = useState<{
+    fullName?: string;
+  }>({});
+
   const handleLogout = async () => {
     try {
       setLoading(true);
@@ -162,6 +173,54 @@ const Settings = () => {
     setPasswordErrors({});
     setShowNewPassword(false);
     setShowConfirmPassword(false);
+  };
+
+  // Validate profile form
+  const validateProfileForm = (): boolean => {
+    const errors: typeof profileErrors = {};
+
+    if (!profileForm.fullName.trim()) {
+      errors.fullName = "Nama lengkap wajib diisi";
+    } else if (profileForm.fullName.trim().length < 2) {
+      errors.fullName = "Nama minimal 2 karakter";
+    }
+
+    setProfileErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // Handle profile update
+  const handleUpdateProfile = async () => {
+    if (!validateProfileForm() || !profile?.id) return;
+
+    try {
+      setIsUpdatingProfile(true);
+      
+      // Update in database
+      await userService.update(profile.id, {
+        full_name: profileForm.fullName.trim()
+      });
+
+      // Refresh profile to get updated data
+      await refreshProfile();
+
+      toast.success("Profil berhasil diperbarui!");
+      setIsProfileDialogOpen(false);
+      setProfileForm({ fullName: "" });
+      setProfileErrors({});
+    } catch (error) {
+      console.error("Update profile error:", error);
+      toast.error("Gagal memperbarui profil");
+    } finally {
+      setIsUpdatingProfile(false);
+    }
+  };
+
+  // Close profile dialog and reset form
+  const handleProfileDialogClose = () => {
+    setIsProfileDialogOpen(false);
+    setProfileForm({ fullName: "" });
+    setProfileErrors({});
   };
 
   // Responsive Section Component
@@ -237,7 +296,7 @@ const Settings = () => {
             {/* User Info */}
             <div className="flex-1 space-y-1 min-w-0">
               <h2 className="text-lg sm:text-xl md:text-2xl font-display font-bold truncate">
-                {user?.user_metadata?.full_name || user?.email?.split('@')[0] || "Pengguna"}
+                {profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || "Pengguna"}
               </h2>
               <p className="text-xs sm:text-sm text-muted-foreground truncate">
                 {user?.email || "Email tidak tersedia"}
@@ -259,7 +318,15 @@ const Settings = () => {
               variant="outline" 
               size="sm"
               className="border-primary/20 hover:bg-primary/10 hover:text-primary w-full sm:w-auto h-9 sm:h-10 text-xs sm:text-sm"
+              onClick={() => {
+                setProfileForm({
+                  fullName: user?.user_metadata?.full_name || profile?.full_name || ""
+                });
+                setProfileErrors({});
+                setIsProfileDialogOpen(true);
+              }}
             >
+              <Pencil className="w-3.5 h-3.5 mr-1.5" />
               Edit Profil
             </Button>
           </div>
@@ -446,6 +513,90 @@ const Settings = () => {
                 </>
               ) : (
                 "Simpan Password"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Profile Dialog */}
+      <Dialog open={isProfileDialogOpen} onOpenChange={handleProfileDialogClose}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <User className="w-5 h-5 text-primary" />
+              Edit Profil
+            </DialogTitle>
+            <DialogDescription>
+              Perbarui informasi profil Anda.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            {/* Full Name */}
+            <div className="space-y-2">
+              <Label htmlFor="fullName" className="text-sm font-medium">
+                Nama Lengkap
+              </Label>
+              <Input
+                id="fullName"
+                type="text"
+                placeholder="Masukkan nama lengkap"
+                value={profileForm.fullName}
+                onChange={(e) => {
+                  setProfileForm({ ...profileForm, fullName: e.target.value });
+                  if (profileErrors.fullName) {
+                    setProfileErrors({ ...profileErrors, fullName: undefined });
+                  }
+                }}
+                className={cn(
+                  profileErrors.fullName && "border-red-500 focus-visible:ring-red-500"
+                )}
+              />
+              {profileErrors.fullName && (
+                <p className="text-xs text-red-500">{profileErrors.fullName}</p>
+              )}
+            </div>
+
+            {/* Email (read-only) */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-muted-foreground">
+                Email
+              </Label>
+              <Input
+                type="email"
+                value={user?.email || ""}
+                disabled
+                className="bg-muted/50"
+              />
+              <p className="text-xs text-muted-foreground">
+                Email tidak dapat diubah
+              </p>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
+            <Button
+              variant="outline"
+              onClick={handleProfileDialogClose}
+              className="flex-1"
+              disabled={isUpdatingProfile}
+            >
+              Batal
+            </Button>
+            <Button
+              onClick={handleUpdateProfile}
+              className="flex-1 gap-2"
+              disabled={isUpdatingProfile}
+            >
+              {isUpdatingProfile ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Menyimpan...
+                </>
+              ) : (
+                "Simpan Perubahan"
               )}
             </Button>
           </div>

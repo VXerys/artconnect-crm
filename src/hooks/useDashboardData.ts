@@ -92,7 +92,8 @@ export const useDashboardData = (): DashboardData => {
   });
   const [totalSales, setTotalSales] = useState("Rp 0");
 
-  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Seniman';
+  // Use profile.full_name from database as primary source (updated via Settings)
+  const userName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Seniman';
 
   // Get userId from profile
   const userId = profile?.id || null;
