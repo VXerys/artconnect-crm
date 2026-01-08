@@ -72,21 +72,24 @@ const Settings = () => {
   }) => (
     <div 
       className={cn(
-        "p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 transition-colors",
+        "p-3 sm:p-4 flex items-center justify-between gap-3 sm:gap-4 transition-colors",
         onClick && "cursor-pointer hover:bg-white/5 active:bg-white/10"
       )}
       onClick={onClick}
     >
+      {/* Label & Description */}
       <div className="space-y-0.5 flex-1 min-w-0">
         <div className="font-medium text-sm sm:text-base text-foreground">{label}</div>
         {description && (
-          <div className="text-xs sm:text-sm text-muted-foreground leading-tight">{description}</div>
+          <div className="text-[11px] sm:text-xs md:text-sm text-muted-foreground leading-tight">{description}</div>
         )}
       </div>
-      <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
-        {value && <span className="text-xs sm:text-sm text-muted-foreground">{value}</span>}
+      
+      {/* Actions */}
+      <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+        {value && <span className="text-[11px] sm:text-xs md:text-sm text-muted-foreground">{value}</span>}
         {action}
-        {onClick && <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
+        {onClick && <ChevronRight className="w-4 h-4 text-muted-foreground" />}
       </div>
     </div>
   );
