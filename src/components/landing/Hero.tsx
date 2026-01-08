@@ -10,9 +10,9 @@ const Hero = () => {
   const { user } = useAuth();
 
   return (
-    <section id="hero" className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
+    <section id="hero" className="relative min-h-screen flex flex-col justify-center overflow-hidden">
       {/* Background Image */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 z-0">
         <img 
           src={heroBg} 
           alt="ArtConnect Gallery" 
@@ -27,7 +27,7 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-transparent to-background" />
       </div>
 
-      <Container className="relative z-10 py-12 sm:py-16 md:py-20">
+      <Container className="relative z-10 pt-28 pb-16 sm:pt-32 sm:pb-20 md:pt-40 md:pb-24">
         <div className="max-w-5xl mx-auto text-center space-y-8 sm:space-y-10">
           {/* Badge */}
           <div 
