@@ -16,7 +16,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import NotificationDropdown from "./NotificationDropdown";
 import UserAvatar from "./UserAvatar";
 import Logo from "@/components/ui/Logo";
 
@@ -162,7 +161,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
             {/* Actions */}
             <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
-              <NotificationDropdown />
               <UserAvatar size="sm" />
             </div>
           </div>
