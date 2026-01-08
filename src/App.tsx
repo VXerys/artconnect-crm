@@ -10,6 +10,7 @@ import { ThemeProvider } from "./components/theme-provider";
 
 // Components
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import ForceDarkMode from "./components/layout/ForceDarkMode";
 
 // Public Pages
 import Index from "./pages/Index";
@@ -54,22 +55,22 @@ const App = () => (
           <AuthProvider>
             <Routes>
               {/* ============================================ */}
-              {/* PUBLIC ROUTES */}
+              {/* PUBLIC ROUTES - Always Dark Mode */}
               {/* ============================================ */}
-              <Route path="/" element={<Index />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/guide" element={<GuidePage />} />
-              <Route path="/privacy" element={<PrivacyPolicyPage />} />
-              <Route path="/terms" element={<TermsConditionsPage />} />
+              <Route path="/" element={<ForceDarkMode><Index /></ForceDarkMode>} />
+              <Route path="/about" element={<ForceDarkMode><AboutPage /></ForceDarkMode>} />
+              <Route path="/guide" element={<ForceDarkMode><GuidePage /></ForceDarkMode>} />
+              <Route path="/privacy" element={<ForceDarkMode><PrivacyPolicyPage /></ForceDarkMode>} />
+              <Route path="/terms" element={<ForceDarkMode><TermsConditionsPage /></ForceDarkMode>} />
 
               {/* ============================================ */}
-              {/* AUTH ROUTES */}
+              {/* AUTH ROUTES - Always Dark Mode */}
               {/* ============================================ */}
-              <Route path="/auth/login" element={<LoginPage />} />
-              <Route path="/auth/register" element={<RegisterPage />} />
-              <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
-              <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
-              <Route path="/auth/callback" element={<AuthCallback />} />
+              <Route path="/auth/login" element={<ForceDarkMode><LoginPage /></ForceDarkMode>} />
+              <Route path="/auth/register" element={<ForceDarkMode><RegisterPage /></ForceDarkMode>} />
+              <Route path="/auth/forgot-password" element={<ForceDarkMode><ForgotPasswordPage /></ForceDarkMode>} />
+              <Route path="/auth/reset-password" element={<ForceDarkMode><ResetPasswordPage /></ForceDarkMode>} />
+              <Route path="/auth/callback" element={<ForceDarkMode><AuthCallback /></ForceDarkMode>} />
 
               {/* ============================================ */}
               {/* PROTECTED ROUTES (Require Authentication) */}
