@@ -265,7 +265,7 @@ const GlobalSearch = ({ className, onResultSelect }: GlobalSearchProps) => {
     <div ref={containerRef} className={cn("relative", className)}>
       {/* Search Input */}
       <div className="relative">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 md:w-4 md:h-4 text-muted-foreground" />
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 md:w-4 md:h-4 text-muted-foreground pointer-events-none" />
         <input
           ref={inputRef}
           type="text"
@@ -277,19 +277,21 @@ const GlobalSearch = ({ className, onResultSelect }: GlobalSearchProps) => {
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder="Cari karya, kontak, laporan..."
-          className="w-full h-8 md:h-9 pl-8 md:pl-9 pr-8 bg-secondary border border-border rounded-lg text-xs md:text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
+          className="w-full h-8 md:h-9 pl-8 md:pl-9 pr-9 bg-secondary border border-border rounded-lg text-xs md:text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
         />
-        {query && !isLoading && (
-          <button
-            onClick={handleClear}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 hover:bg-muted rounded text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
-        )}
-        {isLoading && (
-          <Loader2 className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 animate-spin text-muted-foreground" />
-        )}
+        {/* Clear button or Loading indicator */}
+        <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center justify-center">
+          {isLoading ? (
+            <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+          ) : query ? (
+            <button
+              onClick={handleClear}
+              className="p-0.5 hover:bg-muted rounded text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          ) : null}
+        </div>
       </div>
 
       {/* Results Dropdown */}
