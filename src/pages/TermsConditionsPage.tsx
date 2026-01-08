@@ -1,5 +1,5 @@
 import { useLayoutEffect, useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   ArrowLeft, 
   FileText,
@@ -300,7 +300,17 @@ const TermsConditionsPage = () => {
 
   // Determine back route - if came from register or settings, go back there
   const from = (location.state as { from?: string })?.from;
-  const backRoute = from === 'register' ? '/auth/register' : from === 'settings' ? '/settings' : '/';
+  const navigate = useNavigate();
+  
+  const handleBack = () => {
+    if (from === 'register') {
+      navigate('/auth/register');
+    } else if (from === 'settings') {
+      navigate('/settings');
+    } else {
+      navigate('/');
+    }
+  };
 
   // Scroll to top on mount
   useLayoutEffect(() => {
@@ -355,12 +365,15 @@ const TermsConditionsPage = () => {
             <div className="flex items-center justify-between h-14 sm:h-16">
               <Logo size="sm" />
               
-              <Link to={backRoute}>
-                <Button variant="ghost" size="sm" className="gap-2">
-                  <ArrowLeft className="w-4 h-4" />
-                  <span className="hidden sm:inline">Kembali</span>
-                </Button>
-              </Link>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="gap-2"
+                onClick={handleBack}
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="hidden sm:inline">Kembali</span>
+              </Button>
             </div>
           </div>
         </nav>
