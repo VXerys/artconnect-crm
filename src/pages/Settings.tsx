@@ -8,14 +8,30 @@ import {
   LogOut, 
   ChevronRight,
   HelpCircle,
+  Key,
+  Eye,
+  EyeOff,
+  Loader2,
+  Lock,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useTheme } from "@/components/theme-provider";
+import { updatePassword } from "@/lib/supabase";
 
 const Settings = () => {
   const { user, signOut } = useAuth();
@@ -26,7 +42,20 @@ const Settings = () => {
   // Mock states for UI demonstration
   const [emailNotifs, setEmailNotifs] = useState(true);
   const [pushNotifs, setPushNotifs] = useState(false);
-  const [twoFactor, setTwoFactor] = useState(false);
+
+  // Change Password Dialog State
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [passwordErrors, setPasswordErrors] = useState<{
+    newPassword?: string;
+    confirmPassword?: string;
+  }>({});
 
   const handleLogout = async () => {
     try {
@@ -41,6 +70,64 @@ const Settings = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Validate password form
+  const validatePasswordForm = (): boolean => {
+    const errors: typeof passwordErrors = {};
+
+    if (!passwordForm.newPassword) {
+      errors.newPassword = "Password baru wajib diisi";
+    } else if (passwordForm.newPassword.length < 6) {
+      errors.newPassword = "Password minimal 6 karakter";
+    }
+
+    if (!passwordForm.confirmPassword) {
+      errors.confirmPassword = "Konfirmasi password wajib diisi";
+    } else if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      errors.confirmPassword = "Password tidak cocok";
+    }
+
+    setPasswordErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // Handle password change
+  const handleChangePassword = async () => {
+    if (!validatePasswordForm()) return;
+
+    try {
+      setIsChangingPassword(true);
+      const { error } = await updatePassword(passwordForm.newPassword);
+      
+      if (error) {
+        if (error.message.includes("same")) {
+          toast.error("Password baru tidak boleh sama dengan password lama");
+        } else {
+          toast.error("Gagal mengubah password: " + error.message);
+        }
+        return;
+      }
+
+      toast.success("Password berhasil diubah!");
+      setIsPasswordDialogOpen(false);
+      setPasswordForm({ newPassword: "", confirmPassword: "" });
+      setPasswordErrors({});
+    } catch (error) {
+      console.error("Change password error:", error);
+      toast.error("Terjadi kesalahan saat mengubah password");
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
+  // Close password dialog and reset form
+  const handlePasswordDialogClose = () => {
+    setIsPasswordDialogOpen(false);
+    setPasswordForm({ newPassword: "", confirmPassword: "" });
+    setPasswordErrors({});
+    setShowNewPassword(false);
+    setShowConfirmPassword(false);
   };
 
   // Responsive Section Component
@@ -185,14 +272,7 @@ const Settings = () => {
             <Row 
               label="Ubah Password" 
               description="Perbarui kata sandi akun Anda secara berkala"
-              onClick={() => {}}
-            />
-            <Row 
-              label="Two-Factor Authentication" 
-              description="Tambahkan lapisan keamanan ekstra"
-              action={
-                <Switch checked={twoFactor} onCheckedChange={setTwoFactor} />
-              }
+              onClick={() => setIsPasswordDialogOpen(true)}
             />
           </Section>
 
@@ -229,6 +309,121 @@ const Settings = () => {
           </div>
         </div>
       </div>
+
+      {/* Change Password Dialog */}
+      <Dialog open={isPasswordDialogOpen} onOpenChange={handlePasswordDialogClose}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <Lock className="w-5 h-5 text-primary" />
+              Ubah Password
+            </DialogTitle>
+            <DialogDescription>
+              Masukkan password baru Anda. Password minimal 6 karakter.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            {/* New Password */}
+            <div className="space-y-2">
+              <Label htmlFor="newPassword" className="text-sm font-medium">
+                Password Baru
+              </Label>
+              <div className="relative">
+                <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="newPassword"
+                  type={showNewPassword ? "text" : "password"}
+                  placeholder="Masukkan password baru"
+                  value={passwordForm.newPassword}
+                  onChange={(e) => {
+                    setPasswordForm({ ...passwordForm, newPassword: e.target.value });
+                    if (passwordErrors.newPassword) {
+                      setPasswordErrors({ ...passwordErrors, newPassword: undefined });
+                    }
+                  }}
+                  className={cn(
+                    "pl-10 pr-10",
+                    passwordErrors.newPassword && "border-red-500 focus-visible:ring-red-500"
+                  )}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              {passwordErrors.newPassword && (
+                <p className="text-xs text-red-500">{passwordErrors.newPassword}</p>
+              )}
+            </div>
+
+            {/* Confirm Password */}
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword" className="text-sm font-medium">
+                Konfirmasi Password
+              </Label>
+              <div className="relative">
+                <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Ulangi password baru"
+                  value={passwordForm.confirmPassword}
+                  onChange={(e) => {
+                    setPasswordForm({ ...passwordForm, confirmPassword: e.target.value });
+                    if (passwordErrors.confirmPassword) {
+                      setPasswordErrors({ ...passwordErrors, confirmPassword: undefined });
+                    }
+                  }}
+                  className={cn(
+                    "pl-10 pr-10",
+                    passwordErrors.confirmPassword && "border-red-500 focus-visible:ring-red-500"
+                  )}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              {passwordErrors.confirmPassword && (
+                <p className="text-xs text-red-500">{passwordErrors.confirmPassword}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
+            <Button
+              variant="outline"
+              onClick={handlePasswordDialogClose}
+              className="flex-1"
+              disabled={isChangingPassword}
+            >
+              Batal
+            </Button>
+            <Button
+              onClick={handleChangePassword}
+              className="flex-1 gap-2"
+              disabled={isChangingPassword}
+            >
+              {isChangingPassword ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Menyimpan...
+                </>
+              ) : (
+                "Simpan Password"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };
