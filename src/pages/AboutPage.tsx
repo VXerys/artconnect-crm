@@ -1,5 +1,5 @@
 import { useLayoutEffect, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   ArrowLeft, 
   Target, 
@@ -188,6 +188,8 @@ const TeamMemberCard = ({ member, index, isVisible }: {
 };
 
 const AboutPage = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [heroVisible, setHeroVisible] = useState(false);
   const [missionVisible, setMissionVisible] = useState(false);
   const [teamVisible, setTeamVisible] = useState(false);
@@ -201,6 +203,16 @@ const AboutPage = () => {
   const valuesRef = useRef<HTMLElement>(null);
   const techRef = useRef<HTMLElement>(null);
   const projectRef = useRef<HTMLElement>(null);
+
+  // Determine back route - if came from settings, go back there
+  const from = (location.state as { from?: string })?.from;
+  const handleBack = () => {
+    if (from === 'settings') {
+      navigate('/settings');
+    } else {
+      navigate('/');
+    }
+  };
 
   // Scroll to top on mount
   useLayoutEffect(() => {
@@ -262,12 +274,15 @@ const AboutPage = () => {
             <div className="flex items-center justify-between h-16">
               <Logo size="sm" />
               
-              <Link to="/">
-                <Button variant="ghost" size="sm" className="gap-2">
-                  <ArrowLeft className="w-4 h-4" />
-                  Kembali
-                </Button>
-              </Link>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="gap-2"
+                onClick={handleBack}
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Kembali
+              </Button>
             </div>
           </div>
         </nav>

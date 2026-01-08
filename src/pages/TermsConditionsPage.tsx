@@ -298,9 +298,9 @@ const TermsConditionsPage = () => {
   const sectionsRef = useRef<HTMLElement>(null);
   const contactRef = useRef<HTMLElement>(null);
 
-  // Determine back route - if came from register, go back to register
+  // Determine back route - if came from register or settings, go back there
   const from = (location.state as { from?: string })?.from;
-  const backRoute = from === 'register' ? '/auth/register' : '/';
+  const backRoute = from === 'register' ? '/auth/register' : from === 'settings' ? '/settings' : '/';
 
   // Scroll to top on mount
   useLayoutEffect(() => {

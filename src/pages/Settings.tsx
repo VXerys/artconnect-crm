@@ -318,16 +318,16 @@ const Settings = () => {
           <Section title={t.settings.help.title} icon={HelpCircle}>
             <Row 
               label={t.settings.help.helpCenter} 
-              onClick={() => navigate("/guide")}
+              onClick={() => navigate("/guide", { state: { from: 'settings' } })}
             />
             <Row 
               label={t.settings.help.terms} 
-              onClick={() => navigate("/terms")}
+              onClick={() => navigate("/terms", { state: { from: 'settings' } })}
             />
             <Row 
               label={t.settings.help.about} 
               value="v1.0.0" 
-              onClick={() => navigate("/about")}
+              onClick={() => navigate("/about", { state: { from: 'settings' } })}
             />
           </Section>
 

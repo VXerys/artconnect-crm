@@ -1,5 +1,5 @@
 import { useLayoutEffect, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   ArrowLeft, 
   BookOpen,
@@ -360,6 +360,8 @@ const FaqItem = ({ faq, index, isVisible, isExpanded, onToggle }: {
 };
 
 const GuidePage = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [heroVisible, setHeroVisible] = useState(false);
   const [stepsVisible, setStepsVisible] = useState(false);
   const [featuresVisible, setFeaturesVisible] = useState(false);
@@ -425,12 +427,22 @@ const GuidePage = () => {
             <div className="flex items-center justify-between h-16">
               <Logo size="sm" />
               
-              <Link to="/">
-                <Button variant="ghost" size="sm" className="gap-2">
-                  <ArrowLeft className="w-4 h-4" />
-                  Kembali
-                </Button>
-              </Link>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="gap-2"
+                onClick={() => {
+                  // Check if came from settings and go back there
+                  if (location.state?.from === 'settings') {
+                    navigate('/settings');
+                  } else {
+                    navigate(-1);
+                  }
+                }}
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Kembali
+              </Button>
             </div>
           </div>
         </nav>
