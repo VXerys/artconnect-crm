@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { 
   User, 
@@ -13,7 +13,6 @@ import {
   EyeOff,
   Loader2,
   Lock,
-  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -32,16 +31,51 @@ import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useTheme } from "@/components/theme-provider";
 import { updatePassword } from "@/lib/supabase";
+import userService from "@/lib/services/user.service";
 
 const Settings = () => {
-  const { user, signOut } = useAuth();
+  const { user, profile, refreshProfile, signOut } = useAuth();
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const [loading, setLoading] = useState(false);
   
-  // Mock states for UI demonstration
+  // Real states synchronized with database
   const [emailNotifs, setEmailNotifs] = useState(true);
-  const [pushNotifs, setPushNotifs] = useState(false);
+  const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
+
+  // Sync state with profile data
+  useEffect(() => {
+    if (profile?.settings) {
+      const settings = profile.settings as Record<string, any>;
+      if (typeof settings.email_notifications !== 'undefined') {
+        setEmailNotifs(!!settings.email_notifications);
+      }
+    }
+  }, [profile]);
+
+  // Handle email notifications toggle
+  const handleToggleEmailNotifs = async (checked: boolean) => {
+    if (!profile?.id) return;
+    
+    // Optimistic update
+    const previousState = emailNotifs;
+    setEmailNotifs(checked);
+    
+    try {
+      setIsUpdatingSettings(true);
+      await userService.updateSettings(profile.id, {
+        email_notifications: checked
+      });
+      await refreshProfile();
+      toast.success(checked ? "Email notifikasi diaktifkan" : "Email notifikasi dimatikan");
+    } catch (error) {
+      console.error("Error updating settings:", error);
+      setEmailNotifs(previousState); // Revert on error
+      toast.error("Gagal memperbarui pengaturan");
+    } finally {
+      setIsUpdatingSettings(false);
+    }
+  };
 
   // Change Password Dialog State
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
@@ -255,14 +289,11 @@ const Settings = () => {
               label="Email Notifikasi" 
               description="Terima update mingguan tentang portofolio Anda"
               action={
-                <Switch checked={emailNotifs} onCheckedChange={setEmailNotifs} />
-              }
-            />
-            <Row 
-              label="Push Notifikasi" 
-              description="Pemberitahuan real-time untuk aktivitas baru"
-              action={
-                <Switch checked={pushNotifs} onCheckedChange={setPushNotifs} />
+                <Switch 
+                  checked={emailNotifs} 
+                  onCheckedChange={handleToggleEmailNotifs}
+                  disabled={isUpdatingSettings}
+                />
               }
             />
           </Section>
