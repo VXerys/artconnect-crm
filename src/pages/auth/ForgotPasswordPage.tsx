@@ -34,18 +34,25 @@ const ForgotPasswordPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const { error } = await resetPassword(email);
+      console.log('[ResetPassword] Attempting to send reset email to:', email);
+      const result = await resetPassword(email);
+      console.log('[ResetPassword] Supabase response:', result);
+      
+      const { error } = result;
 
       if (error) {
+        console.error('[ResetPassword] Error:', error);
         toast({
           title: "Error",
           description: error.message,
           variant: "destructive",
         });
       } else {
+        console.log('[ResetPassword] Success - email should be sent');
         setIsEmailSent(true);
       }
     } catch (err) {
+      console.error('[ResetPassword] Exception:', err);
       toast({
         title: "Error",
         description: "Terjadi kesalahan saat mengirim email",
