@@ -10,7 +10,7 @@ const Hero = () => {
   const { user } = useAuth();
 
   return (
-    <section id="hero" className="relative min-h-screen flex flex-col justify-center overflow-hidden">
+    <section id="hero" className="relative min-h-[100svh] flex flex-col justify-start sm:justify-center overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img 
@@ -36,39 +36,11 @@ const Hero = () => {
             <span>CRM Khusus untuk Seniman Visual</span>
           </div>
 
-          {/* Main Title with SplitText Animation */}
           <div 
             className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight leading-[1.1] px-4 sm:px-0"
-            style={{ willChange: "transform" }}
           >
-            <SplitText
-              text="Art"
-              tag="div"
-              className="text-foreground font-display font-extrabold inline-block mr-2 sm:mr-3"
-              delay={70}
-              duration={1.0}
-              ease="power3.out"
-              splitType="chars"
-              from={{ opacity: 0, y: 40 }}
-              to={{ opacity: 1, y: 0 }}
-              threshold={0.1}
-              rootMargin="-50px"
-              textAlign="center"
-            />
-            <SplitText
-              text="Connect"
-              tag="div"
-              className="text-primary font-display font-extrabold inline-block"
-              delay={70}
-              duration={1.0}
-              ease="power3.out"
-              splitType="chars"
-              from={{ opacity: 0, y: 40 }}
-              to={{ opacity: 1, y: 0 }}
-              threshold={0.1}
-              rootMargin="-50px"
-              textAlign="center"
-            />
+            <span className="text-foreground inline-block mr-2 sm:mr-3 animate-in fade-in slide-in-from-bottom-8 duration-1000">Art</span>
+            <span className="text-primary inline-block animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">Connect</span>
           </div>
 
           {/* Subtitle */}
@@ -124,23 +96,23 @@ const Hero = () => {
             className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-6 sm:gap-8 pt-10 sm:pt-14 animate-slide-up px-2"
             style={{ animationDelay: "0.4s" }}
           >
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
+            <div className="flex items-center gap-3 px-4 py-2 rounded-xl glass-card border-white/10">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0 border border-primary/30 shadow-glow">
                 <Palette className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
-              <span className="font-medium text-sm sm:text-base">Inventaris Karya</span>
+              <span className="font-medium text-sm sm:text-base text-foreground/90">Inventaris Karya</span>
             </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
+            <div className="flex items-center gap-3 px-4 py-2 rounded-xl glass-card border-white/10">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0 border border-primary/30 shadow-glow">
                 <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
-              <span className="font-medium text-sm sm:text-base">Jejaring Profesional</span>
+              <span className="font-medium text-sm sm:text-base text-foreground/90">Jejaring Profesional</span>
             </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
+            <div className="flex items-center gap-3 px-4 py-2 rounded-xl glass-card border-white/10">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0 border border-primary/30 shadow-glow">
                 <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
-              <span className="font-medium text-sm sm:text-base">Analitik Dashboard</span>
+              <span className="font-medium text-sm sm:text-base text-foreground/90">Analitik Dashboard</span>
             </div>
           </div>
         </div>
