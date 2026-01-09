@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, FileText, Check, ChevronRight } from "lucide-react";
+import { Download, FileText, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ReportType } from "./types";
 
@@ -59,17 +59,12 @@ export const ReportTypesGrid = ({ reportTypes, onGenerateReport }: ReportTypesGr
 
               {/* Header Content */}
               <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-1 sm:gap-2">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-display font-semibold text-sm sm:text-base md:text-lg tracking-tight group-hover:text-primary transition-colors leading-tight">
-                      {report.title}
-                    </h3>
-                    <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-0.5 sm:mt-1 md:mt-1.5 leading-relaxed line-clamp-2">
-                      {report.description}
-                    </p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground/50 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 flex-shrink-0" />
-                </div>
+                <h3 className="font-display font-semibold text-sm sm:text-base md:text-lg tracking-tight group-hover:text-primary transition-colors leading-tight">
+                  {report.title}
+                </h3>
+                <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-0.5 sm:mt-1 md:mt-1.5 leading-relaxed line-clamp-2">
+                  {report.description}
+                </p>
               </div>
             </div>
 

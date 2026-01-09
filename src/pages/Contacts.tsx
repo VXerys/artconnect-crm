@@ -126,6 +126,13 @@ const Contacts = () => {
             onSearchChange={setSearchQuery}
           />
 
+          {/* Search Result Indicator */}
+          {searchQuery && (
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Menampilkan <span className="font-medium text-foreground">{filteredContacts.length}</span> hasil untuk "{searchQuery}"
+            </p>
+          )}
+
           <ContactGrid
             contacts={filteredContacts}
             onView={openViewDialog}
