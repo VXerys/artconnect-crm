@@ -13,7 +13,7 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background relative selection:bg-primary/30 selection:text-white">
+    <div className="dark min-h-screen bg-background relative selection:bg-primary/30 selection:text-white">
       {/* Premium Background System */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0 bg-gallery">
         {/* Grain/Noise Overlay */}

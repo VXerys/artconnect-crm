@@ -348,7 +348,7 @@ const TermsConditionsPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background relative">
+    <div className="dark min-h-screen bg-background relative">
       {/* Unified Background Glows */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
@@ -363,7 +363,7 @@ const TermsConditionsPage = () => {
         <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border/50">
           <div className="container px-4 sm:px-6">
             <div className="flex items-center justify-between h-14 sm:h-16">
-              <Logo size="sm" />
+               <Logo size="sm" forceTheme="dark" />
               
               <Button 
                 variant="ghost" 

@@ -69,7 +69,7 @@ const Footer = () => {
               onClick={scrollToTop}
               className="mb-3 sm:mb-4 group inline-block"
             >
-              <Logo size="sm" showText={true} />
+              <Logo size="sm" showText={true} forceTheme="dark" />
             </button>
             <p className="text-muted-foreground text-sm leading-relaxed mb-4 sm:mb-5 max-w-sm">
               Platform CRM berbasis web yang dirancang khusus untuk seniman visual independen. 

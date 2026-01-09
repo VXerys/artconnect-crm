@@ -43,7 +43,7 @@ const PasswordStrength: React.FC<{ password: string }> = ({ password }) => {
           <div
             key={index}
             className={`h-1 flex-1 rounded-full transition-all ${
-              index < strength ? strengthColors[strength] : 'bg-gray-200'
+              index < strength ? strengthColors[strength] : 'bg-muted'
             }`}
           />
         ))}
@@ -278,16 +278,19 @@ const ResetPasswordPage: React.FC = () => {
   // Loading
   if (isValidSession === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-8 bg-white">
-        <div className="text-center animate-in fade-in duration-500">
+      <div className="dark min-h-screen flex items-center justify-center p-8 bg-background relative overflow-hidden">
+        {/* Decorative Background Elements */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-3xl" />
+        
+        <div className="text-center animate-in fade-in duration-500 relative z-10">
           <div className="relative w-20 h-20 mx-auto mb-6">
             <div className="absolute inset-0 bg-gradient-to-br from-amber-400/30 to-orange-500/30 rounded-full animate-ping" />
             <div className="relative w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-xl shadow-amber-500/30">
               <Loader2 className="w-10 h-10 animate-spin text-white" />
             </div>
           </div>
-          <p className="text-gray-600 font-medium">Memverifikasi link reset password...</p>
-          <p className="text-sm text-gray-400 mt-2">Mohon tunggu sebentar</p>
+          <p className="text-foreground font-medium">Memverifikasi link reset password...</p>
+          <p className="text-sm text-muted-foreground mt-2">Mohon tunggu sebentar</p>
         </div>
       </div>
     );
@@ -296,8 +299,11 @@ const ResetPasswordPage: React.FC = () => {
   // Invalid
   if (!isValidSession) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-8 bg-white">
-        <div className="w-full max-w-md text-center animate-in fade-in zoom-in-95 duration-500">
+      <div className="dark min-h-screen flex items-center justify-center p-8 bg-background relative overflow-hidden">
+        {/* Decorative Background Elements */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-3xl" />
+        
+        <div className="w-full max-w-md text-center animate-in fade-in zoom-in-95 duration-500 relative z-10">
           {/* Animated Icon */}
           <div className="relative w-24 h-24 mx-auto mb-8">
             <div className="absolute inset-0 bg-gradient-to-br from-red-400/30 to-red-500/30 rounded-full animate-pulse" />
@@ -306,11 +312,11 @@ const ResetPasswordPage: React.FC = () => {
             </div>
           </div>
 
-          <h2 className="text-3xl font-bold text-gray-900 mb-3 animate-in slide-in-from-bottom-4 duration-500 delay-100">
+          <h2 className="text-3xl font-bold text-foreground mb-3 animate-in slide-in-from-bottom-4 duration-500 delay-100">
             Link Tidak Valid 😔
           </h2>
           
-          <p className="text-gray-500 mb-8 leading-relaxed animate-in slide-in-from-bottom-4 duration-500 delay-200">
+          <p className="text-muted-foreground mb-8 leading-relaxed animate-in slide-in-from-bottom-4 duration-500 delay-200">
             {errorMessage}
           </p>
           
@@ -325,8 +331,8 @@ const ResetPasswordPage: React.FC = () => {
             <Link to="/auth/login" className="block">
               <Button 
                 variant="outline" 
-                className="w-full h-12 border-2 border-gray-200 text-gray-700 font-medium
-                  hover:border-gray-300 hover:bg-gray-50
+                className="w-full h-12 border-border text-foreground font-medium
+                  hover:bg-accent/10
                   active:scale-[0.98] transition-all duration-300"
               >
                 ← Kembali ke Login
@@ -341,8 +347,11 @@ const ResetPasswordPage: React.FC = () => {
   // Success
   if (isSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-8 bg-white">
-        <div className="w-full max-w-md text-center animate-in fade-in zoom-in-95 duration-500">
+      <div className="dark min-h-screen flex items-center justify-center p-8 bg-background relative overflow-hidden">
+        {/* Decorative Background Elements */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+        
+        <div className="w-full max-w-md text-center animate-in fade-in zoom-in-95 duration-500 relative z-10">
           {/* Animated Icon */}
           <div className="relative w-28 h-28 mx-auto mb-8">
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/30 to-green-500/30 rounded-full animate-ping" />
@@ -355,11 +364,11 @@ const ResetPasswordPage: React.FC = () => {
           {/* Confetti */}
           <div className="text-4xl mb-4 animate-bounce">🎉</div>
 
-          <h2 className="text-3xl font-bold text-gray-900 mb-3 animate-in slide-in-from-bottom-4 duration-500 delay-100">
+          <h2 className="text-3xl font-bold text-foreground mb-3 animate-in slide-in-from-bottom-4 duration-500 delay-100">
             Password Diperbarui!
           </h2>
           
-          <p className="text-gray-500 mb-8 leading-relaxed animate-in slide-in-from-bottom-4 duration-500 delay-200">
+          <p className="text-muted-foreground mb-8 leading-relaxed animate-in slide-in-from-bottom-4 duration-500 delay-200">
             Password Anda telah berhasil diubah.<br/>
             Silakan login dengan password baru Anda.
           </p>
@@ -374,7 +383,7 @@ const ResetPasswordPage: React.FC = () => {
             </Link>
           </div>
           
-          <p className="mt-6 text-xs text-gray-400 animate-in fade-in duration-500 delay-500">
+          <p className="mt-6 text-xs text-muted-foreground animate-in fade-in duration-500 delay-500">
             Anda akan diarahkan ke halaman login
           </p>
         </div>
@@ -384,24 +393,27 @@ const ResetPasswordPage: React.FC = () => {
 
   // Form
   return (
-    <div className="min-h-screen flex items-center justify-center p-8 bg-white">
-      <div className="w-full max-w-md">
+    <div className="dark min-h-screen flex items-center justify-center p-8 bg-background relative overflow-hidden">
+      {/* Decorative Background Elements */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+      
+      <div className="w-full max-w-md relative z-10">
         <div className="flex items-center justify-center mb-8">
-          <Logo size="lg" forceTheme="light" />
+          <Logo size="lg" forceTheme="dark" />
         </div>
 
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+          <h2 className="text-3xl font-bold text-foreground mb-2">
             Reset Password
           </h2>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             Masukkan password baru Anda
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-gray-700">
+            <Label htmlFor="password" className="text-foreground">
               Password Baru
             </Label>
             <div className="relative">
@@ -412,7 +424,7 @@ const ResetPasswordPage: React.FC = () => {
                 placeholder="Minimal 8 karakter"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-11 pr-11 h-12 bg-white border-gray-300 text-gray-900"
+                className="pl-11 pr-11 h-12 bg-transparent border-border text-foreground placeholder:text-muted-foreground"
                 disabled={isLoading}
               />
               <button
@@ -427,7 +439,7 @@ const ResetPasswordPage: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword" className="text-gray-700">
+            <Label htmlFor="confirmPassword" className="text-foreground">
               Konfirmasi Password
             </Label>
             <div className="relative">
@@ -438,7 +450,7 @@ const ResetPasswordPage: React.FC = () => {
                 placeholder="Ulangi password baru"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="pl-11 pr-11 h-12 bg-white border-gray-300 text-gray-900"
+                className="pl-11 pr-11 h-12 bg-transparent border-border text-foreground placeholder:text-muted-foreground"
                 disabled={isLoading}
               />
               <button
@@ -476,7 +488,7 @@ const ResetPasswordPage: React.FC = () => {
         <div className="mt-6 text-center">
           <Link 
             to="/auth/login" 
-            className="inline-flex items-center text-gray-600 hover:text-gray-800"
+            className="inline-flex items-center text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Kembali ke Login

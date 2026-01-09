@@ -50,20 +50,20 @@ const AuthCallback: React.FC = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white relative overflow-hidden">
+    <div className="dark min-h-screen flex items-center justify-center bg-background relative overflow-hidden">
       {/* Decorative Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Subtle gradient orbs */}
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-amber-100 to-orange-50 rounded-full blur-3xl opacity-60" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-amber-50 to-yellow-50 rounded-full blur-3xl opacity-50" />
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/10 rounded-full blur-3xl opacity-60" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-primary/5 rounded-full blur-3xl opacity-50" />
         
         {/* Subtle grid pattern */}
         <div 
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0 opacity-[0.05]"
           style={{
             backgroundImage: `
-              linear-gradient(to right, #000 1px, transparent 1px),
-              linear-gradient(to bottom, #000 1px, transparent 1px)
+              linear-gradient(to right, #fff 1px, transparent 1px),
+              linear-gradient(to bottom, #fff 1px, transparent 1px)
             `,
             backgroundSize: '40px 40px'
           }}
@@ -71,17 +71,17 @@ const AuthCallback: React.FC = () => {
       </div>
 
       {/* Main Content Card */}
-      <div className="relative z-10 bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 p-10 max-w-sm w-full mx-4">
+      <div className="relative z-10 bg-card/50 backdrop-blur-md rounded-2xl shadow-xl border border-border/50 p-10 max-w-sm w-full mx-4">
         {/* Logo */}
         <div className="flex items-center justify-center mb-8">
-          <Logo size="lg" forceTheme="light" />
+          <Logo size="lg" forceTheme="dark" />
         </div>
 
         {/* Status Icon with Animation */}
         <div className="mb-6 flex justify-center">
           {status === 'loading' && (
-            <div className="w-20 h-20 bg-gradient-to-br from-amber-50 to-orange-50 rounded-full flex items-center justify-center shadow-lg shadow-amber-100/50 animate-pulse">
-              <Loader2 className="w-10 h-10 text-amber-500 animate-spin" />
+            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center animate-pulse">
+              <Loader2 className="w-10 h-10 text-primary animate-spin" />
             </div>
           )}
           {status === 'success' && (
@@ -101,20 +101,20 @@ const AuthCallback: React.FC = () => {
         </div>
 
         {/* Status Title */}
-        <h2 className="text-2xl font-bold text-gray-900 mb-2 text-center">
+        <h2 className="text-2xl font-bold text-foreground mb-2 text-center">
           {status === 'loading' && 'Memproses...'}
           {status === 'success' && 'Berhasil!'}
           {status === 'error' && 'Gagal'}
         </h2>
 
         {/* Message */}
-        <p className="text-gray-500 text-center text-sm leading-relaxed">
+        <p className="text-muted-foreground text-center text-sm leading-relaxed">
           {message}
         </p>
 
         {/* Progress Bar for Loading/Success States */}
         {status !== 'error' && (
-          <div className="mt-6 w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+          <div className="mt-6 w-full bg-muted rounded-full h-1.5 overflow-hidden">
             <div 
               className={`h-full rounded-full transition-all duration-1000 ${
                 status === 'loading' 

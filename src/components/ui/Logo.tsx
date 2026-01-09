@@ -48,6 +48,19 @@ const Logo: React.FC<LogoProps> = ({
 
   const isDark = forceTheme ? forceTheme === 'dark' : (theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches));
   
+  // Alternative check for forced dark mode via class on root
+  const [isForcedDark, setIsForcedDark] = useState(false);
+  useEffect(() => {
+    const checkForcedDark = () => {
+      const root = window.document.documentElement;
+      const isForced = root.classList.contains('dark') && !root.classList.contains('light');
+      setIsForcedDark(isForced);
+    };
+    checkForcedDark();
+  }, [theme]);
+
+  const effectiveIsDark = forceTheme ? forceTheme === 'dark' : (isDark || isForcedDark);
+  
   const sizes = sizeMap[size];
   const iconSizes = {
     xs: 'w-4 h-4',
@@ -58,10 +71,10 @@ const Logo: React.FC<LogoProps> = ({
   };
   
   // Default text color based on context
-  const defaultTextClass = textClassName || (isDark ? 'text-white' : 'text-gray-900');
+  const defaultTextClass = textClassName || 'text-foreground';
 
   // Select logo based on theme
-  const logoSrc = isDark ? LogoDarkMode : LogoLightMode;
+  const logoSrc = effectiveIsDark ? LogoDarkMode : LogoLightMode;
 
   if (!mounted) return null;
 

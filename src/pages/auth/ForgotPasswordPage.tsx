@@ -38,8 +38,12 @@ const ForgotPasswordPage: React.FC = () => {
 
   if (isEmailSent) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 bg-white">
-        <div className="w-full max-w-md">
+      <div className="dark min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 bg-background relative overflow-hidden">
+        {/* Decorative Background Elements */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-primary/3 rounded-full blur-3xl pointer-events-none" />
+        
+        <div className="w-full max-w-md relative z-10">
           <div className="bg-card border border-border rounded-2xl shadow-xl p-6 sm:p-8 space-y-6">
             <div className="relative w-20 h-20 mx-auto">
               <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping" />
@@ -74,10 +78,14 @@ const ForgotPasswordPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 bg-white">
-      <div className="w-full max-w-md">
+    <div className="dark min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 bg-background relative overflow-hidden">
+      {/* Decorative Background Elements */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-primary/3 rounded-full blur-3xl pointer-events-none" />
+      
+      <div className="w-full max-w-md relative z-10">
         <div className="flex items-center justify-center mb-6">
-          <Logo size="md" showText={true} forceTheme="light" />
+          <Logo size="md" showText={true} forceTheme="dark" />
         </div>
         <div className="bg-card border border-border rounded-2xl shadow-xl p-6 sm:p-8 space-y-6">
           <div className="space-y-2 text-center">

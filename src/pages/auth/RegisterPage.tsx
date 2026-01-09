@@ -71,7 +71,7 @@ const PasswordStrength: React.FC<{ password: string }> = ({ password }) => {
           <div
             key={index}
             className={`h-1 flex-1 rounded-full transition-all ${
-              index < strength ? strengthColors[strength] : 'bg-gray-200'
+              index < strength ? strengthColors[strength] : 'bg-muted'
             }`}
           />
         ))}
@@ -220,8 +220,12 @@ const RegisterPage: React.FC = () => {
   // Email confirmation screen
   if (showConfirmation) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-8 bg-white">
-        <div className="w-full max-w-md text-center animate-in fade-in zoom-in-95 duration-500">
+      <div className="dark min-h-screen flex items-center justify-center p-8 bg-background relative overflow-hidden">
+        {/* Decorative Background Elements */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-primary/3 rounded-full blur-3xl pointer-events-none" />
+        
+        <div className="w-full max-w-md text-center animate-in fade-in zoom-in-95 duration-500 relative z-10">
           {/* Animated Icon */}
           <div className="relative w-28 h-28 mx-auto mb-8">
             <div className="absolute inset-0 bg-gradient-to-br from-amber-400/30 to-orange-500/30 rounded-full animate-ping" />
@@ -235,43 +239,43 @@ const RegisterPage: React.FC = () => {
           <div className="text-4xl mb-4 animate-bounce">🎉</div>
 
           {/* Title */}
-          <h2 className="text-3xl font-bold text-gray-900 mb-3 animate-in slide-in-from-bottom-4 duration-500 delay-100">
+          <h2 className="text-3xl font-bold text-foreground mb-3 animate-in slide-in-from-bottom-4 duration-500 delay-100">
             Hampir Selesai!
           </h2>
           
           {/* Description */}
-          <p className="text-gray-500 mb-8 leading-relaxed animate-in slide-in-from-bottom-4 duration-500 delay-200">
+          <p className="text-muted-foreground mb-8 leading-relaxed animate-in slide-in-from-bottom-4 duration-500 delay-200">
             Kami telah mengirim link konfirmasi ke{' '}
-            <span className="inline-block font-semibold text-gray-800 bg-amber-100 px-3 py-1 rounded-lg mt-2">{email}</span>
+            <span className="inline-block font-semibold text-primary bg-primary/10 border border-primary/20 px-3 py-1 rounded-lg mt-2">{email}</span>
           </p>
 
           {/* Steps */}
-          <div className="bg-gray-50 rounded-2xl p-6 mb-8 text-left space-y-4 animate-in slide-in-from-bottom-4 duration-500 delay-250">
+          <div className="bg-card/50 border border-border/50 backdrop-blur-sm rounded-2xl p-6 mb-8 text-left space-y-4 animate-in slide-in-from-bottom-4 duration-500 delay-250">
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-amber-600 font-bold text-sm">1</span>
+              <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-primary font-bold text-sm">1</span>
               </div>
               <div>
-                <p className="font-medium text-gray-800">Buka email Anda</p>
-                <p className="text-sm text-gray-500">Cek inbox atau folder spam</p>
+                <p className="font-medium text-foreground">Buka email Anda</p>
+                <p className="text-sm text-muted-foreground">Cek inbox atau folder spam</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-amber-600 font-bold text-sm">2</span>
+              <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-primary font-bold text-sm">2</span>
               </div>
               <div>
-                <p className="font-medium text-gray-800">Klik link konfirmasi</p>
-                <p className="text-sm text-gray-500">Link berlaku 24 jam</p>
+                <p className="font-medium text-foreground">Klik link konfirmasi</p>
+                <p className="text-sm text-muted-foreground">Link berlaku 24 jam</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Check className="w-4 h-4 text-emerald-600" />
+              <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Check className="w-4 h-4 text-emerald-400" />
               </div>
               <div>
-                <p className="font-medium text-gray-800">Mulai berkreasi!</p>
-                <p className="text-sm text-gray-500">Akun Anda siap digunakan</p>
+                <p className="font-medium text-foreground">Mulai berkreasi!</p>
+                <p className="text-sm text-muted-foreground">Akun Anda siap digunakan</p>
               </div>
             </div>
           </div>
@@ -280,8 +284,8 @@ const RegisterPage: React.FC = () => {
           <div className="space-y-3 animate-in slide-in-from-bottom-4 duration-500 delay-300">
             <Button
               variant="outline"
-              className="w-full h-12 bg-white border-2 border-gray-200 text-gray-700 font-semibold
-                hover:border-amber-500 hover:text-amber-600 hover:bg-amber-50 hover:shadow-lg hover:shadow-amber-500/10
+              className="w-full h-12 bg-transparent border-border text-foreground font-semibold
+                hover:border-primary hover:text-primary hover:bg-primary/10
                 active:scale-[0.98] transition-all duration-300"
               onClick={() => setShowConfirmation(false)}
             >
@@ -303,21 +307,21 @@ const RegisterPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="dark min-h-screen flex">
       {/* Left Side - Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-white">
+      <div className="flex-1 flex items-center justify-center p-8 bg-background border-r border-border/50">
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
           <div className="lg:hidden flex justify-center mb-8">
-            <Logo size="md" forceTheme="light" />
+            <Logo size="md" forceTheme="dark" />
           </div>
 
           {/* Header */}
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            <h2 className="text-3xl font-bold text-foreground mb-2">
               Buat Akun Baru
             </h2>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Mulai kelola karya seni Anda dengan mudah
             </p>
           </div>
@@ -326,7 +330,7 @@ const RegisterPage: React.FC = () => {
           <Button
             type="button"
             variant="outline"
-            className="w-full h-12 mb-6 bg-white hover:bg-gray-50 border-gray-300 text-gray-700 font-medium transition-all duration-200 hover:shadow-md"
+            className="w-full h-12 mb-6 bg-transparent hover:bg-accent/10 border-border text-foreground font-medium transition-all duration-200 hover:shadow-md"
             onClick={handleGoogleSignup}
             disabled={isGoogleLoading || isLoading}
           >
@@ -344,7 +348,7 @@ const RegisterPage: React.FC = () => {
               <span className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500">
+              <span className="px-4 bg-background text-muted-foreground">
                 atau lanjutkan dengan email
               </span>
             </div>
@@ -354,18 +358,18 @@ const RegisterPage: React.FC = () => {
           <form onSubmit={handleRegister} className="space-y-4">
             {/* Full Name Field */}
             <div className="space-y-2">
-              <Label htmlFor="fullName" className="text-gray-700">
+              <Label htmlFor="fullName" className="text-foreground">
                 Nama Lengkap
               </Label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
                   id="fullName"
                   type="text"
                   placeholder="John Doe"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="pl-11 h-12 bg-white border-gray-300 text-gray-900"
+                  className="pl-11 h-12 bg-transparent border-border text-foreground placeholder:text-muted-foreground"
                   disabled={isLoading || isGoogleLoading}
                 />
               </div>
@@ -373,18 +377,18 @@ const RegisterPage: React.FC = () => {
 
             {/* Email Field */}
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-700">
+              <Label htmlFor="email" className="text-foreground">
                 Email
               </Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
                   id="email"
                   type="email"
                   placeholder="nama@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-11 h-12 bg-white border-gray-300 text-gray-900"
+                  className="pl-11 h-12 bg-transparent border-border text-foreground placeholder:text-muted-foreground"
                   disabled={isLoading || isGoogleLoading}
                 />
               </div>
@@ -392,24 +396,24 @@ const RegisterPage: React.FC = () => {
 
             {/* Password Field */}
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-gray-700">
+              <Label htmlFor="password" className="text-foreground">
                 Password
               </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Minimal 8 karakter"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-11 pr-11 h-12 bg-white border-gray-300 text-gray-900"
+                  className="pl-11 pr-11 h-12 bg-transparent border-border text-foreground placeholder:text-muted-foreground"
                   disabled={isLoading || isGoogleLoading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -419,24 +423,24 @@ const RegisterPage: React.FC = () => {
 
             {/* Confirm Password Field */}
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-gray-700">
+              <Label htmlFor="confirmPassword" className="text-foreground">
                 Konfirmasi Password
               </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="Ulangi password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="pl-11 pr-11 h-12 bg-white border-gray-300 text-gray-900"
+                  className="pl-11 pr-11 h-12 bg-transparent border-border text-foreground placeholder:text-muted-foreground"
                   disabled={isLoading || isGoogleLoading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -452,14 +456,14 @@ const RegisterPage: React.FC = () => {
                 id="terms"
                 checked={agreeTerms}
                 onCheckedChange={(checked) => setAgreeTerms(checked as boolean)}
-                className="mt-0.5"
+                className="mt-0.5 border-border data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
               />
-              <label htmlFor="terms" className="text-sm text-gray-600">
+              <label htmlFor="terms" className="text-sm text-muted-foreground">
                 Saya setuju dengan{' '}
                 <Link 
                   to="/privacy" 
                   state={{ from: 'register' }}
-                  className="text-amber-600 hover:text-amber-700"
+                  className="text-amber-500 hover:text-amber-600"
                 >
                   Kebijakan Privasi
                 </Link>
@@ -467,7 +471,7 @@ const RegisterPage: React.FC = () => {
                 <Link 
                   to="/terms" 
                   state={{ from: 'register' }}
-                  className="text-amber-600 hover:text-amber-700"
+                  className="text-amber-500 hover:text-amber-600"
                 >
                   Syarat & Ketentuan
                 </Link>
@@ -495,11 +499,11 @@ const RegisterPage: React.FC = () => {
           </form>
 
           {/* Login Link */}
-          <p className="mt-6 text-center text-gray-600">
+          <p className="mt-6 text-center text-muted-foreground">
             Sudah punya akun?{' '}
             <Link 
               to="/auth/login" 
-              className="text-amber-600 hover:text-amber-700 font-semibold"
+              className="text-amber-500 hover:text-amber-600 font-semibold"
             >
               Masuk
             </Link>
@@ -509,7 +513,7 @@ const RegisterPage: React.FC = () => {
           <div className="mt-4 text-center">
             <Link 
               to="/" 
-              className="text-sm text-gray-500 hover:text-gray-700"
+              className="text-sm text-muted-foreground hover:text-foreground"
             >
               ← Kembali ke beranda
             </Link>

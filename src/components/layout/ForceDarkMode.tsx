@@ -13,20 +13,14 @@ export const ForceDarkMode = ({ children }: ForceDarkModeProps) => {
   useEffect(() => {
     const root = window.document.documentElement;
     
-    // Store current classes to restore later
-    const hadLightClass = root.classList.contains("light");
+    // Add dark class
+    const hadDark = root.classList.contains("dark");
+    if (!hadDark) root.classList.add("dark");
     
-    // Force dark mode by removing light class
-    root.classList.remove("light");
-    if (!root.classList.contains("dark")) {
-      root.classList.add("dark");
-    }
-    
-    // Cleanup: restore previous state when unmounting
+    // Cleanup: only remove if it wasn't there before
     return () => {
-      if (hadLightClass) {
+      if (!hadDark) {
         root.classList.remove("dark");
-        root.classList.add("light");
       }
     };
   }, []);

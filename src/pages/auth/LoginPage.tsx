@@ -131,7 +131,7 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="dark min-h-screen flex">
       {/* Left Side - Decorative */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-black">
         {/* Background Image */}
@@ -179,19 +179,19 @@ const LoginPage: React.FC = () => {
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-white">
+      <div className="flex-1 flex items-center justify-center p-8 bg-background border-l border-border/50">
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center justify-center mb-8">
-            <Logo size="lg" forceTheme="light" />
+            <Logo size="lg" forceTheme="dark" />
           </div>
 
           {/* Header */}
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            <h2 className="text-3xl font-bold text-foreground mb-2">
               Masuk ke Akun
             </h2>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Kelola karya seni dan kontak Anda dengan mudah
             </p>
           </div>
@@ -200,7 +200,7 @@ const LoginPage: React.FC = () => {
           <Button
             type="button"
             variant="outline"
-            className="w-full h-12 mb-6 bg-white hover:bg-gray-50 border-gray-300 text-gray-700 font-medium transition-all duration-200 hover:shadow-md"
+            className="w-full h-12 mb-6 bg-transparent hover:bg-accent/10 border-border text-foreground font-medium transition-all duration-200 hover:shadow-md"
             onClick={handleGoogleLogin}
             disabled={isGoogleLoading || isLoading}
           >
@@ -218,7 +218,7 @@ const LoginPage: React.FC = () => {
               <span className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500">
+              <span className="px-4 bg-background text-muted-foreground">
                 atau lanjutkan dengan email
               </span>
             </div>
@@ -239,7 +239,7 @@ const LoginPage: React.FC = () => {
                   placeholder="nama@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-11 h-12 bg-white border-gray-300 focus:ring-2 focus:ring-amber-500 focus:border-transparent text-gray-900"
+                  className="pl-11 h-12 bg-transparent border-border focus:ring-2 focus:ring-amber-500 focus:border-transparent text-foreground placeholder:text-muted-foreground"
                   disabled={isLoading || isGoogleLoading}
                 />
               </div>
@@ -266,7 +266,7 @@ const LoginPage: React.FC = () => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-11 pr-11 h-12 bg-white border-gray-300 focus:ring-2 focus:ring-amber-500 focus:border-transparent text-gray-900"
+                  className="pl-11 pr-11 h-12 bg-transparent border-border focus:ring-2 focus:ring-amber-500 focus:border-transparent text-foreground placeholder:text-muted-foreground"
                   disabled={isLoading || isGoogleLoading}
                 />
                 <button
@@ -304,11 +304,11 @@ const LoginPage: React.FC = () => {
           </form>
 
           {/* Sign Up Link */}
-          <p className="mt-8 text-center text-gray-600">
+          <p className="mt-8 text-center text-muted-foreground">
             Belum punya akun?{' '}
             <Link 
               to="/auth/register" 
-              className="text-amber-600 hover:text-amber-700 font-semibold"
+              className="text-amber-500 hover:text-amber-600 font-semibold"
             >
               Daftar Sekarang
             </Link>
@@ -318,7 +318,7 @@ const LoginPage: React.FC = () => {
           <div className="mt-6 text-center">
             <Link 
               to="/" 
-              className="text-sm text-gray-500 hover:text-gray-700"
+              className="text-sm text-muted-foreground hover:text-foreground"
             >
               ← Kembali
             </Link>

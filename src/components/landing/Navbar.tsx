@@ -129,7 +129,7 @@ const Navbar = () => {
               onClick={() => scrollToSection("#hero")}
               className="group flex-shrink-0"
             >
-              <Logo size="xs" showText={true} />
+              <Logo size="xs" showText={true} forceTheme="dark" />
             </button>
 
             {/* Desktop Navigation */}
@@ -236,7 +236,7 @@ const Navbar = () => {
         >
           {/* Header */}
           <div className="flex items-center justify-between h-14 sm:h-16 px-6 border-b border-border flex-shrink-0">
-            <Logo size="xs" showText={true} />
+            <Logo size="xs" showText={true} forceTheme="dark" />
             <button
               onClick={() => setIsOpen(false)}
               className="p-2 -mr-2 rounded-lg hover:bg-accent transition-colors"
