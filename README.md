@@ -79,7 +79,6 @@ Proyek ini dikembangkan sebagai tugas akhir mata kuliah **Pengembangan Aplikasi 
 
 ### 📑 Pelaporan & Export
 - Laporan inventaris, penjualan, kontak, dan aktivitas
-- **AI-Powered Report Generation** menggunakan Groq AI
 - Export ke PDF, CSV, dan Excel
 - Penjadwalan laporan otomatis
 
